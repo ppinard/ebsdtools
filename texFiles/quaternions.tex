@@ -1,0 +1,565 @@
+\documentclass[letterpaper]{article}
+%------------------------------------------------------------------------------------------
+\title{Equations and Derivations for the Quaternion Python Module}
+\author{Philippe Pinard}
+\date{\today}
+%------------------------------------------------------------------------------------------
+\usepackage[letterpaper,top=2.5cm,bottom=2.5cm,right=2.5cm,left=2.5cm]{geometry}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+%------------------------------------------------------------------------------------------
+%\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{stmaryrd}
+\usepackage{setspace}
+\usepackage{sistyle}
+\usepackage[nothing]{todo}
+\usepackage[version=3]{mhchem}
+\usepackage{fancyhdr}
+\usepackage{paralist}
+%------------------------------------------------------------------------------------------
+\usepackage[
+	pdftitle={Equations and Derivations for the Quaternion Python Module},
+	pdfsubject={Programming notes},
+	pdfkeywords ={Quaternions, Rotation, Python, Derivations},
+	pdfauthor={Philippe Pinard},
+	colorlinks=true,
+	linkcolor=blue,
+	pdfborder=0 0 0,
+	pdfhighlight=/I,
+	pdfpagelabels]{hyperref}
+%------------------------------------------------------------------------------------------
+
+\begin{document}
+%------------------------------------------------------------------------------------------
+	\pagestyle{fancy}
+	\fancyhf{}
+	\setlength{\headheight}{15pt}
+	\setlength{\headsep}{10pt}
+	\lhead{Equations and Derivations for the Quaternion Python Module}
+	\rhead{\today}
+	\lfoot{\emph{Prepared by Philippe Pinard}}
+	\rfoot{\thepage}
+%------------------------------------------------------------------------------------------
+	\newcommand{\dev}{\ensuremath{\ \mathrm{d}}}
+	\renewcommand{\labelitemii}{$\diamond$}
+	\newcommand{\celsius}{^\circ C}
+	\renewcommand{\tablename}{Table}
+	\renewcommand{\figurename}{Figure}
+	\newcommand{\conj}[1]{#1^\ast}
+	\newcommand{\trans}[1]{#1^\mathrm{T}}
+	\newcommand{\vx}{\hat{x}}
+	\newcommand{\vy}{\hat{y}}
+	\newcommand{\vz}{\hat{z}}
+	\newcommand{\trace}[1]{\mathrm{Tr}(#1)}
+	\newcommand{\quaternion}[2]{\llbracket #1, #2 \rrbracket}
+	\newcommand{\quaternionL}[1]{\mathcal{#1}}
+	\newcommand{\norm}[1]{\left\|#1\right\|}
+	\newcommand{\im}{\mathit{i}}
+	\newcommand{\direction}[1]{\left[ #1 \right]}
+	\newcommand{\vecc}[3]{\left(#1,#2,#3\right)}
+	
+	
+	\section{Definitions and Notations}
+	
+	\subsection{Quaternions}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Altmann1986}
+			\end{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item $\quaternionL{A} = \quaternion{a}{\vec{A}}$
+				\item $a$: a real scalar number
+				\item $\vec{A}$: a vector in $\mathbb{R}^3$
+				\item Quaternion algebra obeys to all the usual arithmetical laws except that the multiplication is non-commutative
+			\end{itemize}
+		\item Notation(s)
+			\begin{itemize}
+				\item $\quaternionL{A}$: a quaternion
+				\item $\quaternion{a}{\vec{A}}$: a quaternion composed of a scalar $a$ and a vector $\vec{A}$
+				\item $\vec{A} = \vecc{A_x}{A_y}{A_z}$
+				\item $\quaternion{a}{\vecc{A_x}{A_y}{A_z}}$: other representation of the scalar/vector components of the quaternion
+				\item $\norm{\quaternionL{A}}$: norm of the quaternion
+				\item $\conj{\quaternionL{A}}$: conjugate of the quaternion
+				\item $\quaternionL{A}^{-1}$: inverse of the quaternion
+			\end{itemize}
+		\item Advantage(s)
+			\begin{itemize}
+				\item Easy to determine geometrically as $R\left(\phi\vec{n}\right)$
+				\item They are the only parameters for which the group multiplication rule can be given in closed form
+				\item They behave correctly near the identity whereas the euler angles become undetermined for $\beta=0$ and $\beta=\pi$
+				\item They uniquely determine rotation poles with the convention of the positive hemi-sphere
+					\begin{itemize}
+						\item $z>0$
+						\item if $z=0$, $x>0$
+						\item if $z=0$ and $x=0$, $y>0$
+					\end{itemize}
+				\item Keep track of $2\pi$ turns introduced on multiplying rotations
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Euler Angles}
+	\label{sec:eulerangles}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Rollett2008}
+			\end{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item From Bunge
+				\item Rotation performed from $\theta_1 \rightarrow \theta_2 \rightarrow \theta_3$ where:
+					\begin{enumerate}
+						\item $\theta_1$ is a counter-clockwise rotation around the $\vec{z}$ axis $\direction{001}$: $R\left(\theta_1\vec{z}\right)$
+						\item $\theta_2$ is a counter-clockwise rotation around the $\vec{x}$ axis $\direction{100}$: $R\left(\theta_2\vec{x}\right)$
+						\item $\theta_3$ is a counter-clockwise rotation around the $\vec{z}$ axis $\direction{001}$: $R\left(\theta_3\vec{z}\right)$
+					\end{enumerate}
+				\item Limits
+					\begin{itemize}
+						\item $-\pi < \theta_1 \leq \pi$
+						\item $0 \leq \theta_2 \leq \pi$
+						\item $-\pi < \theta_3 \leq \pi$
+					\end{itemize}
+			\end{itemize}
+	\end{itemize}
+
+%------------------------------------------------------------------------------------------
+
+\newpage
+	\section{Algebra}
+	
+	\subsection{Product}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Altmann1986}
+			\end{itemize}
+		\item Properties
+			\begin{itemize}
+				\item Non-commutative
+					\begin{itemize}
+						\item $\quaternionL{A}\quaternionL{B} \neq \quaternionL{B}\quaternionL{A}$
+					\end{itemize}
+				\item Associative
+					\begin{itemize}
+						\item $\left(\quaternionL{AB}\right)\quaternionL{C}=\quaternionL{A}\left(\quaternionL{BC}\right)$
+					\end{itemize}
+				\item Scalar product
+					\begin{itemize}
+						\item $a\quaternion{b}{\vec{B}} = \quaternion{a}{\vec{0}}\quaternion{b}{\vec{B}}=\quaternion{ab}{a\vec{B}}$
+					\end{itemize}
+				\item Quaternion product
+					\begin{itemize}
+						\item $\quaternionL{C} = \quaternionL{AB} = \quaternion{a}{\vec{A}}\quaternion{b}{\vec{B}} = \quaternion{ab-\vec{A}\bullet\vec{B}}{a\vec{B}+b\vec{A}+\vec{A}\times\vec{B}}$
+							\begin{itemize}
+								\item $c = ab-\vec{A}\bullet\vec{B}$
+								\item $C_x = aB_x + bA_x + \left(\vec{A}\times\vec{B}\right)_x$
+								\item $C_y = aB_y + bA_y + \left(\vec{A}\times\vec{B}\right)_y$
+								\item $C_z = aB_z + bA_z + \left(\vec{A}\times\vec{B}\right)_z$
+							\end{itemize}
+					\end{itemize}
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \cite{Altmann1986} or \url{http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Division}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Altmann1986}
+			\end{itemize}
+		\item Properties
+			\begin{itemize}
+				\item Scalar division
+					\begin{itemize}
+						\item $\frac{\quaternion{a}{\vec{A}}}{a} = \frac{1}{a}\quaternion{a}{\vec{A}}$
+					\end{itemize}
+				\item Quaternion division
+					\begin{itemize}
+						\item $\frac{\quaternion{a}{\vec{A}}}{\quaternion{b}{\vec{B}}} \equiv \quaternion{a}{\vec{A}}\quaternion{b}{\vec{B}}^{-1}$
+						\item We defined this relationship, since $\frac{\quaternionL{A}}{\quaternionL{B}}$ could be equal to $\quaternionL{A}\quaternionL{B}^{-1}$ or $\quaternionL{B}^{-1}\quaternionL{A}$ which doesn't respect the non-commutative rule
+						\item $\quaternion{a}{\vec{A}}\quaternion{b}{\vec{B}}^{-1} = \quaternion{ab + \vec{A}\bullet\vec{B}}{b\vec{A} - a\vec{B} - \vec{A}\times\vec{B}}$
+					\end{itemize}
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \cite{Altmann1986} or \url{http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Addition / Substraction}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Altmann1986}
+			\end{itemize}
+		\item Properties
+			\begin{itemize}
+				\item Addition
+					\begin{itemize}
+						\item $\quaternion{a}{\vec{A}} + \quaternion{b}{\vec{B}} = \quaternion{a + b}{\vec{A} + \vec{B}}$
+					\end{itemize}
+				\item Subtraction
+					\begin{itemize}
+						\item \item $\quaternion{a}{\vec{A}} - \quaternion{b}{\vec{B}} = \quaternion{a - b}{\vec{A} - \vec{B}}$
+					\end{itemize}
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \cite{Altmann1986} or \url{http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Conjugate}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Altmann1986}
+			\end{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item $\conj{\quaternionL{A}} = \conj{\quaternion{a}{\vec{A}}} = \quaternion{a}{-\vec{A}}$
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \cite{Altmann1986} or \url{http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/functions/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Norm}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Altmann1986} and \cite{Baker2008}
+			\end{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item $\norm{\quaternionL{A}} = \quaternionL{A}\conj{\quaternionL{A}}$
+				\item $\norm{\quaternion{a}{\vec{A}}} = \quaternion{a}{\vec{A}}\conj{\quaternion{a}{\vec{A}}}$
+				\item $\norm{\quaternion{a}{\vec{A}}} = \sqrt{a^2 + A_x^2 + A_y^2 + A_z^2}$
+			\end{itemize}
+		\item Properties
+			\begin{itemize}
+				\item $\quaternionL{A} = \quaternion{\cos\alpha}{\sin\alpha\vec{n}} = \cos\alpha + \sin\alpha\quaternionL{N}$, $\norm{\vec{n}} = 1$
+				\item or $\mathcal{A} = \quaternion{\cos\frac{\phi}{2}}{\sin\frac{\phi}{2}\vec{n}}$ (as in Euler-Rodrigues)
+				\item The product of 2 normalized quaternions is itself a normalized quaternion
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \cite{Altmann1986} or \url{http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/functions/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Inverse}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Altmann1986}
+			\end{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item $\quaternionL{A}^{-1} = \conj{\quaternionL{A}}\norm{\mathcal{A}}^{-2}$
+				\item $\quaternionL{C} = \quaternionL{A}\quaternionL{B}^{-1} = \quaternionL{A}\conj{\quaternionL{B}}\norm{\quaternionL{B}}^{-2}$ if $\quaternionL{B} \neq \quaternion{0}{\vec{0}}$
+				\item For normalized quaternion, $\quaternionL{A}^{-1} = \conj{\quaternionL{A}}$
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \cite{Altmann1986} or \url{http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/functions/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Equality}
+	\begin{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item Two quaternions ($\quaternionL{A}$ and $\quaternionL{B}$) are equal if and only if
+					\begin{itemize}
+						\item $a = b$
+						\item $A_x = B_x$
+						\item $A_y = B_y$
+						\item $A_z = B_z$
+					\end{itemize}
+			\end{itemize}
+	\end{itemize}
+	
+%------------------------------------------------------------------------------------------
+
+\newpage
+	\section{Conversion}
+	
+	\subsection{Axis Angle to Quaternion}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Baker2008}
+			\end{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item $\phi$: Rotation angle
+				\item $\vec{n}$: Rotation axis
+			\end{itemize}
+		\item Equation(s)
+			\begin{itemize}
+				\item $\left(\phi,\vec{n}\right) \rightarrow \quaternion{\cos{\frac{1}{2}\phi}}{\frac{\sin{\frac{1}{2}\phi}}{\norm{\vec{n}}} \vec{n}}$
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \url{http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Matrix to Quaternion}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Baker2008}
+			\end{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item $m$: a $3\times 3$ orthogonal matrix (i.e.\ SO3)
+					\begin{itemize}
+						\item $\mathrm{Det}(m) = 1$
+						\item $\trace{m} > 0$
+					\end{itemize}
+				\item $m_{ij}$: element of matrix $m$ in row $i$ and column $j$
+			\end{itemize}
+		\item Equation(s)
+			\begin{itemize}
+				\item $a = \frac{1}{2}\sqrt{1 + m_{00} + m_{11} + m_{22}} = \frac{1}{2}\sqrt{1 + \trace{m}}$
+				\item $A_x = \frac{m_{21} - m_{12}}{4a}$
+				\item $A_y = \frac{m_{02} - m_{20}}{4a}$
+				\item $A_z = \frac{m_{10} - m_{01}}{4a}$
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \url{http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Euler Angles to Quaternion}
+	\label{sec:eulerquaternion}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item Adaptation from \cite{Baker2008}, \cite{Rollett2008} and \cite{Wikipedia2008e}
+			\end{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item $\theta_1, \theta_2, \theta_3$: see \ref{sec:eulerangles}
+				\item $c_i \equiv \cos{\left(\frac{1}{2}\theta_i\right)}$ and $s_i \equiv \sin{\left(\frac{1}{2}\theta_i\right)}$
+			\end{itemize}
+		\item Equation(s)
+			\begin{itemize}
+				\item $a = c_1c_2c_3 - s_1c_2s_3$
+				\item $A_x = c_1s_2c_3 + s_1s_2s_3$
+				\item $A_y = c_1s_2s_3 - s_1s_2c_3$
+				\item $A_z = c_1c_2s_3 + s_1c_2c_3$
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item Three rotations
+					\begin{enumerate}
+						\item $Q_1 = \quaternion{c_1}{\vecc{0}{0}{s_1}}$
+						\item $Q_2 = \quaternion{c_2}{\vecc{s_2}{0}{0}}$
+						\item $Q_3 = \quaternion{c_3}{\vecc{0}{0}{s_3}}$
+					\end{enumerate}
+				\item Overall rotation
+					\begin{itemize}
+						\item $Q_T = Q_3 Q_2 Q_1 = \left(Q_3 Q_2\right) Q_1 = Q_3 \left(Q_2 Q_1\right)$
+					\end{itemize}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Quaternion to Axis Angle}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Baker2008}
+			\end{itemize}
+		\item Equation(s)
+			\begin{itemize}
+				\item $\norm{\quaternion{a}{A}} = 1$ (the quaternion has to be normalized)
+				\item $d = \sqrt{1 - a^2}$
+				\item $\phi = 2\arccos{a}$
+				\item If $d \neq 0$: $\vec{n} = \frac{1}{d}\vec{A}$
+				\item If $d \neq 0$: $\vec{n} = \vec{A}$
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \url{http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Quaternion to Matrix}
+	\label{sec:quaternionmatrix}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item \cite{Baker2008}
+			\end{itemize}
+		\item Equation(s)
+			\begin{itemize}
+				\item $\norm{\quaternion{a}{A}} = 1$ (the quaternion has to be normalized)
+				\item $m = \left(\begin{array}{ccc}
+												 1 - 2A_y^2 - 2A_z^2		& 2A_xA_y - 2A_za 		& 2A_xA_z + 2A_ya 		\\
+												 2A_xA_y + 2A_za 				& 1 - 2A_x^2 - 2A_z^2 & 2A_yA_z - 2A_xa 		\\
+												 2A_xA_z - 2A_ya 				& 2A_yA_z + 2A_xa 		& 1 - 2A_x^2 - 2A_y^2 
+												\end{array} \right)$
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item \url{http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm}
+			\end{itemize}
+	\end{itemize}
+	
+	\subsection{Quaternion to Euler Angles}
+	\begin{itemize}
+		\item Reference(s)
+			\begin{itemize}
+				\item Adaptation from \cite{Baker2008}, \cite{Rollett2008} and \cite{Wikipedia2008e}
+			\end{itemize}
+		\item Definition(s)
+			\begin{itemize}
+				\item $\theta_1, \theta_2, \theta_3$: see \ref{sec:eulerangles}
+				\item $c_i \equiv \cos{\left(\frac{1}{2}\theta_i\right)}$ and $s_i \equiv \sin{\left(\frac{1}{2}\theta_i\right)}$
+			\end{itemize}
+		\item Equation(s)
+			\begin{itemize}
+				\item $\norm{\quaternion{a}{A}} = 1$ (the quaternion has to be normalized)
+				\item Three cases
+					\begin{enumerate}
+						\item $\theta_2 = 0$ ($A_x = A_y = 0$)
+							\begin{itemize}
+								\item $\theta_1 = 2\arctan{\left(\frac{A_z}{a}\right)}$
+								\item $\theta_2 = 0$
+								\item $\theta_3 = 0$
+							\end{itemize}
+						\item $\theta_2 = \pi$ ($A_x^2 + A_y^2 = 1$)
+							\begin{itemize}
+								\item $\theta_1 = 2\arctan{\left(\frac{A_y}{A_x}\right)}$
+								\item $\theta_2 = \pi$
+								\item $\theta_3 = 0$
+							\end{itemize}
+						\item $0 < \theta_2 < \pi$
+							\begin{itemize}
+								\item $\theta_1 = \arctan{\left(\frac{A_xA_z - A_ya}{A_yA_z + A_xa}\right)}$
+								\item $\theta_2 = \arccos{\left(1 - 2A_x^2 - A_y^2\right)}$
+								\item $\theta_3 = \arctan{\left(\frac{A_xA_z + A_ya}{A_xa - A_yA_z}\right)}$
+							\end{itemize}
+					\end{enumerate}
+			\end{itemize}
+		\item Derivation(s)
+			\begin{itemize}
+				\item From the Euler to Matrix we get
+					\begin{itemize}
+						\item $m_\text{euler} = \left(\begin{array}{ccc}
+																						c_1c_3 - s_1c_2s_3 			& -s_1c_3 - c_1c_2s_3 			& s_2s_3			\\
+																						s_1c_2c_3 + c_1s_3 			& c_1c_2c_3 - s_1s_3				& -s_2c_3			\\
+																						s_1s_2									& c_1s_2										& c_2					
+																					\end{array} \right)$
+						\item We can get the euler angles from these relationships
+							\begin{itemize}
+								\item $\tan\theta_1 = \frac{m_{20}}{m_{21}} = \frac{s_1}{c_1} = \frac{s_1s_2}{c_1s_2}$
+								\item $\cos\theta_2 = m_{22}$
+								\item $\tan\theta_3 = -\frac{m_{02}}{m_{12}} = -\frac{s_3}{c_3} = -\frac{s_2s_3}{s_2c_3}$
+							\end{itemize}
+					\end{itemize}
+				\item By comparing with the quaternion matrix (see \ref{sec:quaternionmatrix}), we get replace the $m_{ij}$ by the quaternion coefficients
+				\item For the 2 special cases, where the $c_2$ is not defined
+					\begin{enumerate}
+						\item $\theta_2 = 0$
+							\begin{itemize}
+								\item This condition happens when
+									\begin{itemize}
+										\item $\arccos{0} = 1 = 1 - 2A_x^2 - 2A_y^2$
+										\item $A_x^2 = - A_y^2$
+										\item $A_x = A_y = 0$
+									\end{itemize}
+								\item $\theta_2 = 0$ implies that $\cos{\left(\frac{1}{2} 0\right)} = c_2 = 1$ and $\sin{\left(\frac{1}{2} 0\right)} = s_2 = 0$
+								\item From the Euler to quaternion conversion (see \ref{sec:eulerquaternion})
+									\begin{itemize}
+										\item $a = c_1c_2c_3 - s_1c_2s_3 = c_1c_3 - s_1s_3$
+										\item $A_x = 0$
+										\item $A_y = 0$
+										\item $A_z = c_1c_2s_3 + s_1c_2c_3 = c_1s_3 + s_1c_3$
+									\end{itemize}
+								\item Using the trigonometry identities:
+									\begin{itemize}
+										\item $\cos{\left(A+B\right)} = \cos{A}\cos{B} - \sin{A}\sin{B}$
+										\item $\sin{\left(A+B\right)} = \sin{A}\cos{B} + \cos{A}\sin{B}$
+									\end{itemize}
+								\item We obtained
+									\begin{itemize}
+										\item $a = \cos{\left(1+3\right)}$
+										\item $A_z = \sin{\left(1+3\right)}$
+									\end{itemize}
+								\item By dividing $A_z$ by $a$:
+									\begin{itemize}
+										\item $\frac{A_z}{a} = \frac{\sin{\left(1+3\right)}}{\cos{\left(1+3\right)}} = \tan{\left(1+3\right)}$
+										\item $\frac{\theta_1}{2} + \frac{\theta_3}{2} = \arctan{\left(\frac{A_z}{a}\right)}$
+										\item $\theta_1 + \theta_3 = 2\arctan{\left(\frac{A_z}{a}\right)}$
+									\end{itemize}
+								\item Since ``only ($\theta_1 + \theta_3$) is uniquely defined (not the individual values)''\cite{Wikipedia2008e} when $\theta_2 = 0$
+									\begin{itemize}
+										\item $\theta_1 = 2\arctan{\left(\frac{A_z}{a}\right)}$
+										\item $\theta_2 = 0$ (from the special case)
+										\item $\theta_3 = 0$
+									\end{itemize}
+							\end{itemize}
+						\item $\theta_2 = \pi$
+							\begin{itemize}
+								\item This condition happens when
+									\begin{itemize}
+										\item $\arccos{\pi} = -1 = 1 - 2A_x^2 - 2A_y^2$
+										\item $A_x^2 + A_y^2 = 1$
+										\item Since the quaternion is normalized ($a^2 + A_x^2 + A_y^2 + A_z^2 = 1$), $a = A_z = 0$
+									\end{itemize}
+								\item $\theta_2 = \pi$ implies that $\cos{\left(\frac{1}{2} \pi\right)} = c_2 = 0$ and $\sin{\left(\frac{1}{2} \pi\right)} = s_2 = 1$
+								\item From the Euler to quaternion conversion (see \ref{sec:eulerquaternion})
+									\begin{itemize}
+										\item $a = 0$
+										\item $A_x = c_1s_2c_3 + s_1s_2s_3 = c_1c_3 + s_1s_3$
+										\item $A_y = c_1s_2s_3 - s_1s_2c_3 = c_1s_3 - s_1c_3$
+										\item $A_z = 0$
+									\end{itemize}
+								\item Using the trigonometry identities:
+									\begin{itemize}
+										\item $\cos{\left(A-B\right)} = \cos{A}\cos{B} + \sin{A}\sin{B}$
+										\item $\sin{\left(A-B\right)} = \sin{A}\cos{B} - \cos{A}\sin{B}$
+									\end{itemize}
+								\item We obtained
+									\begin{itemize}
+										\item $A_x = \cos{\left(1-3\right)}$
+										\item $A_y = -\sin{\left(1-3\right)}$
+									\end{itemize}
+								\item By dividing $A_y$ by $A_x$:
+									\begin{itemize}
+										\item $\frac{A_y}{A_x} = \frac{-\sin{\left(1-3\right)}}{\cos{\left(1-3\right)}} = -\tan{\left(1-3\right)}$
+										\item $\frac{\theta_1}{2} - \frac{\theta_3}{2} = \arctan{\left(\frac{-A_y}{A_x}\right)}$
+										\item $\theta_1 - \theta_3 = 2\arctan{\left(\frac{-A_y}{A_x}\right)}$
+									\end{itemize}
+								\item Since ``only ($\theta_1 - \theta_3$) is uniquely defined (not the individual values)''\cite{Wikipedia2008e} when $\theta_2 = \pi$
+									\begin{itemize}
+										\item $\theta_1 = 2\arctan{\left(\frac{-A_y}{A_x}\right)}$
+										\item $\theta_2 = \pi$ (from the special case)
+										\item $\theta_3 = 0$
+									\end{itemize}
+							\end{itemize}
+					\end{enumerate}
+			\end{itemize}
+	\end{itemize}
+	
+	\bibliographystyle{plain}
+	\bibliography{bibliography}
+
+\end{document}
