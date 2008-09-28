@@ -249,6 +249,15 @@ def cross(v1, v2):
                   , v1[2]*v2[0] - v1[0]*v2[2]
                   , v1[0]*v2[1] - v1[1]*v2[0])
   
+def angle(v1, v2):
+  costheta = dot(v1, v2) / (v1.norm() * v2.norm())
+  
+  if costheta >= 1.0:
+    return 0
+  elif costheta <= -1.0:
+    return pi
+  else:
+    return math.acos(costheta)
 
 if __name__ == "__main__":
   a = vector([0,0,1])
