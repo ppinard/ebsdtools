@@ -539,7 +539,7 @@ if __name__ == '__main__':
   v1 = quaternion(0, (h,k,l))
   r1 = q1 * v1 * q1.conjugate()
   
-  print str(r1)
+  print r1
   print r1.toAxisAngle()
   
   h70 = h
