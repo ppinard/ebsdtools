@@ -46,21 +46,17 @@ def axisAngleToQuaternion(*data):
   """
   
   if len(data) == 2:
-    nx = data[1][0]
-    ny = data[1][1]
-    nz = data[1][2]
+    n = vectors.vector(data[1][0], data[1][1], data[1][2])
   elif len(data) == 4:
-    nx = data[1]
-    ny = data[2]
-    nz = data[3]
+    n = vectors.vector(data[1], data[2], data[3])
   
-  norm = pow(nx**2 + ny**2 + nz**2, 0.5)
+  norm = n.norm()
   multiplier = sin(0.5*data[0])
   
   return quaternion(cos(0.5*data[0])
-                      , nx * multiplier / norm
-                      , ny * multiplier / norm
-                      , nz * multiplier / norm)
+                      , n[0] * multiplier / norm
+                      , n[1] * multiplier / norm
+                      , n[2] * multiplier / norm)
 
 def matrixtoQuaternion(m):
   """
@@ -173,19 +169,19 @@ class quaternion:
     
     if len(data) == 0:
       self._a = 0
-      self._A = [0,0,0]
+      self._A = vectors.vector(0,0,0)
     elif len(data) == 1:
       self._a = data[0]
-      self._A = [0,0,0]
+      self._A = vectors.vector(0,0,0)
     elif len(data) == 2:
       self._a = data[0]
-      self._A = list(data[1])
+      self._A = vectors.vector(data[1])
     elif len(data) == 3:
       self._a = 0
-      self._A = [data[0], data[1], data[2]]
+      self._A = vectors.vector(data[0], data[1], data[2])
     elif len(data) == 4:
       self._a = data[0]
-      self._A = [data[1], data[2], data[3]]
+      self._A = vectors.vector(data[1], data[2], data[3])
     
   def __getitem__(self, index):
     """
@@ -219,7 +215,7 @@ class quaternion:
       else:
         self._A[index-1] = value
   
-  def __str__(self):
+  def __repr__(self):
     """
       Return a tuple with the four quaternion coefficients
     """
@@ -245,9 +241,9 @@ class quaternion:
     qOut = quaternion()
     
     if isinstance(other, quaternion):
-      qOut[0] = self._a * other._a - vectors.dotproduct(self._A, other._A)
+      qOut[0] = self._a * other._a - vectors.dot(self._A, other._A)
       
-      v3 = vectors.crossproduct(self._A, other._A)
+      v3 = vectors.cross(self._A, other._A)
       for i in [0,1,2]:
         qOut[i+1] = self._a * other._A[i] + other._a * self._A[i] + v3[i]
       
@@ -274,9 +270,9 @@ class quaternion:
     qOut = quaternion()
     
     if isinstance(other, quaternion):
-      qOut[0] = other._a * self._a - vectors.dotproduct(other._A, self._A)
+      qOut[0] = other._a * self._a - vectors.dot(other._A, self._A)
       
-      v3 = vectors.crossproduct(other._A, self._A)
+      v3 = vectors.cross(other._A, self._A)
       for i in [0,1,2]:
         qOut[i+1] = other._a * self._A[i] + self._a * other._A[i] + v3[i]
       
@@ -307,6 +303,7 @@ class quaternion:
   
   def __rdiv__(self, other):
     pass
+  #TODO: Fix __rdiv__
   
   def __add__(self, other):
     """

@@ -27,10 +27,6 @@ import math
 # Local modules.
 
 class vector:
-  """
-        A list based vector class
-  """
-  # no c'tor
   def __init__(self, *data):
     """
       A vector of n elements 
@@ -49,368 +45,217 @@ class vector:
         self.vector.append(datum)
 
   def __repr__(self):
-    return
+    """
+      Return a string representation of the vector
+    """
+    return str(self.vector)
 
-  def __getslice__(self, i, j):
-    try:
-      return vector(super(vector, self).__getslice__(i,j))
-    except:
-      raise TypeError, 'vector::FAILURE in __getslice__'
-    
+  def __getslice__(self, low, high):
+    """
+      Return a slide of the vector depending on the low and high values
+    """
+    return vector(self.vector[low:high])
+  
+  def __getitem__(self, key):
+    """
+      Return the value of a component 
+    """
+    return self.vector[key]
+  
+  def __setitem__(self, key, value):
+    """
+      Set value to the vector key
+    """
+    if key >= 0 and key < len(self.vector):
+      self.vector[key] = value
+  
+  def __delitem__(self, key):
+    """
+      Delete a component
+    """
+    if key >= 0 and key < len(self.vector):
+      del self.vector[key]
+  
+  def __lt__(self, other):
+    """
+      Comparison of two vectors: Less than
+    """
+    if len(self.vector) == len(other.vector):
+      if sum(self.vector) < sum(other.vector):
+        return True
+      else:
+        return False
+    else:
+      if len(self.vector) < len(other.vector):
+        return True
+      else:
+        return False
+  
+  def __le__(self, other):
+    """
+      Comparison of two vectors: Less or equal than
+    """
+    if len(self.vector) == len(other.vector):
+      if sum(self.vector) <= sum(other.vector):
+        return True
+      else:
+        return False
+    else:
+      if len(self.vector) <= len(other.vector):
+        return True
+      else:
+        return False
+  
+  def __gt__(self, other):
+    """
+      Comparison of two vectors: Greater than
+    """
+    if len(self.vector) == len(other.vector):
+      if sum(self.vector) > sum(other.vector):
+        return True
+      else:
+        return False
+    else:
+      if len(self.vector) > len(other.vector):
+        return True
+      else:
+        return False
+  
+  def __ge__(self, other):
+    """
+      Comparison of two vectors: Greater or equal than
+    """
+    if len(self.vector) == len(other.vector):
+      if sum(self.vector) >= sum(other.vector):
+        return True
+      else:
+        return False
+    else:
+      if len(self.vector) >= len(other.vector):
+        return True
+      else:
+        return False
+
+  def __eq__(self, other):
+    """
+      Comparison of two vectors: Equal
+    """
+    if len(self.vector) == len(other.vector):
+      for i in range(len(self.vector)):
+        if self.vector[i] != other.vector[i]:
+          return False
+      
+      return True
+    else:
+      return False
+  
+  def __ne__(self, other):
+    """
+      Comparison of two vectors: Not equal
+    """
+    return not self == other
+
   def __add__(self, other):
-    print map(lambda x,y: x+y, self, other)
-    return 0
-    return vector(map(lambda x,y: x+y, self, other))
+    """
+      Addition of two vectors
+    """
+    output = []
+    if len(self.vector) == len(other.vector):
+      for i in range(len(self.vector)):
+        output.append(self.vector[i] + other.vector[i])
+    
+    return vector(output)
 
   def __neg__(self):
-    return vector(map(lambda x: -x, self))
+    """
+      Negation of a vector
+    """
+    output = []
+    for i in range(len(self.vector)):
+      output.append(-self.vector[i])
+    
+    return vector(output)
   
   def __sub__(self, other):
-    return vector(map(lambda x,y: x-y, self, other))
-
+    """
+      Addition of two vectors
+    """
+    output = []
+    if len(self.vector) == len(other.vector):
+      for i in range(len(self.vector)):
+        output.append(self.vector[i] - other.vector[i])
+    
+    return vector(output)
+  
   def __mul__(self, other):
     """
-      Element by element multiplication
+      Multiplication by a scalar
     """
-    try:
-      return vector(map(lambda x,y: x*y, self,other))
-    except:
-      # other is a const
-      return vector(map(lambda x: x*other, self))
+    if isinstance(other, float) or isinstance(other, int):
+      output = []
+      for i in range(len(self.vector)):
+        output.append(self.vector[i] * other)
+    
+    return vector(output)
 
   def __rmul__(self, other):
-    return (self*other)
-
+    return self*other
 
   def __div__(self, other):
     """
-      Element by element division.
+      Division by a scalar
     """
-    try:
-      return vector(map(lambda x,y: x/y, self, other))
-    except:
-      return vector(map(lambda x: x/other, self))
-
-  def __rdiv__(self, other):
-    """
-      The same as __div__
-    """
-    try:
-      return vector(map(lambda x,y: x/y, other, self))
-    except:
-      # other is a const
-      return vector(map(lambda x: other/x, self))
+    return self * (1/float(other))
 
   def __len__(self):
-    return norm(self)
+    return len(self.vector)
 
-  def size(self): 
-    return len(self)
-
-  def conjugate(self):
-    return vector(map(lambda x: x.conjugate(), self))
-
-  def ReIm(self):
+  def norm(self):
     """
-      Return the real and imaginary parts
+      Return the norm of the vector
     """
-    return [
-      vector(map(lambda x: x.real, self)),
-      vector(map(lambda x: x.imag, self)),
-      ]
-  
-  def AbsArg(self):
+    return math.sqrt(dot(self, self))
+
+  def normalize(self):
     """
-      Return modulus and phase parts
+      Return a normalized vector
     """
-    return [
-      vector(map(lambda x: abs(x), self)),
-      vector(map(lambda x: math.atan2(x.imag,x.real), self)),
-      ]
+    norm = self.norm()
+    
+    output = []
+    for i in range(len(self.vector)):
+      output.append(self.vector[i] / norm)
+    
+    return vector(output)
 
-  def out(self):
-      """
-      Prints out the vector.
-      """
-      print self
+def dot(v1, v2):
+  """
+    Return the dot product between v1 and v2 
+  """
+  product = 0.0
+  
+  if len(v1) == len(v2):
+    for i in range(len(v1)):
+      product += v1[i]*v2[i]
+  
+  return product
 
-###############################################################################
-
-
-def isVector(x):
+def cross(v1, v2):
   """
-    Determines if the argument is a vector class object.
+    Return the cross product of v1 and v2
   """
-  return hasattr(x,'__class__') and x.__class__ is vector
-
-def zeros(n):
-  """
-    Returns a zero vector of length n.
-  """
-  return vector(map(lambda x: 0., range(n)))
-
-def ones(n):
-  """
-    Returns a vector of length n with all ones.
-  """
-  return vector(map(lambda x: 1., range(n)))
-
-def dot(a, b):
-  """
-    dot product of two vectors.
-  """
-  try:
-    return reduce(lambda x, y: x+y, a*b, 0.)
-  except:
-    raise TypeError, 'vector::FAILURE in dot'
+  if len(v1) == len(v2) and len(v1) == 3:
+    return vector(v1[1]*v2[2] - v1[2]*v2[1]
+                  , v1[2]*v2[0] - v1[0]*v2[2]
+                  , v1[0]*v2[1] - v1[1]*v2[0])
   
 
-def norm(a):
-  """
-    Computes the norm of vector a.
-  """
-#  try:
-  return math.sqrt(abs(dot(a,a)))
-#  except:
-#    raise TypeError, 'vector::FAILURE in norm'
-
-def sum(a):
-  """
-    Returns the sum of the elements of a.
-  """
-  try:
-    return reduce(lambda x, y: x+y, a, 0)
-  except:
-    raise TypeError, 'vector::FAILURE in sum'
-
-# elementwise operations
-  
-def log10(a):
-  """
-    log10 of each element of a.
-  """
-  try:
-    return vector(map(math.log10, a))
-  except:
-    raise TypeError, 'vector::FAILURE in log10'
-
-def log(a):
-  """
-    log of each element of a.
-  """
-  try:
-    return vector(map(math.log, a))
-  except:
-    raise TypeError, 'vector::FAILURE in log'
-      
-def exp(a):
-  """
-    Elementwise exponential.
-  """
-  try:
-    return vector(map(math.exp, a))
-  except:
-    raise TypeError, 'vector::FAILURE in exp'
-
-def sin(a):
-  """
-    Elementwise sine.
-  """
-  try:
-    return vector(map(math.sin, a))
-  except:
-    raise TypeError, 'vector::FAILURE in sin'
-      
-def tan(a):
-  """
-    Elementwise tangent.
-  """
-  try:
-    return vector(map(math.tan, a))
-  except:
-    raise TypeError, 'vector::FAILURE in tan'
-      
-def cos(a):
-  """
-    Elementwise cosine.
-  """
-  try:
-    return vector(map(math.cos, a))
-  except:
-    raise TypeError, 'vector::FAILURE in cos'
-
-def asin(a):
-  """
-    Elementwise inverse sine.
-  """
-  try:
-    return vector(map(math.asin, a))
-  except:
-    raise TypeError, 'vector::FAILURE in asin'
-
-def atan(a):
-  """
-    Elementwise inverse tangent.
-  """  
-  try:
-    return vector(map(math.atan, a))
-  except:
-    raise TypeError, 'vector::FAILURE in atan'
-
-def acos(a):
-  """
-    Elementwise inverse cosine.
-  """
-  try:
-    return vector(map(math.acos, a))
-  except:
-    raise TypeError, 'vector::FAILURE in acos'
-
-def sqrt(a):
-  """
-    Elementwise sqrt.
-  """
-  try:
-    return vector(map(math.sqrt, a))
-  except:
-    raise TypeError, 'vector::FAILURE in sqrt'
-
-def sinh(a):
-  """
-    Elementwise hyperbolic sine.
-  """
-  try:
-    return vector(map(math.sinh, a))
-  except:
-    raise TypeError, 'vector::FAILURE in sinh'
-
-def tanh(a):
-  """
-    Elementwise hyperbolic tangent.
-  """
-  try:
-    return vector(map(math.tanh, a))
-  except:
-    raise TypeError, 'vector::FAILURE in tanh'
-
-def cosh(a):
-  """
-    Elementwise hyperbolic cosine.
-  """
-  try:
-    return vector(map(math.cosh, a))
-  except:
-    raise TypeError, 'vector::FAILURE in cosh'
-
-
-def pow(a,b):
-  """
-    Takes the elements of a and raises them to the b-th power
-  """
-  try:
-    return vector(map(lambda x: x**b, a))
-  except:
-    try:
-      return vector(map(lambda x,y: x**y, a, b))
-    except:
-      raise TypeError, 'vector::FAILURE in pow'
-  
-def atan2(a,b):    
-  """
-    Arc tangent
-  """
-  try:
-    return vector(map(math.atan2, a, b))
-  except:
-    raise TypeError, 'vector::FAILURE in atan2'
-  
-
-###############################################################################
 if __name__ == "__main__":
-  a = vector([1,0,0])
-  b = vector(1,0,1)
+  a = vector([0,0,1])
+  b = vector(1,0,0)
+  e = vector(1.0,0,0)
   c = vector(1)
-#  print 'a = zeros(4)'
-#  a = zeros(4)
-#
-#  print 'a.__doc__=',a.__doc__
-#
-#  print 'a[0] = 1.0'
-#  a[0] = 1.0
-#
-#  print 'a[3] = 3.0'
-#  a[3] = 3.0
-#
-#  print 'a[0]=', a[0]
-#  print 'a[1]=', a[1]
-#
-##  print 'len(a)=',len(a)
-##  print 'a.size()=', a.size()
-#      
-#  b = vector([1, 2, 3, 4])
-#  print 'a=', a
-#  print 'b=', b
-#
-#  c = a+b
-#  print 'a+b'
-#  c = a + b
-#  print c
-
-#  print '-a'
-#  c = -a
-#  c.out()
-#  a.out()
-#
-#  print 'a-b'
-#  c = a - b
-#  c.out()
-#
-#  print 'a*1.2'
-#  c = a*1.2
-#  c.out()
-#
-#
-#  print '1.2*a'
-#  c = 1.2*a
-#  c.out()
-#  print 'a=', a
-#
-#  print 'dot(a,b) = ', dot(a,b)
-#  print 'dot(b,a) = ', dot(b,a)
-#
-#  print 'a*b'
-#  c = a*b
-#  c.out()
-#  
-#  print 'a/1.2'
-#  c = a/1.2
-#  c.out()
-#
-#  print 'a[0:2]'
-#  c = a[0:2]
-#  c.out()
-#
-#  print 'a[2:5] = [9.0, 4.0, 5.0]'
-#  a[2:5] = [9.0, 4.0, 5.0]
-#  a.out()
-#
-#  print 'sqrt(a)=',sqrt(a)
-#  print 'pow(a, 2*ones(len(a)))=',pow(a, 2*ones(len(a)))
-#  print 'pow(a, 2)=',pow(a, 2*ones(len(a)))
-#
-#  print 'ones(10)'
-#  c = ones(10)
-#  c.out()
-#
-#  print 'zeros(10)'
-#  c = zeros(10)
-#  c.out()  
-#
-#  print 'del a'
-#  del a
-#
-#  try:
-#    a = random(11, 0., 2.)
-#    a.out()
-#
-#  except: pass
+  
+  d = a.normalize()
+  print a < b, a <= b, a > b, a >= b, a == b, a != b
+  print b == e, b != e
