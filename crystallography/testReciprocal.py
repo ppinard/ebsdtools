@@ -22,6 +22,7 @@ from math import pi, sin, cos, sqrt
 
 # Local modules.
 import reciprocal
+import mathTools.vectors as vectors
 
 # Globals and constants variables.
 
@@ -182,6 +183,15 @@ class TestReciprocal(unittest.TestCase):
     self.assertAlmostEqual(self.Ltriclinic.gamma_, 2.5823, 3)
     self.assertAlmostEqual(self.Ltriclinic.volume, 2.5187, 3)
     self.assertAlmostEqual(self.Ltriclinic.volume_, 0.3970, 3)
+  
+  def testPlaneSpacing(self):
+    planes = []
+    
+    #cubic
+    for plane in planes:
+      d2_1 = (plane[0]**2 + plane[1]**2 + plane[2]**2) / self.Lcubic.a**2 
+      print reciprocal.planeSpacing(plane, self.Lcubic)
+
 
 if __name__ == '__main__':
   logging.getLogger().setLevel(logging.DEBUG)
