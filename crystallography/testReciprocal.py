@@ -23,6 +23,8 @@ from math import pi, sin, cos, sqrt
 # Local modules.
 import reciprocal
 import mathTools.vectors as vectors
+import lattice
+from mathTools.mathExtras import _acos
 
 # Globals and constants variables.
 
@@ -31,13 +33,13 @@ class TestReciprocal(unittest.TestCase):
   def setUp(self):
     unittest.TestCase.setUp(self)
     
-    self.Lcubic = reciprocal.lattice(a=2, b=2, c=2, alpha=pi/2, beta=pi/2, gamma=pi/2)
-    self.Ltetragonal = reciprocal.lattice(a=2, b=2, c=3, alpha=pi/2, beta=pi/2, gamma=pi/2)
-    self.Lorthorhombic = reciprocal.lattice(a=1, b=2, c=3, alpha=pi/2, beta=pi/2, gamma=pi/2)
-    self.Lrhombohedral = reciprocal.lattice(a=2, b=2, c=2, alpha=35.0/180*pi, beta=35.0/180*pi, gamma=35.0/180*pi)
-    self.Lhexagonal = reciprocal.lattice(a=2, b=2, c=3, alpha=pi/2, beta=pi/2, gamma=120.0/180*pi)
-    self.Lmonoclinic = reciprocal.lattice(a=1, b=2, c=3, alpha=pi/2, beta=55.0/180*pi, gamma=pi/2)
-    self.Ltriclinic = reciprocal.lattice(a=1, b=2, c=3, alpha=75.0/180*pi, beta=55.0/180*pi, gamma=35.0/180*pi)
+    self.Lcubic = lattice.Lattice(a=2, b=2, c=2, alpha=pi/2, beta=pi/2, gamma=pi/2)
+    self.Ltetragonal = lattice.Lattice(a=2, b=2, c=3, alpha=pi/2, beta=pi/2, gamma=pi/2)
+    self.Lorthorhombic = lattice.Lattice(a=1, b=2, c=3, alpha=pi/2, beta=pi/2, gamma=pi/2)
+    self.Lrhombohedral = lattice.Lattice(a=2, b=2, c=2, alpha=35.0/180*pi, beta=35.0/180*pi, gamma=35.0/180*pi)
+    self.Lhexagonal = lattice.Lattice(a=2, b=2, c=3, alpha=pi/2, beta=pi/2, gamma=120.0/180*pi)
+    self.Lmonoclinic = lattice.Lattice(a=1, b=2, c=3, alpha=pi/2, beta=55.0/180*pi, gamma=pi/2)
+    self.Ltriclinic = lattice.Lattice(a=1, b=2, c=3, alpha=75.0/180*pi, beta=55.0/180*pi, gamma=35.0/180*pi)
     
     self.planes = [vectors.vector(1,0,0),
                    vectors.vector(1,1,0),
@@ -248,17 +250,17 @@ class TestReciprocal(unittest.TestCase):
         
         #cubic
         cosphi = (h1*h2 + k1*k2 + l1*l2) / sqrt((h1**2+k1**2+l1**2)*(h2**2+k2**2+l2**2))
-        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lcubic), reciprocal._acos(cosphi), 3)
+        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lcubic), _acos(cosphi), 3)
         
         #tetragonal
         cosphi = ((h1*h2 + k1*k2)/self.Ltetragonal.a**2 + l1*l2/self.Ltetragonal.c**2) / \
                   sqrt(((h1**2+k1**2)/self.Ltetragonal.a**2 + l1**2/self.Ltetragonal.c**2)*((h2**2+k2**2)/self.Ltetragonal.a**2 + l2**2/self.Ltetragonal.c**2))
-        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Ltetragonal), reciprocal._acos(cosphi), 3)
+        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Ltetragonal), _acos(cosphi), 3)
         
         #hexagonal
         cosphi = (h1*h2 + k1*k2 + 0.5*(h1*k2 + h2*k1) + (3*self.Lhexagonal.a**2)/(4*self.Lhexagonal.c**2)*l1*l2) / \
                   sqrt((h1**2 + k1**2 + h1*k1 + (3*self.Lhexagonal.a**2)/(4*self.Lhexagonal.c**2)*l1**2)*(h2**2 + k2**2 + h2*k2 + (3*self.Lhexagonal.a**2)/(4*self.Lhexagonal.c**2)*l2**2))
-        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lhexagonal), reciprocal._acos(cosphi), 3)
+        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lhexagonal), _acos(cosphi), 3)
         
         #rhombohedral
         v = self.Lrhombohedral.a**3*sqrt(1 - 3*cos(self.Lrhombohedral.alpha)**2 + 2*cos(self.Lrhombohedral.alpha)**3)
@@ -266,18 +268,18 @@ class TestReciprocal(unittest.TestCase):
         d2 = reciprocal.planeSpacing(plane2, self.Lrhombohedral)
         cosphi = (self.Lrhombohedral.a**4*d1*d2)/v**2 * (sin(self.Lrhombohedral.alpha)**2*(h1*h2 + k1*k2 + l1*l2) + \
                                       (cos(self.Lrhombohedral.alpha)**2 - cos(self.Lrhombohedral.alpha))*(k1*l2 + k2*l1 + l1*h2 + l2*h1 + h1*k2 + h2*k1))
-        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lrhombohedral), reciprocal._acos(cosphi), 3)
+        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lrhombohedral), _acos(cosphi), 3)
         
         #orthorhombic
         cosphi = (h1*h2/self.Lorthorhombic.a**2 + k1*k2/self.Lorthorhombic.b**2 + l1*l2/self.Lorthorhombic.c**2) / \
                   sqrt((h1**2/self.Lorthorhombic.a**2 + k1**2/self.Lorthorhombic.b**2 + l1**2/self.Lorthorhombic.c**2)*(h2**2/self.Lorthorhombic.a**2 + k2**2/self.Lorthorhombic.b**2 + l2**2/self.Lorthorhombic.c**2))
-        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lorthorhombic), reciprocal._acos(cosphi), 3)
+        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lorthorhombic), _acos(cosphi), 3)
         
         #monoclinic
         d1 = reciprocal.planeSpacing(plane1, self.Lmonoclinic)
         d2 = reciprocal.planeSpacing(plane2, self.Lmonoclinic)
         cosphi = d1*d2/sin(self.Lmonoclinic.beta)**2 * (h1*h2/self.Lmonoclinic.a**2 + k1*k2*sin(self.Lmonoclinic.beta)**2/self.Lmonoclinic.b**2 + l1*l2/self.Lmonoclinic.c**2 - (l1*h2+l2*h1)*cos(self.Lmonoclinic.beta)/(self.Lmonoclinic.a*self.Lmonoclinic.c))
-        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lmonoclinic), reciprocal._acos(cosphi), 3)
+        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Lmonoclinic), _acos(cosphi), 3)
         
         #triclinic
         d1 = reciprocal.planeSpacing(plane1, self.Ltriclinic)
@@ -290,7 +292,7 @@ class TestReciprocal(unittest.TestCase):
         s13 = self.Ltriclinic.a*self.Ltriclinic.b**2*self.Ltriclinic.c*(cos(self.Ltriclinic.gamma)*cos(self.Ltriclinic.alpha) - cos(self.Ltriclinic.beta))
         v = self.Ltriclinic.a*self.Ltriclinic.b*self.Ltriclinic.c*sqrt(1 - cos(self.Ltriclinic.alpha)**2 - cos(self.Ltriclinic.beta)**2 - cos(self.Ltriclinic.gamma)**2 + 2*cos(self.Ltriclinic.alpha)*cos(self.Ltriclinic.beta)*cos(self.Ltriclinic.gamma))
         cosphi = d1*d2/v**2 * (s11*h1*h2 + s22*k1*k2 + s33*l1*l2 + s23*(k1*l2+k2*l1) + s13*(l1*h2+l2*h1) + s12*(h1*k2+h2*k1))
-        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Ltriclinic), reciprocal._acos(cosphi), 3)
+        self.assertAlmostEqual(reciprocal.interplanarAngle(plane1, plane2, self.Ltriclinic), _acos(cosphi), 3)
         
         
 if __name__ == '__main__':

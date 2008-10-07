@@ -20,69 +20,8 @@ from math import sin, cos, pi, acos, atan2, exp, sqrt
 
 # Local modules.
 import mathTools.vectors as vectors
+from mathTools.mathExtras import _acos
 
-def _acos(angle):
-  if angle >= 1.0:
-    return 0
-  elif angle <= -1.0:
-    return pi
-  else:
-    return acos(angle)
-
-class lattice:
-  def __init__(self, a, b, c, alpha, beta, gamma):
-    """
-      
-      Inputs:
-        a, b, c: lattice parameter
-        alpha, beta, gamma: lattice angle in rad
-    """
-    
-    self.a = float(a)
-    self.b = float(b)
-    self.c =  float(c)
-    self.alpha =  float(alpha)
-    self.beta =  float(beta)
-    self.gamma =  float(gamma)
-    
-    self.__calculateReciprocalAngle()
-    self.__calculateLatticeVolume()
-    self.__calculateReciprocalBasis()
-    self.__calculateReciprocalVolume()
-  
-  def __calculateReciprocalAngle(self):
-    self.alpha_ = acos((cos(self.beta)*cos(self.gamma) - cos(self.alpha)) / (sin(self.beta)*sin(self.gamma)))
-    self.beta_ = acos((cos(self.alpha)*cos(self.gamma) - cos(self.beta)) / (sin(self.alpha)*sin(self.gamma)))
-    self.gamma_ = acos((cos(self.alpha)*cos(self.beta) - cos(self.gamma)) / (sin(self.alpha)*sin(self.beta)))
-  
-  def __calculateLatticeVolume(self):
-    self.volume = self.a*self.b*self.c*sin(self.alpha_)*sin(self.beta)*sin(self.gamma)
-  
-  def __calculateReciprocalBasis(self):
-    self.a_ = self.b*self.c*sin(self.alpha) / self.volume
-    self.b_ = self.a*self.c*sin(self.beta) / self.volume
-    self.c_ = self.a*self.b*sin(self.gamma) / self.volume
-  
-  def __calculateReciprocalVolume(self):
-    self.volume_ = 1.0 / self.volume
-    
-  def __call__(self):
-    return {'a': self.a
-            , 'b': self.b
-            , 'c': self.c
-            , 'a*': self.a_
-            , 'b*': self.b_
-            , 'c*': self.c_
-            , 'alpha': self.alpha
-            , 'beta': self.beta
-            , 'gamma': self.gamma
-            , 'alpha*': self.alpha_
-            , 'beta*': self.beta_
-            , 'gamma*': self.gamma_
-            , 'V': self.volume
-            , 'V*': self.volume_
-            }
-  
 def cartesianToReciprocal(a, b, c):
   """
     Convert cartesian basis $(a, b, c)$ to reciprocal basis $(a^\ast, b^\ast, c^\ast)$
@@ -121,7 +60,7 @@ def planeSpacing(plane, L):
     
     Inputs:
       plane: a vector representing (hkl). h, k and l must be integer
-      L: class lattice
+      L: class Lattice
       
     Outputs:
       float of the plane spacing in units of the lattice parameters
@@ -146,7 +85,7 @@ def interplanarAngle(plane1, plane2, L):
     Inputs:
       plane1: a vector representing (hkl). h, k and l must be integer
       plane2: same as plane1
-      L: class lattice
+      L: class Lattice
       
     Outputs:
       float of the angle in rad between plane1 and plane2
@@ -171,25 +110,13 @@ def interplanarAngle(plane1, plane2, L):
   return _acos(costheta)
 
 if __name__ == '__main__':
-  h = 1
-  k = 0
-  l = 0
-  
-  L = lattice(a=1, b=1, c=2, alpha=pi/2, beta=pi/2, gamma=120/180.0*pi)
-  
-  print planeSpacing([h,k,l], L)
-  print interplanarAngle([h,k,l], [1,1,0], L) / pi * 180
-  
-  print L
-#  r_ = h**2 * (a_.norm())**2 + \
-#       k**2 * (b_.norm())**2 + \
-#       l**2 * (c_.norm())**2 + \
-#       2 * h * k * a_.norm() * b_.norm() * cos(gamma_) + \
-#       2 * h * l * a_.norm() * c_.norm() * cos(beta_) + \
-#       2 * k * l * b_.norm() * c_.norm() * cos(alpha_)
-  
-#  print _cubic(h, k, l, 1)
-#  print hexagonal(h, k, l, 1, 2.0)
-#  print 1.0/sqrt(r_)
+  pass
+#  h = 1
+#  k = 0
+#  l = 0
 #  
-  
+#  L = lattice(a=1, b=1, c=2, alpha=pi/2, beta=pi/2, gamma=120/180.0*pi)
+#  
+#  print planeSpacing([h,k,l], L)
+#  print interplanarAngle([h,k,l], [1,1,0], L) / pi * 180
+#  

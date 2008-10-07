@@ -21,6 +21,8 @@ from math import sin, cos, pi, acos, atan2, exp, sqrt
 
 # Local modules.
 import mathTools.vectors
+import reciprocal
+import lattice
 
 def _computeStructureFactor(plane, atomPositions):
   
@@ -30,27 +32,6 @@ def _computeStructureFactor(plane, atomPositions):
 #    print atomPosition, (-1)**(2*mathTools.quaternions._dotproduct(plane, atomPosition))
     sum += (-1)**(2*mathTools.vectors.dotproduct(plane, atomPosition))
   return sum
-
-def _greatestCommonDivisor(a, b):
-  """
-    Return the greatest common divisor between a and b
-    Definition: the largest positive integer that divides both numbers without remainder (wikipedia)
-    Source: ?
-    
-    Inputs:
-      a,b: integers
-    
-    Outputs:
-      integer
-  """
-  
-  if a == 0 or b == 0:
-    return None
-  
-  while a % b != 0:
-    a, b = round(b), round(a % b)
-
-  return int(b)
 
 def _positiveIndices(plane):
   h = plane[0]
@@ -73,22 +54,8 @@ def _positiveIndices(plane):
   
   return (h,k,l)
 
-def _angleBetweenPlanes(n1, n2):
-  norm1 = sqrt(n1[0]**2 + n1[1]**2 + n1[2]**2)
-  norm2 = sqrt(n2[0]**2 + n2[1]**2 + n2[2]**2)
-  dot = mathTools.vectors.dotproduct(n1, n2)
-  
-  costheta = dot / (norm1 * norm2)
-  
-  if costheta >= 1.0:
-    return 0
-  elif costheta <= -1.0:
-    return pi
-  else:
-    return acos(dot / norm1 / norm2)
-
-def _areEquivalent(plane1, plane2):
-  angle = _angleBetweenPlanes(plane1, plane2)
+def _areEquivalent(plane1, plane2, L):
+  angle = reciprocal.interplanarAngle(plane1, plane2, L)
   
   if angle < 1e-5 or abs(angle - pi) < 1e-5:
     if abs(plane1[0]) == abs(plane2[0]):
@@ -98,7 +65,7 @@ def _areEquivalent(plane1, plane2):
   else:
     return False
 
-def findReflectors(atomPositions, maxIndice=2):
+def findReflectors(L, maxIndice=2):
   reflectors = []
   
   for h in range(-maxIndice, maxIndice+1):
@@ -107,9 +74,9 @@ def findReflectors(atomPositions, maxIndice=2):
         plane = _positiveIndices((h,k,l))
         
         if not plane == (0,0,0):
-          if _computeStructureFactor(plane, atomPositions) != 0:
+          if _computeStructureFactor(plane, L.atomPositions) != 0:
             for reflector in reflectors:
-              if _areEquivalent(plane, reflector):
+              if _areEquivalent(plane, reflector, L):
                 plane = None
                 break
                 
@@ -122,5 +89,7 @@ def findReflectors(atomPositions, maxIndice=2):
 if __name__ == '__main__':
   atomPositions = [(0,0,0), (0,.5,.5), (.5,0,.5), (.5,.5,0)]
   
-  print findReflectors(atomPositions, maxIndice=2)
+  L = lattice.Lattice(a=2, b=2, c=2, alpha=pi/2, beta=pi/2, gamma=pi/2, atomPositions=atomPositions)
+  L.calculateReflectors(maxIndice=2)
+  print L.reflectors
   
