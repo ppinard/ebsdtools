@@ -21,6 +21,14 @@ from math import sin, cos, pi, acos, atan2, exp, sqrt
 # Local modules.
 import mathTools.vectors as vectors
 
+def _acos(angle):
+  if angle >= 1.0:
+    return 0
+  elif angle <= -1.0:
+    return pi
+  else:
+    return acos(angle)
+
 class lattice:
   def __init__(self, a, b, c, alpha, beta, gamma):
     """
@@ -145,7 +153,7 @@ def interplanarAngle(plane1, plane2, L):
   """
   h1 = float(plane1[0]) 
   k1 = float(plane1[1])
-  l1 = float(plane2[2])
+  l1 = float(plane1[2])
   h2 = float(plane2[0])
   k2 = float(plane2[1])
   l2 = float(plane2[2])
@@ -158,15 +166,9 @@ def interplanarAngle(plane1, plane2, L):
   r_1 = 1.0 / planeSpacing(plane1, L)
   r_2 = 1.0 / planeSpacing(plane2, L)
   
-  return acos(r_1r_2 / (r_1 * r_2))
-
-def _cubic(h, k, l, a):
-  d_2 = (h**2 + k**2 + l**2) / a**2
-  return sqrt(1.0/d_2)
-
-def hexagonal(h, k, l, a, c):
-  d_2 = 4/3.0 * (h**2 + h*k + k**2)/a**2 + l**2/c**2
-  return sqrt(1.0/d_2)
+  costheta = r_1r_2 / (r_1 * r_2)
+  
+  return _acos(costheta)
 
 if __name__ == '__main__':
   h = 1
