@@ -175,7 +175,7 @@ class quaternion:
       self._A = vectors.vector(0,0,0)
     elif len(data) == 2:
       self._a = data[0]
-      self._A = vectors.vector(data[1])
+      self._A = vectors.vector(data[1][0], data[1][1], data[1][2])
     elif len(data) == 3:
       self._a = 0
       self._A = vectors.vector(data[0], data[1], data[2])
@@ -450,6 +450,12 @@ class quaternion:
                       , self._A[0]/norm
                       , self._A[1]/norm
                       , self._A[2]/norm)
+  
+  def vector(self):
+    return self._A
+  
+  def scalar(self):
+    return self._a
   
   def toAxisAngle(self):
     """

@@ -28,3 +28,16 @@ def _acos(angle):
     return pi
   else:
     return acos(angle)
+
+"""
+  Physics constants
+  References: Wikipedia
+"""
+h = 6.62606809633e-34
+m_e = 9.1093818e-31
+e = 1.60217646e-19
+c = 2.99792458e8
+
+
+if __name__ == '__main__':
+  print h
