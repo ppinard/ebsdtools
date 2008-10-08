@@ -20,7 +20,7 @@ from math import sin, cos, pi, acos, atan2, exp, sqrt
 # Third party modules.
 
 # Local modules.
-import mathTools.vectors
+import mathTools.vectors as vectors
 import reciprocal
 import lattice
 
@@ -29,8 +29,7 @@ def _computeStructureFactor(plane, atomPositions):
   sum = 0
   
   for atomPosition in atomPositions:
-#    print atomPosition, (-1)**(2*mathTools.quaternions._dotproduct(plane, atomPosition))
-    sum += (-1)**(2*mathTools.vectors.dotproduct(plane, atomPosition))
+    sum += (-1)**(2*vectors.dot(plane, atomPosition))
   return sum
 
 def _positiveIndices(plane):
@@ -73,7 +72,7 @@ def findReflectors(L, maxIndice=2):
       for l in range(-maxIndice, maxIndice+1):
         plane = _positiveIndices((h,k,l))
         
-        if not plane == (0,0,0):
+        if not plane == (0,0,0): #Remove plane (0,0,0)
           if _computeStructureFactor(plane, L.atomPositions) != 0:
             for reflector in reflectors:
               if _areEquivalent(plane, reflector, L):
@@ -90,6 +89,8 @@ if __name__ == '__main__':
   atomPositions = [(0,0,0), (0,.5,.5), (.5,0,.5), (.5,.5,0)]
   
   L = lattice.Lattice(a=2, b=2, c=2, alpha=pi/2, beta=pi/2, gamma=pi/2, atomPositions=atomPositions)
-  L.calculateReflectors(maxIndice=2)
-  print L.reflectors
+  L.calculatePlaneSpacing(reflectorsMaxIndice=5)
+  print len(L.reflectors)
+#  print L.planeSpacings
+  
   

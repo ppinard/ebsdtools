@@ -19,15 +19,16 @@ from math import sin, cos, pi
 # Third party modules.
 
 # Local modules.
-from mathTools.mathExtras import _acos
+from mathTools.mathExtras import _acos, h
 import reflectors
+import reciprocal
 
 class Lattice:
   def __init__(self, a, b, c, alpha, beta, gamma, atomPositions=None):
     """
       
       Inputs:
-        a, b, c: lattice parameter
+        a, b, c: lattice parameter (in $\AA$)
         alpha, beta, gamma: lattice angle in rad
     """
     
@@ -62,9 +63,16 @@ class Lattice:
   def __calculateReciprocalVolume(self):
     self.volume_ = 1.0 / self.volume
   
-  def calculateReflectors(self, maxIndice=2):
-    self.reflectors = reflectors.findReflectors(self, maxIndice)
-  
+  def calculatePlanes(self, reflectorsMaxIndice=2):
+    self.planes = {}
+    planes = reflectors.findReflectors(self, reflectorsMaxIndice)
+    
+    for plane in planes:
+      self.planes.setdefault(plane, {})
+      self.planes[plane]['reflector'] = plane
+      self.planes[plane]['plane spacing'] = reciprocal.planeSpacing(plane, self)
+      self.planes[plane]['intensity'] = reflectors._computeStructureFactor(plane, self.atomPositions)**2
+       
   def __call__(self):
     return {'a': self.a
             , 'b': self.b
@@ -83,5 +91,5 @@ class Lattice:
             }
 
 if __name__ == '__main__':
-  pass
+  print h
   
