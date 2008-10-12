@@ -24,7 +24,7 @@ import reflectors
 import reciprocal
 
 class Lattice:
-  def __init__(self, a, b, c, alpha, beta, gamma, atomPositions=None):
+  def __init__(self, a, b, c, alpha, beta, gamma, atoms=None, reflectorsMaxIndice=2):
     """
       
       Inputs:
@@ -44,8 +44,9 @@ class Lattice:
     self.__calculateReciprocalBasis()
     self.__calculateReciprocalVolume()
     
-    if atomPositions != None:
-      self.atomPositions = atomPositions
+    self.atoms = atoms
+    
+    self.reflectors = reflectors.Reflectors(self, reflectorsMaxIndice)
   
   def __calculateReciprocalAngle(self):
     self.alpha_ = _acos((cos(self.beta)*cos(self.gamma) - cos(self.alpha)) / (sin(self.beta)*sin(self.gamma)))
@@ -63,15 +64,8 @@ class Lattice:
   def __calculateReciprocalVolume(self):
     self.volume_ = 1.0 / self.volume
   
-  def calculatePlanes(self, reflectorsMaxIndice=2):
-    self.planes = {}
-    planes = reflectors.findReflectors(self, reflectorsMaxIndice)
-    
-    for plane in planes:
-      self.planes.setdefault(plane, {})
-      self.planes[plane]['reflector'] = plane
-      self.planes[plane]['plane spacing'] = reciprocal.planeSpacing(plane, self)
-      self.planes[plane]['intensity'] = reflectors._computeStructureFactor(plane, self.atomPositions)**2
+  def getReflectors(self):
+    return self.reflectors
        
   def __call__(self):
     return {'a': self.a
@@ -89,6 +83,9 @@ class Lattice:
             , 'V': self.volume
             , 'V*': self.volume_
             }
+  
+  def getAtomsPositions(self):
+    return self.atoms.keys()
 
 if __name__ == '__main__':
   print h

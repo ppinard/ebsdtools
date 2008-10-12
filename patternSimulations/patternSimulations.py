@@ -26,7 +26,7 @@ import crystallography.bragg as bragg
 import mathTools.vectors as vectors
 import RandomUtilities.DrawingTools.drawing as drawing
 
-def rotatePlane(plane
+def tiltSpecimen(plane
                 , tiltAngle=70/180.0*pi
                 , tiltAxis=(1,0,0)):
   """
@@ -47,6 +47,14 @@ def rotatePlane(plane
   hkl70 = R70 * hkl * R70.conjugate()
   
   return hkl70.vector()
+
+def rotateSpecimen(plane
+                   , rotationQuaternion):
+  hkl = quaternions.quaternion(0, plane)
+  
+  hklRot = rotationQuaternion * hkl * rotationQuaternion.conjugate()
+  
+  return hklRot.vector()
 
 def computePlaneEquationOnCamera(plane
                                  , patternCenter=(0,0)
@@ -83,9 +91,11 @@ def drawPattern(L
                 , bandcenter=False
                 , bandedges=True
                 , bandfull=True
+                , intensity=False
                 , patternCenter=(0.0,0.0)
                 , detectorDistance=0.3
                 , energy=20e3
+                , specimenRotation=quaternions.quaternion(1)
                 , patternSize=(2680,2040)
                 , patternCenterVisible=True):
   """
@@ -111,10 +121,13 @@ def drawPattern(L
     im.draw.ellipse((patternSize[0]/2.0-20+patternCenter[0],patternSize[1]/2.0-20+patternCenter[1] \
                      ,patternSize[0]/2.0+20+patternCenter[0],patternSize[1]/2.0+20+patternCenter[1]), fill=255)
   
-  for plane in L.planes:
-    planeRot = rotatePlane(plane)
+  reflectors = L.getReflectors()
+  
+  for plane in reflectors.getReflectorsList():
+    planeRot = rotateSpecimen(plane, specimenRotation)
+    planeTilt = tiltSpecimen(planeRot)
     
-    m, b = computePlaneEquationOnCamera(plane=planeRot
+    m, b = computePlaneEquationOnCamera(plane=planeTilt
                                         , patternCenter=patternCenter
                                         , detectorDistance=detectorDistance)
     
@@ -123,7 +136,7 @@ def drawPattern(L
       d = vectors.vector(0,detectorDistance,b).norm()
       
       #Diffraction angle
-      planeSpacing = L.planes[plane]['plane spacing']
+      planeSpacing = reflectors.getReflectorPlaneSpacing(plane)
       wavelength = bragg.electronWavelength(energy)
       theta = bragg.diffractionAngle(planeSpacing, wavelength) 
       
@@ -131,43 +144,63 @@ def drawPattern(L
       w = sqrt(2*d**2*(1-cos(theta)))
       
       #Create the line representing the width of the band
-#      if planeRot[2] != 0:
-#        alpha = atan(planeRot[0] /planeRot[2])
-#        h = w / cos(alpha)
-#      else:
-#        h = w
+      if planeRot[2] != 0:
+        alpha = atan(planeRot[0] /planeRot[2])
+        h = w / cos(alpha)
+      else:
+        h = w
       
-      h = w
+#      h = w
       
   #    print plane, 'd', planeSpacing, 'w', w, 'h', h, 'alpha', alpha
     
+    if intensity:
+      grayLevel = reflectors.getReflectorNormalizedIntensity(plane) * 255
+    else:
+      grayLevel = 255
+    
     if bandcenter:
       im.drawLinearFunction(m=m
-                            , k=b)
+                            , k=b
+                            , grayLevel=grayLevel)
     
     if bandedges:
       im.drawLinearFunction(m=m
-                            , k=b+h)
+                            , k=b+h
+                            , grayLevel=grayLevel)
       im.drawLinearFunction(m=m
-                            , k=b-h)
+                            , k=b-h
+                            , grayLevel=grayLevel)
     
     if bandfull:
       im.drawLinearFunction(m=m
                             , k=b
-                            , width=int(2*h*patternSize[1]*1))
+                            , width=int(2*h*patternSize[1]*1)
+                            , grayLevel=grayLevel)
   
   return im()
 
 def main():
   import crystallography.lattice as lattice
+  import PIL.ImageEnhance
+
+
+
   
 #  #FCC
-#  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atomPositions=[(0,0,0), (0,.5,.5), (.5,0,.5), (.5,.5,0)])
+  atoms = {(0,0,0): 14,
+           (0.5,0.5,0): 14,
+           (0.5,0,0.5): 14,
+           (0,0.5,0.5): 14}
+  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
   #BCC
-  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atomPositions=[(0,0,0), (.5,.5,.5)])
+#  atoms = {(0,0,0): 14,
+#           (0.5,0.5,0.5): 14}
+#  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
 #  #HCP
 #  L = lattice.Lattice(a=2, b=2, c=4, alpha=pi/2, beta=pi/2, gamma=120.0/180*pi, atomPositions=[])
-  L.calculatePlanes(reflectorsMaxIndice=2)
+
+
 #  for plane in L.planes:
 #    print plane, L.planes[plane]['intensity']
   
@@ -178,15 +211,23 @@ def main():
 #  
 ##  planes = [(2,0,2),(2,0,-2)]
   
-  drawPattern(L
+  rotation = quaternions.eulerAnglesToQuaternion(0,-60/180.0*pi,0)
+  euler = rotation.toEulerAngles()
+  print (euler[0]+pi)*180/pi, euler[1]*180/pi, (euler[2]+pi)*180/pi
+  
+  image = drawPattern(L
               , bandcenter=False
               , bandedges=False
               , bandfull=True
+              , intensity=True
               , patternCenter=(0,0)
               , detectorDistance=0.3
               , energy=20e3
+              , specimenRotation=rotation
               , patternSize=(2680,2040)
-              , patternCenterVisible=False).show()
+              , patternCenterVisible=False)
+  
+  image.show()
 
 if __name__ == '__main__':
   main()
