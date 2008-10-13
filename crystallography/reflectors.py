@@ -27,6 +27,7 @@ import mathTools.vectors as vectors
 import reciprocal
 import lattice
 import bragg
+import RandomUtilities.sort.sortDict as sortDict
 
 class scatteringFactors:
   def __init__(self
@@ -226,9 +227,26 @@ class Reflectors:
     return self.reflectors
   
   def getReflectorsList(self):
-    reflectors = self.reflectors.keys()
-    reflectors.sort()
-    return reflectors
+    """
+      Return a list of reflectors sorted in decreasing order of intensity
+      
+      Inputs:
+        None
+      
+      Outputs:
+        a list
+    """
+    intensityDict = {}
+    for reflector in self.reflectors.keys():
+      intensityDict.setdefault(reflector, self.reflectors[reflector]['normalized intensity'])
+    
+    sortedIntensityDict = sortDict.sortDictByValue(intensityDict, reverse=True)
+    
+    keys = []
+    for item in sortedIntensityDict:
+      keys.append(item[0])
+    
+    return keys
   
   def getReflectorInfo(self, plane):
     if plane in self.reflectors.keys():
@@ -245,8 +263,9 @@ class Reflectors:
   def getReflectorNormalizedIntensity(self, plane):
     if plane in self.reflectors.keys():
       return self.reflectors[plane]['normalized intensity']
-  
+
 if __name__ == '__main__':
+  
   atoms = {(0,0,0): 26, 
            (0,0.5,0.5): 26,
            (0.5,0,0.5): 26,
@@ -254,11 +273,10 @@ if __name__ == '__main__':
   
   L = lattice.Lattice(a=3.59, b=3.59, c=3.59, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
   
-  reflectors = L.getReflectors()
-
-  scatteringF = scatteringFactors()
+  reflectors = L.getReflectors().getReflectorsList()
+  print reflectors
   
-  for plane in reflectors.getReflectorsList():
-    print '%2i%2i%2i %6.4f %e %4.2f' % (plane[0],plane[1],plane[2], reflectors.getReflectorPlaneSpacing(plane), reflectors.getReflectorIntensity(plane), reflectors.getReflectorNormalizedIntensity(plane)*100.0)
-  
+#  for plane in reflectors.getReflectorsList():
+#    print '%2i%2i%2i %6.4f %e %4.2f' % (plane[0],plane[1],plane[2], reflectors.getReflectorPlaneSpacing(plane), reflectors.getReflectorIntensity(plane), reflectors.getReflectorNormalizedIntensity(plane)*100.0)
+#  
   

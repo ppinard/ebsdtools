@@ -15,33 +15,24 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import acos
+from math import pi
 
 # Third party modules.
 
 # Local modules.
 
-def _acos(angle):
-  if angle >= 1.0:
-    return 0
-  elif angle <= -1.0:
-    return pi
-  else:
-    return acos(angle)
+def positiveEulers(theta1, theta2, theta3):
+  if theta1 < 0:
+    theta1 += 2*pi
+  if theta3 < 0:
+    theta3 += 2*pi
+  
+  return theta1, theta2, theta3
 
-"""
-  Physics constants
-  References: Wikipedia
-"""
-h = 6.62606809633e-34
-m_e = 9.1093818e-31
-e = 1.60217646e-19
-c = 2.99792458e8
-
-"""
-  Other constants
-"""
-zeroPrecision = 1e-5
-
-if __name__ == '__main__':
-  print h
+def negativeEulers(theta1, theta2, theta3):
+  if theta1 > pi:
+    theta1 -= 2*pi
+  if theta3 > pi:
+    theta3 -= 2*pi
+  
+  return theta1, theta2, theta3

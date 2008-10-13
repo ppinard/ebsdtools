@@ -21,9 +21,9 @@ from math import pi, cos, atan, sqrt
 
 # Local modules.
 import mathTools.quaternions as quaternions
-
-import crystallography.bragg as bragg
 import mathTools.vectors as vectors
+from mathTools.mathExtras import zeroPrecision
+import crystallography.bragg as bragg
 import RandomUtilities.DrawingTools.drawing as drawing
 
 def tiltSpecimen(plane
@@ -77,13 +77,16 @@ def computePlaneEquationOnCamera(plane
   k = plane[1]
   l = plane[2]
   
-  if l != 0:
+  if abs(l) > zeroPrecision:
     m = -(h/l)
     b = (h/l)*patternCenter[0] - detectorDistance*k/l + patternCenter[1]
   else:
-    #TODO: verify
-    m = None
-    b = detectorDistance*k/h
+    if abs(h) > zeroPrecision:
+      m = None
+      b = detectorDistance*k/h
+    else: #Plane parallel to the screen
+      m = None
+      b = None
 
   return m, b
 
@@ -123,41 +126,50 @@ def drawPattern(L
   
   reflectors = L.getReflectors()
   
-  for plane in reflectors.getReflectorsList():
+  planes = reflectors.getReflectorsList()
+  planes.reverse()
+  
+  for plane in planes:
     planeRot = rotateSpecimen(plane, specimenRotation)
-    planeTilt = tiltSpecimen(planeRot)
+    planeTilt = tiltSpecimen(planeRot, tiltAngle=70*pi/180, tiltAxis=(1,0,0))
     
     m, b = computePlaneEquationOnCamera(plane=planeTilt
                                         , patternCenter=patternCenter
                                         , detectorDistance=detectorDistance)
     
+    if m == None and b == None:
+      continue
+    
     if bandedges or bandfull:
-      #Distance from the sample to the screen at z = b
-      d = vectors.vector(0,detectorDistance,b).norm()
+      #Distance from the sample to the screen at x = 0
+      d = vectors.vector(-patternCenter[0], detectorDistance, b-patternCenter[1]).norm()
+      
+      x0 = vectors.vector(0,0,0)
+      x1 = vectors.vector(0.0, detectorDistance, b)
+      if m == None or abs(m) < zeroPrecision:
+        x2 = vectors.vector(0.0, detectorDistance, b+0.1)
+      else:
+        if abs(b) > zeroPrecision:
+          x2 = vectors.vector(-b/m, detectorDistance, 0.0)
+        else: # abs(b) < zeroPrecision:
+          x2 = vectors.vector((1-b)/m, detectorDistance, 1.0)
+        
+      d = vectors.cross(x2-x1, x1-x0).norm() / (x2-x1).norm()
       
       #Diffraction angle
       planeSpacing = reflectors.getReflectorPlaneSpacing(plane)
       wavelength = bragg.electronWavelength(energy)
       theta = bragg.diffractionAngle(planeSpacing, wavelength) 
       
-      #Width of the band
+      #Half-width of the band
       w = sqrt(2*d**2*(1-cos(theta)))
       
-      #Create the line representing the width of the band
-      if planeRot[2] != 0:
-        alpha = atan(planeRot[0] /planeRot[2])
-        h = w / cos(alpha)
-      else:
-        h = w
-      
-#      h = w
-      
-  #    print plane, 'd', planeSpacing, 'w', w, 'h', h, 'alpha', alpha
-    
     if intensity:
       grayLevel = reflectors.getReflectorNormalizedIntensity(plane) * 255
     else:
       grayLevel = 255
+    
+#    print plane, 'm', m, 'b', b, 'd', d, 'theta', theta, 'w', w, 'g', grayLevel
     
     if bandcenter:
       im.drawLinearFunction(m=m
@@ -165,6 +177,15 @@ def drawPattern(L
                             , grayLevel=grayLevel)
     
     if bandedges:
+      #Correction for the slope of the band
+      v = x2-x1
+      if abs(v[0]) > zeroPrecision:
+        alpha = atan(v[2]/v[0])
+      else:
+        alpha = 0.0
+      
+      h = w*cos(alpha)
+      
       im.drawLinearFunction(m=m
                             , k=b+h
                             , grayLevel=grayLevel)
@@ -175,9 +196,9 @@ def drawPattern(L
     if bandfull:
       im.drawLinearFunction(m=m
                             , k=b
-                            , width=int(2*h*patternSize[1]*1)
+                            , width=int(2*w*patternSize[1]*1)
                             , grayLevel=grayLevel)
-  
+    
   return im()
 
 def main():
@@ -192,6 +213,8 @@ def main():
            (0.5,0.5,0): 14,
            (0.5,0,0.5): 14,
            (0,0.5,0.5): 14}
+#  atoms = {(0,0,0): 14,
+#           (0.5,0.5,0.5): 14}
   L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
   #BCC
 #  atoms = {(0,0,0): 14,
@@ -211,21 +234,19 @@ def main():
 #  
 ##  planes = [(2,0,2),(2,0,-2)]
   
-  rotation = quaternions.eulerAnglesToQuaternion(0,-60/180.0*pi,0)
-  euler = rotation.toEulerAngles()
-  print (euler[0]+pi)*180/pi, euler[1]*180/pi, (euler[2]+pi)*180/pi
+  rotation = quaternions.eulerAnglesToQuaternion(0,0,0)
   
   image = drawPattern(L
               , bandcenter=False
-              , bandedges=False
-              , bandfull=True
-              , intensity=True
+              , bandedges=True
+              , bandfull=False
+              , intensity=False
               , patternCenter=(0,0)
               , detectorDistance=0.3
               , energy=20e3
               , specimenRotation=rotation
               , patternSize=(2680,2040)
-              , patternCenterVisible=False)
+              , patternCenterVisible=True)
   
   image.show()
 
