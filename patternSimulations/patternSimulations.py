@@ -15,7 +15,7 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import pi, cos, atan, sqrt
+from math import pi, cos, atan, sqrt, tan
 
 # Third party modules.
 
@@ -153,8 +153,11 @@ def drawPattern(L
           x2 = vectors.vector(-b/m, detectorDistance, 0.0)
         else: # abs(b) < zeroPrecision:
           x2 = vectors.vector((1-b)/m, detectorDistance, 1.0)
-        
-      d = vectors.cross(x2-x1, x1-x0).norm() / (x2-x1).norm()
+      
+      n = vectors.cross(x2-x1, x1-x0)
+      s = vectors.vector(n[0], 0, n[2])
+      d = n.norm() / (x2-x1).norm()
+      cosalpha = vectors.dot(n,s) / (n.norm()*s.norm())
       
       #Diffraction angle
       planeSpacing = reflectors.getReflectorPlaneSpacing(plane)
@@ -162,7 +165,8 @@ def drawPattern(L
       theta = bragg.diffractionAngle(planeSpacing, wavelength) 
       
       #Half-width of the band
-      w = sqrt(2*d**2*(1-cos(theta)))
+#      w = sqrt(2*d**2*(1-cos(theta)))
+      w = d*tan(theta) / cosalpha
       
     if intensity:
       grayLevel = reflectors.getReflectorNormalizedIntensity(plane) * 255
@@ -213,8 +217,8 @@ def main():
            (0.5,0.5,0): 14,
            (0.5,0,0.5): 14,
            (0,0.5,0.5): 14}
-#  atoms = {(0,0,0): 14,
-#           (0.5,0.5,0.5): 14}
+  atoms = {(0,0,0): 14,
+           (0.5,0.5,0.5): 14}
   L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
   #BCC
 #  atoms = {(0,0,0): 14,
@@ -238,9 +242,9 @@ def main():
   
   image = drawPattern(L
               , bandcenter=False
-              , bandedges=True
-              , bandfull=False
-              , intensity=False
+              , bandedges=False
+              , bandfull=True
+              , intensity=True
               , patternCenter=(0,0)
               , detectorDistance=0.3
               , energy=20e3
