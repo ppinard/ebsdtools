@@ -131,28 +131,30 @@ def drawPattern(L
   
   for plane in planes:
     planeRot = rotateSpecimen(plane, specimenRotation)
-    planeTilt = tiltSpecimen(planeRot, tiltAngle=70*pi/180, tiltAxis=(1,0,0))
+    planeTilt = tiltSpecimen(planeRot, tiltAngle=0*pi/180, tiltAxis=(1,0,0))
     
-    m, b = computePlaneEquationOnCamera(plane=planeTilt
+    m, k = computePlaneEquationOnCamera(plane=planeTilt
                                         , patternCenter=patternCenter
                                         , detectorDistance=detectorDistance)
     
-    if m == None and b == None:
+    if m == None and k == None:
       continue
     
     if bandedges or bandfull:
       #Distance from the sample to the screen at x = 0
-      d = vectors.vector(-patternCenter[0], detectorDistance, b-patternCenter[1]).norm()
+      d = vectors.vector(-patternCenter[0], detectorDistance, k-patternCenter[1]).norm()
       
       x0 = vectors.vector(0,0,0)
-      x1 = vectors.vector(0.0, detectorDistance, b)
+      
       if m == None or abs(m) < zeroPrecision:
-        x2 = vectors.vector(0.0, detectorDistance, b+0.1)
+        x1 = vectors.vector(k, detectorDistance, 0.0)
+        x2 = vectors.vector(k, detectorDistance, 0.1)
       else:
-        if abs(b) > zeroPrecision:
-          x2 = vectors.vector(-b/m, detectorDistance, 0.0)
+        x1 = vectors.vector(0.0, detectorDistance, k)
+        if abs(k) > zeroPrecision:
+          x2 = vectors.vector(-k/m, detectorDistance, 0.0)
         else: # abs(b) < zeroPrecision:
-          x2 = vectors.vector((1-b)/m, detectorDistance, 1.0)
+          x2 = vectors.vector((1-k)/m, detectorDistance, 1.0)
       
       n = vectors.cross(x2-x1, x1-x0)
       s = vectors.vector(n[0], 0, n[2])
@@ -173,11 +175,11 @@ def drawPattern(L
     else:
       grayLevel = 255
     
-#    print plane, 'm', m, 'b', b, 'd', d, 'theta', theta, 'w', w, 'g', grayLevel
+#    print plane, 'm', m, 'k', k, 'd', d, 'theta', theta, 'w', w, 'alpha', cosalpha, 'g', grayLevel
     
     if bandcenter:
       im.drawLinearFunction(m=m
-                            , k=b
+                            , k=k
                             , grayLevel=grayLevel)
     
     if bandedges:
@@ -191,16 +193,16 @@ def drawPattern(L
       h = w*cos(alpha)
       
       im.drawLinearFunction(m=m
-                            , k=b+h
+                            , k=k+h
                             , grayLevel=grayLevel)
       im.drawLinearFunction(m=m
-                            , k=b-h
+                            , k=k-h
                             , grayLevel=grayLevel)
     
     if bandfull:
       im.drawLinearFunction(m=m
-                            , k=b
-                            , width=int(2*w*patternSize[1]*1)
+                            , k=k
+                            , width=2*w
                             , grayLevel=grayLevel)
     
   return im()
@@ -208,8 +210,8 @@ def drawPattern(L
 def main():
   import crystallography.lattice as lattice
   import PIL.ImageEnhance
-
-
+  import mathTools.eulers as eulers
+  import os.path
 
   
 #  #FCC
@@ -217,8 +219,8 @@ def main():
            (0.5,0.5,0): 14,
            (0.5,0,0.5): 14,
            (0,0.5,0.5): 14}
-  atoms = {(0,0,0): 14,
-           (0.5,0.5,0.5): 14}
+#  atoms = {(0,0,0): 14,
+#           (0.5,0.5,0.5): 14}
   L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
   #BCC
 #  atoms = {(0,0,0): 14,
@@ -238,21 +240,36 @@ def main():
 #  
 ##  planes = [(2,0,2),(2,0,-2)]
   
-  rotation = quaternions.eulerAnglesToQuaternion(0,0,0)
+  print quaternions.axisAngleToQuaternion(pi/4.0, (0,0,1)).toEulerAngles()
   
-  image = drawPattern(L
-              , bandcenter=False
-              , bandedges=False
-              , bandfull=True
-              , intensity=True
-              , patternCenter=(0,0)
-              , detectorDistance=0.3
-              , energy=20e3
-              , specimenRotation=rotation
-              , patternSize=(2680,2040)
-              , patternCenterVisible=True)
   
-  image.show()
+  
+  for theta in range(0,45, 5):
+    angles = eulers.fromHKLeulers(theta/180.0*pi,0,0)
+    print theta
+    
+    rotation = quaternions.eulerAnglesToQuaternion(angles)
+    rotationSpecimen = quaternions.axisAngleToQuaternion(pi/2.0, (1,0,0))
+    
+    finalRotation = rotation * rotationSpecimen * rotation.conjugate()
+    
+    image = drawPattern(L
+                , bandcenter=False
+                , bandedges=False
+                , bandfull=True
+                , intensity=True
+                , patternCenter=(0,0)
+                , detectorDistance=0.3
+                , energy=20e3
+                , specimenRotation=finalRotation
+                , patternSize=(2680 ,2040)
+                , patternCenterVisible=False)
+    
+    folder = 'i:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
+    imageName = '%s_%3i.jpg' % ('theta1', theta)
+    imageName = imageName.replace(' ', '0')
+    image.save(os.path.join(folder, imageName))
+  
 
 if __name__ == '__main__':
   main()

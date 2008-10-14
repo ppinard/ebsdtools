@@ -21,7 +21,10 @@ from math import pi
 
 # Local modules.
 
-def positiveEulers(theta1, theta2, theta3):
+def toHKLeulers(theta1, theta2, theta3):
+  """
+    Convert eulers to the HKL definition
+  """
   if theta1 < 0:
     theta1 += 2*pi
   if theta3 < 0:
@@ -29,10 +32,14 @@ def positiveEulers(theta1, theta2, theta3):
   
   return theta1, theta2, theta3
 
-def negativeEulers(theta1, theta2, theta3):
+def fromHKLeulers(theta1, theta2, theta3):
+  """
+    Convert eulers from the HKL definition
+  """
   if theta1 > pi:
     theta1 -= 2*pi
   if theta3 > pi:
     theta3 -= 2*pi
+#  theta2 += pi/2.0
   
   return theta1, theta2, theta3
