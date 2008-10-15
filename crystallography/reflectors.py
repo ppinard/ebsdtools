@@ -23,10 +23,9 @@ import os.path
 
 # Local modules.
 import EBSDTools
-import mathTools.vectors as vectors
-import reciprocal
-import lattice
-import bragg
+import EBSDTools.mathTools.vectors as vectors
+import EBSDTools.crystallography.reciprocal as reciprocal
+import EBSDTools.crystallography.bragg as bragg
 import RandomUtilities.sort.sortDict as sortDict
 
 class scatteringFactors:
@@ -34,7 +33,7 @@ class scatteringFactors:
                , filepath_0_2='data/elastic_atomic_scattering_factors_0_2.csv'
                , filepath_2_6='data/elastic_atomic_scattering_factors_2_6.csv'):
     
-    basedir = EBSDTools.__path__
+    basedir = EBSDTools.__path__[0]
     
     reader = csv.reader(open(os.path.join(basedir,filepath_0_2), 'r'))
     rows = list(reader)
@@ -265,7 +264,7 @@ class Reflectors:
       return self.reflectors[plane]['normalized intensity']
 
 if __name__ == '__main__':
-  
+  import EBSDTools.crystallography.lattice as lattice
   atoms = {(0,0,0): 26, 
            (0,0.5,0.5): 26,
            (0.5,0,0.5): 26,

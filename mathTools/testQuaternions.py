@@ -20,7 +20,7 @@ from math import pi, cos, sin, sqrt
 # Third party modules.
 
 # Local modules.
-import quaternions
+import EBSDTools.mathTools.quaternions as quaternions
 
 # Globals and constants variables.
 

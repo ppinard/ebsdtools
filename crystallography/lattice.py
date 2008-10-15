@@ -19,9 +19,8 @@ from math import sin, cos, pi
 # Third party modules.
 
 # Local modules.
-from mathTools.mathExtras import _acos, h
-import reflectors
-import reciprocal
+from EBSDTools.mathTools.mathExtras import _acos, h
+import EBSDTools.crystallography.reflectors as reflectors
 
 class Lattice:
   def __init__(self, a, b, c, alpha, beta, gamma, atoms=None, reflectorsMaxIndice=2):
@@ -46,7 +45,10 @@ class Lattice:
     
     self.atoms = atoms
     
-    self.reflectors = reflectors.Reflectors(self, reflectorsMaxIndice)
+    if atoms != None:
+      self.reflectors = reflectors.Reflectors(self, reflectorsMaxIndice)
+    else:
+      self.reflectors = None
   
   def __calculateReciprocalAngle(self):
     self.alpha_ = _acos((cos(self.beta)*cos(self.gamma) - cos(self.alpha)) / (sin(self.beta)*sin(self.gamma)))

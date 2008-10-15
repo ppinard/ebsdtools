@@ -19,7 +19,7 @@ from math import sqrt, asin
 # Third party modules.
 
 # Local modules.
-from mathTools.mathExtras import h, m_e, e, c
+from EBSDTools.mathTools.mathExtras import h, m_e, e, c
 
 def electronWavelength(energy):
   """

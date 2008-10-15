@@ -20,7 +20,7 @@ from math import pi
 # Third party modules.
 
 # Local modules.
-import bragg
+import EBSDTools.crystallography.bragg as bragg
 
 # Globals and constants variables.
 

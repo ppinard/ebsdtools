@@ -19,8 +19,8 @@ from math import sin, cos, pi, acos, atan2, exp, sqrt
 # Third party modules.
 
 # Local modules.
-import mathTools.vectors as vectors
-from mathTools.mathExtras import _acos
+import EBSDTools.mathTools.vectors as vectors
+from EBSDTools.mathTools.mathExtras import _acos
 
 def cartesianToReciprocal(a, b, c):
   """

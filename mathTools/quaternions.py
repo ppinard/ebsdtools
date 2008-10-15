@@ -20,7 +20,7 @@ from math import sin, cos, pi, acos, atan2, sqrt
 # Third party modules.
 
 # Local modules.
-import vectors
+import EBSDTools.mathTools.vectors as vectors
 
 def axisAngleToQuaternion(*data):
   """

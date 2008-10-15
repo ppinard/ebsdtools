@@ -21,10 +21,10 @@ from math import pi, sin, cos, sqrt
 # Third party modules.
 
 # Local modules.
-import reciprocal
-import mathTools.vectors as vectors
-import lattice
-from mathTools.mathExtras import _acos
+import EBSDTools.crystallography.reciprocal as reciprocal
+import EBSDTools.mathTools.vectors as vectors
+import EBSDTools.crystallography.lattice as lattice
+from EBSDTools.mathTools.mathExtras import _acos
 
 # Globals and constants variables.
 

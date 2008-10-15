@@ -20,10 +20,10 @@ from math import pi, cos, atan, sqrt, tan
 # Third party modules.
 
 # Local modules.
-import mathTools.quaternions as quaternions
-import mathTools.vectors as vectors
-from mathTools.mathExtras import zeroPrecision
-import crystallography.bragg as bragg
+import EBSDTools.mathTools.quaternions as quaternions
+import EBSDTools.mathTools.vectors as vectors
+from EBSDTools.mathTools.mathExtras import zeroPrecision
+import EBSDTools.crystallography.bragg as bragg
 import RandomUtilities.DrawingTools.drawing as drawing
 
 def computePlaneEquationOnCamera(plane
@@ -178,11 +178,10 @@ def drawPattern(L
   return im()
 
 def main():
-  import crystallography.lattice as lattice
+  import EBSDTools.crystallography.lattice as lattice
   import PIL.ImageEnhance
-  import mathTools.eulers as eulers
+  import EBSDTools.mathTools.eulers as eulers
   import os.path
-
   
 #  #FCC
   atoms = {(0,0,0): 14,
@@ -253,7 +252,8 @@ def main():
                 , patternSize=(2680 ,2040)
                 , patternCenterVisible=True)
     
-    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
+#    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
+    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
     imageName = '%s_%3i.jpg' % ('theta2', theta)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))

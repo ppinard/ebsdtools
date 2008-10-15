@@ -19,7 +19,7 @@ __svnId__ = ""
 # Third party modules.
 
 # Local modules.
-import mathTools.quaternions as quaternions
+import EBSDTools.mathTools.quaternions as quaternions
 
 def cubic(plane):
   #Six diads about <100>

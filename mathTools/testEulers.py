@@ -20,7 +20,7 @@ from math import pi
 # Third party modules.
 
 # Local modules.
-import eulers
+import EBSDTools.mathTools.eulers as eulers
 
 # Globals and constants variables.
 
