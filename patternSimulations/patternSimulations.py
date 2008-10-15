@@ -26,36 +26,6 @@ from mathTools.mathExtras import zeroPrecision
 import crystallography.bragg as bragg
 import RandomUtilities.DrawingTools.drawing as drawing
 
-def tiltSpecimen(plane
-                , tiltAngle=70/180.0*pi
-                , tiltAxis=(1,0,0)):
-  """
-    Return a rotated plane by the tiltAngle along the tiltAxis
-    
-    Inputs:
-      plane : a vector class of the diffracted plane
-      tiltAngle: tilt angle of the specimen [default=1.21173rad (70deg)]
-      tiltAxis: tilt axis of the specimen [default=(1,0,0) (x-axis)]
-    
-    Outputs:
-      vector
-  """
-  
-  R70 = quaternions.axisAngleToQuaternion(-tiltAngle, tiltAxis)
-  hkl = quaternions.quaternion(0, plane)
-  
-  hkl70 = R70 * hkl * R70.conjugate()
-  
-  return hkl70.vector()
-
-def rotateSpecimen(plane
-                   , rotationQuaternion):
-  hkl = quaternions.quaternion(0, plane)
-  
-  hklRot = rotationQuaternion * hkl * rotationQuaternion.conjugate()
-  
-  return hklRot.vector()
-
 def computePlaneEquationOnCamera(plane
                                  , patternCenter=(0,0)
                                  , detectorDistance=1.0
@@ -83,7 +53,7 @@ def computePlaneEquationOnCamera(plane
   else:
     if abs(h) > zeroPrecision:
       m = None
-      b = detectorDistance*k/h
+      b = -detectorDistance*k/h + patternCenter[0]
     else: #Plane parallel to the screen
       m = None
       b = None
@@ -98,7 +68,7 @@ def drawPattern(L
                 , patternCenter=(0.0,0.0)
                 , detectorDistance=0.3
                 , energy=20e3
-                , specimenRotation=quaternions.quaternion(1)
+                , qRotations=quaternions.quaternion(1)
                 , patternSize=(2680,2040)
                 , patternCenterVisible=True):
   """
@@ -119,21 +89,16 @@ def drawPattern(L
   
   im = drawing.ImageLine(patternSize, origin='center')
   
-  #Mark the pattern center
-  if patternCenterVisible:
-    im.draw.ellipse((patternSize[0]/2.0-20+patternCenter[0],patternSize[1]/2.0-20+patternCenter[1] \
-                     ,patternSize[0]/2.0+20+patternCenter[0],patternSize[1]/2.0+20+patternCenter[1]), fill=255)
-  
   reflectors = L.getReflectors()
   
   planes = reflectors.getReflectorsList()
   planes.reverse()
   
   for plane in planes:
-    planeRot = rotateSpecimen(plane, specimenRotation)
-    planeTilt = tiltSpecimen(planeRot, tiltAngle=0*pi/180, tiltAxis=(1,0,0))
+    qPlane = quaternions.quaternion(0, plane)
+    planeRot = quaternions.rotate(qPlane, qRotations).vector()
     
-    m, k = computePlaneEquationOnCamera(plane=planeTilt
+    m, k = computePlaneEquationOnCamera(plane=planeRot
                                         , patternCenter=patternCenter
                                         , detectorDistance=detectorDistance)
     
@@ -204,7 +169,12 @@ def drawPattern(L
                             , k=k
                             , width=2*w
                             , grayLevel=grayLevel)
-    
+  
+  #Mark the pattern center
+  if patternCenterVisible:
+    im.draw.ellipse((patternSize[0]/2.0-20+patternCenter[0],patternSize[1]/2.0-20+patternCenter[1] \
+                     ,patternSize[0]/2.0+20+patternCenter[0],patternSize[1]/2.0+20+patternCenter[1]), fill=255)
+  
   return im()
 
 def main():
@@ -240,18 +210,36 @@ def main():
 #  
 ##  planes = [(2,0,2),(2,0,-2)]
   
-  print quaternions.axisAngleToQuaternion(pi/4.0, (0,0,1)).toEulerAngles()
+  q = quaternions.quaternion(0, 1, 0, 0)
+#  
+#  q1 = quaternions.eulerAnglesToQuaternion(50,34,56)
+#  q2 = quaternions.eulerAnglesToQuaternion(60, 80, 152)
+#  q3 = quaternions.eulerAnglesToQuaternion(150,0,12)
+#  
+#  qq1 = quaternions.rotate(q, [q1])
+#  qq1q2 = quaternions.rotate(qq1, [q2])
+#  qq1q2q3 = quaternions.rotate(qq1q2, [q3])
+#  
+#  print qq1q2q3
+#  
+#  print quaternions.rotate(q, [q1,q2,q3])
+#  print quaternions.rotate(q, [q3,q2,q1])
+  
+  qTilt = quaternions.axisAngleToQuaternion(-90/180.0*pi, (0,1,0))
+  qDetectorOrientation = quaternions.eulerAnglesToQuaternion(eulers.fromHKLeulers(0.0/180.0*pi, 0.0/180.0*pi, 0.0/180.0*pi)).conjugate()
+  
+  qDetectorOrientation_ = qTilt * qDetectorOrientation * qTilt.conjugate()
   
   
-  
-  for theta in range(0,45, 5):
-    angles = eulers.fromHKLeulers(theta/180.0*pi,0,0)
+  for theta in range(0,90, 5):
+#    angles = eulers.fromHKLeulers(-pi/2.0, theta/180.0*pi, pi/2.0) #y
+    angles = eulers.fromHKLeulers(theta/180.0*pi, 0, 0) #z
+#    angles = eulers.fromHKLeulers(0, theta/180.0*pi, 0) #x
     print theta
     
-    rotation = quaternions.eulerAnglesToQuaternion(angles)
-    rotationSpecimen = quaternions.axisAngleToQuaternion(pi/2.0, (1,0,0))
+    qSpecimenRotation = quaternions.eulerAnglesToQuaternion(angles)
     
-    finalRotation = rotation * rotationSpecimen * rotation.conjugate()
+    qRotations = [qSpecimenRotation, qTilt, qDetectorOrientation_]
     
     image = drawPattern(L
                 , bandcenter=False
@@ -261,12 +249,12 @@ def main():
                 , patternCenter=(0,0)
                 , detectorDistance=0.3
                 , energy=20e3
-                , specimenRotation=finalRotation
+                , qRotations=qRotations
                 , patternSize=(2680 ,2040)
-                , patternCenterVisible=False)
+                , patternCenterVisible=True)
     
-    folder = 'i:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
-    imageName = '%s_%3i.jpg' % ('theta1', theta)
+    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
+    imageName = '%s_%3i.jpg' % ('theta2', theta)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))
   

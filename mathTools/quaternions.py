@@ -531,7 +531,25 @@ class quaternion:
     
     return (theta1, theta2, theta3)
 
+def rotate(qIn, qRotations):
+  """
+    Return the input quaternion (qIn) by all the rotation quaternion in qRotations
+    Order of rotation: qRotations[0], qRotations[1], qRotations[2], ...
+    
+    Inputs:
+      qIn: a quaternion to be rotated
+      qRotations: a list of quaternions defining rotations
+    
+    Outputs:
+      a quaternion
+  """
+  qOut = qIn
   
+  for qRotation in qRotations:
+    qOut = qRotation * qOut * qRotation.conjugate()
+  
+  return qOut
+
 if __name__ == '__main__':
   h = 0
   k = 1
