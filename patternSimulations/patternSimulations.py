@@ -211,7 +211,16 @@ def main():
   
   q = quaternions.quaternion(0, 1, 0, 0)
 #  
-#  q1 = quaternions.eulerAnglesToQuaternion(50,34,56)
+#  q1 = quaternions.axisAngleToQuaternion(pi/2.0, (0,0,1))
+#  q2 = quaternions.axisAngleToQuaternion(pi/2.0, (1,0,0))
+#  
+#  qOut1 = quaternions.rotate(q, [q1])
+#  print quaternions.rotate(qOut1, [q2])
+#  print quaternions.rotate(q, [q1,q2])
+#  print quaternions.rotate(q, [q2,q1])
+  
+  
+  
 #  q2 = quaternions.eulerAnglesToQuaternion(60, 80, 152)
 #  q3 = quaternions.eulerAnglesToQuaternion(150,0,12)
 #  
@@ -224,21 +233,24 @@ def main():
 #  print quaternions.rotate(q, [q1,q2,q3])
 #  print quaternions.rotate(q, [q3,q2,q1])
   
-  qTilt = quaternions.axisAngleToQuaternion(-90/180.0*pi, (0,1,0))
-  qDetectorOrientation = quaternions.eulerAnglesToQuaternion(eulers.fromHKLeulers(0.0/180.0*pi, 0.0/180.0*pi, 0.0/180.0*pi)).conjugate()
   
-  qDetectorOrientation_ = qTilt * qDetectorOrientation * qTilt.conjugate()
+#  print q1 * q1.conjugate(), q1.conjugate() * q1
   
-  
-  for theta in range(0,90, 5):
+  for theta in range(0,95, 5):
 #    angles = eulers.fromHKLeulers(-pi/2.0, theta/180.0*pi, pi/2.0) #y
-    angles = eulers.fromHKLeulers(theta/180.0*pi, 0, 0) #z
-#    angles = eulers.fromHKLeulers(0, theta/180.0*pi, 0) #x
+#    angles = eulers.negativeEulers(theta/180.0*pi, 0, 0) #z
+    angles = eulers.negativeEulers(0, theta/180.0*pi, 0) #x
     print theta
     
     qSpecimenRotation = quaternions.eulerAnglesToQuaternion(angles)
+    qTilt = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
+    qDetectorOrientation = quaternions.axisAngleToQuaternion(90/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(pi, (0,0,1))
+    #quaternions.eulerAnglesToQuaternion(eulers.negativeEulers(theta/180.0*pi, 0.0/180.0*pi, 0.0/180.0*pi)).conjugate()
+    qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
+    
     
     qRotations = [qSpecimenRotation, qTilt, qDetectorOrientation_]
+    print qRotations
     
     image = drawPattern(L
                 , bandcenter=False

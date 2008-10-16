@@ -24,7 +24,7 @@ import EBSDTools.mathTools.eulers as eulers
 
 # Globals and constants variables.
 
-class TestQuaternions(unittest.TestCase):
+class TestEulers(unittest.TestCase):
 
   def setUp(self):
     unittest.TestCase.setUp(self)
