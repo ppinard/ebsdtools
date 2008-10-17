@@ -25,6 +25,7 @@ import math
 # Third party modules.
 
 # Local modules.
+from mathExtras import _acos
 
 class vector:
   def __init__(self, *data):
@@ -34,7 +35,9 @@ class vector:
       Inputs:
         
     """
-    if len(data) == 1:
+    if len(data) == 0:
+      self.vector = []
+    elif len(data) == 1:
       if isinstance(data[0], list):
         self.vector = data[0]
       else:
@@ -252,12 +255,7 @@ def cross(v1, v2):
 def angle(v1, v2):
   costheta = dot(v1, v2) / (v1.norm() * v2.norm())
   
-  if costheta >= 1.0:
-    return 0
-  elif costheta <= -1.0:
-    return pi
-  else:
-    return math.acos(costheta)
+  return _acos(costheta)
 
 if __name__ == "__main__":
   a = vector([0,0,1])

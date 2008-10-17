@@ -18,6 +18,7 @@ __svnId__ = ""
 from math import sin, cos, pi, acos, atan2, exp, sqrt
 import csv
 import os.path
+import warnings
 
 # Third party modules.
 
@@ -98,13 +99,14 @@ class scatteringFactors:
     if s >= 0 and s < 2:
       a = [self.parameters_0_2[Z]['a1'], self.parameters_0_2[Z]['a2'], self.parameters_0_2[Z]['a3'], self.parameters_0_2[Z]['a4'], self.parameters_0_2[Z]['a5']]
       b = [self.parameters_0_2[Z]['b1'], self.parameters_0_2[Z]['b2'], self.parameters_0_2[Z]['b3'], self.parameters_0_2[Z]['b4'], self.parameters_0_2[Z]['b5']]
-#    elif s >= 2 and s < 6:
-    elif s >= 2:
+    elif s >= 2 and s < 6:
+#    elif s >= 2:
       a = [self.parameters_2_6[Z]['a1'], self.parameters_2_6[Z]['a2'], self.parameters_2_6[Z]['a3'], self.parameters_2_6[Z]['a4'], self.parameters_2_6[Z]['a5']]
       b = [self.parameters_2_6[Z]['b1'], self.parameters_2_6[Z]['b2'], self.parameters_2_6[Z]['b3'], self.parameters_2_6[Z]['b4'], self.parameters_2_6[Z]['b5']]
-#    else:
-#      a = [0,0,0,0,0]
-#      b = [0,0,0,0,0]
+    else:
+      warnings.warn("Outside table range of s < 6\AA")
+      a = [self.parameters_2_6[Z]['a1'], self.parameters_2_6[Z]['a2'], self.parameters_2_6[Z]['a3'], self.parameters_2_6[Z]['a4'], self.parameters_2_6[Z]['a5']]
+      b = [self.parameters_2_6[Z]['b1'], self.parameters_2_6[Z]['b2'], self.parameters_2_6[Z]['b3'], self.parameters_2_6[Z]['b4'], self.parameters_2_6[Z]['b5']]
       
     f = 0.0
     

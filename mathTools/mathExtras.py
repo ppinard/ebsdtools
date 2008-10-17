@@ -15,7 +15,7 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import acos
+from math import pi, acos
 
 # Third party modules.
 

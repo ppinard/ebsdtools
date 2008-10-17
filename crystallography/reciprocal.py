@@ -34,7 +34,6 @@ def cartesianToReciprocal(a, b, c):
   """
   
   volume = vectors.dot(vectors.cross(a, b), c)
-  print volume
   
   a_ = vectors.cross(b, c) / volume
   b_ = vectors.cross(c, a) / volume

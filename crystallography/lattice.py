@@ -66,9 +66,6 @@ class Lattice:
   def __calculateReciprocalVolume(self):
     self.volume_ = 1.0 / self.volume
   
-  def getReflectors(self):
-    return self.reflectors
-       
   def __call__(self):
     return {'a': self.a
             , 'b': self.b
@@ -85,10 +82,12 @@ class Lattice:
             , 'V': self.volume
             , 'V*': self.volume_
             }
+  def getReflectors(self):
+    return self.reflectors
   
   def getAtomsPositions(self):
     return self.atoms.keys()
 
 if __name__ == '__main__':
-  print h
+  pass
   
