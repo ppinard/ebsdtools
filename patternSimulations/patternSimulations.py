@@ -107,7 +107,7 @@ def drawPattern(L
     
     if bandedges or bandfull:
       #Distance from the sample to the screen at x = 0
-      d = vectors.vector(-patternCenter[0], detectorDistance, k-patternCenter[1]).norm()
+#      d = vectors.vector(-patternCenter[0], detectorDistance, k-patternCenter[1]).norm()
       
       x0 = vectors.vector(0,0,0)
       
@@ -242,14 +242,15 @@ def main():
     angles = eulers.negativeEulers(0, theta/180.0*pi, 0) #x
     print theta
     
-    qSpecimenRotation = quaternions.eulerAnglesToQuaternion(angles)
+    qSpecimenRotation = quaternions.quaternion(1,0,0,0)
+    qCrystalRotation = quaternions.eulerAnglesToQuaternion(angles)
     qTilt = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
     qDetectorOrientation = quaternions.axisAngleToQuaternion(90/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(pi, (0,0,1))
     #quaternions.eulerAnglesToQuaternion(eulers.negativeEulers(theta/180.0*pi, 0.0/180.0*pi, 0.0/180.0*pi)).conjugate()
     qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
     
     
-    qRotations = [qSpecimenRotation, qTilt, qDetectorOrientation_]
+    qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
     print qRotations
     
     image = drawPattern(L
@@ -264,8 +265,8 @@ def main():
                 , patternSize=(2680 ,2040)
                 , patternCenterVisible=True)
     
-#    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
-    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
+    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
+#    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
     imageName = '%s_%3i.jpg' % ('theta2', theta)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))
