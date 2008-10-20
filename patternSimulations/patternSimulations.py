@@ -15,14 +15,14 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import pi, cos, atan, sqrt, tan
+from math import pi, cos, atan, sqrt, tan,sin
 
 # Third party modules.
 
 # Local modules.
 import EBSDTools.mathTools.quaternions as quaternions
 import EBSDTools.mathTools.vectors as vectors
-from EBSDTools.mathTools.mathExtras import zeroPrecision
+from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
 import EBSDTools.crystallography.bragg as bragg
 import RandomUtilities.DrawingTools.drawing as drawing
 
@@ -106,25 +106,26 @@ def drawPattern(L
       continue
     
     if bandedges or bandfull:
-      #Distance from the sample to the screen at x = 0
-#      d = vectors.vector(-patternCenter[0], detectorDistance, k-patternCenter[1]).norm()
-      
       x0 = vectors.vector(0,0,0)
       
-      if m == None or abs(m) < zeroPrecision:
+      if m == None:
         x1 = vectors.vector(k, detectorDistance, 0.0)
         x2 = vectors.vector(k, detectorDistance, 0.1)
+      elif abs(m) < zeroPrecision:
+        x1 = vectors.vector(0.0, detectorDistance, k)
+        x2 = vectors.vector(0.1, detectorDistance, k)
       else:
         x1 = vectors.vector(0.0, detectorDistance, k)
         if abs(k) > zeroPrecision:
           x2 = vectors.vector(-k/m, detectorDistance, 0.0)
-        else: # abs(b) < zeroPrecision:
+        else: # abs(k) < zeroPrecision:
           x2 = vectors.vector((1-k)/m, detectorDistance, 1.0)
       
       n = vectors.cross(x2-x1, x1-x0)
       s = vectors.vector(n[0], 0, n[2])
       d = n.norm() / (x2-x1).norm()
       cosalpha = vectors.dot(n,s) / (n.norm()*s.norm())
+      alpha = _acos(cosalpha)
       
       #Diffraction angle
       planeSpacing = reflectors.getReflectorPlaneSpacing(plane)
@@ -132,8 +133,8 @@ def drawPattern(L
       theta = bragg.diffractionAngle(planeSpacing, wavelength) 
       
       #Half-width of the band
-#      w = sqrt(2*d**2*(1-cos(theta)))
-      w = d*tan(theta) / cosalpha
+      w = d * sin(theta) / cos(alpha-theta)
+      w2 = d * sin(theta) / cos(alpha+theta)
       
     if intensity:
       grayLevel = reflectors.getReflectorNormalizedIntensity(plane) * 255
@@ -149,19 +150,19 @@ def drawPattern(L
     
     if bandedges:
       #Correction for the slope of the band
-      v = x2-x1
-      if abs(v[0]) > zeroPrecision:
-        alpha = atan(v[2]/v[0])
+      if m != None:
+        alpha = atan(m)
       else:
         alpha = 0.0
       
       h = w*cos(alpha)
-      
       im.drawLinearFunction(m=m
                             , k=k+h
                             , grayLevel=grayLevel)
+      
+      h2 = w2*cos(alpha)
       im.drawLinearFunction(m=m
-                            , k=k-h
+                            , k=k-h2
                             , grayLevel=grayLevel)
     
     if bandfull:
@@ -236,7 +237,7 @@ def main():
   
 #  print q1 * q1.conjugate(), q1.conjugate() * q1
   
-  for theta in range(0,95, 5):
+  for theta in range(0,5, 5):
 #    angles = eulers.fromHKLeulers(-pi/2.0, theta/180.0*pi, pi/2.0) #y
 #    angles = eulers.negativeEulers(theta/180.0*pi, 0, 0) #z
     angles = eulers.negativeEulers(0, theta/180.0*pi, 0) #x
@@ -251,13 +252,13 @@ def main():
     
     
     qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
-    print qRotations
+#    print qRotations
     
     image = drawPattern(L
-                , bandcenter=False
-                , bandedges=False
-                , bandfull=True
-                , intensity=True
+                , bandcenter=True
+                , bandedges=True
+                , bandfull=False
+                , intensity=False
                 , patternCenter=(0,0)
                 , detectorDistance=0.3
                 , energy=20e3
@@ -265,8 +266,8 @@ def main():
                 , patternSize=(2680 ,2040)
                 , patternCenterVisible=True)
     
-    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
-#    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
+#    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
+    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
     imageName = '%s_%3i.jpg' % ('theta2', theta)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))

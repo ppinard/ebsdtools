@@ -83,11 +83,14 @@
 			\includegraphics[width=0.3\textwidth]{figures/axis_system1} & \includegraphics[width=0.3\textwidth]{figures/axis_system2} & \includegraphics[width=0.3\textwidth]{figures/axis_system3} 
 		\end{tabular}
 		\begin{itemize}
-			\item The origin is taken as the point where the beam intersects the sample. To be more precise, the top left corner of the acquisition map.
+			\item The origin of the reference coordinates system $\var{O}$ is taken as the point where the beam intersects the sample. To be more precise, the top left corner of the acquisition map.
+			\item When the beam is scanned across the specimen, the $\var{PC}$ and $\var{DD}$ move as well. To simplify the calculations of the Kikuchi bands, the beam raster is taken into account before the calculations by converting the motion of the beam into a shift of the $\var{PC}$ and $\var{DD}$. Therefore, the point of incidence $\var{I}$ has always the coordinates $(0,0,0)$.
 			\item The default position of the detector (i.e.\ without any correction of the detector orientation) is at $\var{DD}\vy$ of the sample.
 			\item The default tilt axis is along the $\vx$ axis. Counter-clockwise rotation are taken as positive rotation.
-			\item The coordinates of the $\var{PC}$ are $(\var{PC}_x, \var{DD}, \var{PC_z})$.
+			\item The coordinates of the $\var{PC}$ are always at $(\var{PC}_x, \var{DD}, \var{PC_z})$.
 		\end{itemize}
+	
+	\subsection{Units}
 	
 	\section{Planes to Kikuchi bands}
 	From planes representing a particular crystallographic orientation to their representations as Kikuchi bands on the detector, several steps are involved:
@@ -135,7 +138,12 @@
 		\label{eq:plane3}
 	\end{eqnarray}
 	
-	The slope is therefore $m=-\frac{n_x}{n_z}$ and the intercept $b=\frac{n_x}{n_z}\var{PC}_x + - \frac{n_y}{n_z}\var{DD} + \var{PC}_z$. 
+	The slope is therefore $m=-\frac{n_x}{n_z}$ and the intercept $k=\frac{n_x}{n_z}\var{PC}_x + - \frac{n_y}{n_z}\var{DD} + \var{PC}_z$. We shall refer to the equation of Kikuchi line as Equation~\ref{eq:kikuchi_eq}.
+	\begin{eqnarray}
+		z = mx + k
+		\label{eq:kikuchi_eq}
+	\end{eqnarray}
+
 	Equation~\ref{eq:plane3} is undetermined when $n_z = 0$. 
 	This situations corresponds to a vertical line $x = \text{constant}$.
 	\begin{eqnarray}
@@ -161,17 +169,236 @@
 	However, since the scattering angle is small for electron energies used in SEM, the hyperbola can be approximated as two lines. 
 	So, to simplify the calculations, the cones are replaced by two planes separated by an angle $2\theta$.
 	
-	
-	To convert the scattering angle $\theta$  to a distance on the detector $w$, we first find the smallest distance between the Kikuchi line and the origin. 
+	To convert the scattering angle $\theta$ to a distance on the detector $w$, we first find the smallest distance between the Kikuchi line and the origin. 
 	This distance would correspond to half the distance between the two inflexion points of the hyperbola.
-	This distance between a line and a point is given by Equation~\ref{eq:pointline}\ref{mathworld}, where $\vec{x_0}$ is the point, and $\vec{x_1}$ and $\vec{x_2}$ are two points on the line.
+	This distance between a point and a line is given by the general Equation~\ref{eq:pointline}\ref{mathworld}, where $\vec{x}_0$ is the point, and $\vec{x}_1$ and $\vec{x}_2$ are two points on the line (Figure~\ref{fig:pointline}).
 	\begin{eqnarray}
-		d = \frac{\norm{(\vec{x_2}-\vec{x_1}) \times (\vec{x_1}-\vec{x_0})}}{\norm{\vec{x_2}-\vec{x_1}}}
+		d = \frac{\norm{(\vec{x}_2-\vec{x}_1) \times (\vec{x}_1-\vec{x}_0)}}{\norm{\vec{x}_2-\vec{x}_1}}
 		\label{eq:pointline}
 	\end{eqnarray}
-	One can notice that the numerator is in fact the normal $\vec{N}$ of the plane formed by $\vec{x_0}$, $\vec{x_1}$ and $\vec{x_2}$.
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.3\textwidth]{figures/pointline}
+		\caption{Distance between a point and a line}
+		\label{fig:pointline}
+	\end{figure}
+	
+	Using our \emph{Reference coordinates system}'s notation, $\vec{x}_0$ is the point of incidence $\var{I}$, and $\vec{x}_1$ and $\vec{x}_2$, as two points on the Kikuchi line, which we shall refer to as $\var{A}$ and $\var{B}$.  The selection of these two points requires to be discussed in more details since they are depend on the slope and intercept of the Kikuchi line (Figure~\ref{fig:cases}).
+	\begin{enumerate}
+		\item Vertical line ($x=\text{constant}$)
+			\begin{itemize}
+				\item $\var{A} = \left(k, \var{DD}, 0\right)$
+				\item $\var{B} = \left(k, \var{DD}, 0.1\right)$
+			\end{itemize}
+		\item Horizontal line ($z=k$)
+			\begin{itemize}
+				\item $\var{A} = \left(0, \var{DD}, k\right)$
+				\item $\var{B} = \left(0.1, \var{DD}, k\right)$
+			\end{itemize}
+		\item Oblique line when $k=0$ ($z=mx$)
+			\begin{itemize}
+				\item $\var{A} = \left(0, \var{DD}, 0\right)$ (case when $x=0$)
+				\item $\var{B} = \left(\frac{1}{m}, \var{DD}, 1\right)$ (case when $z=1$)
+			\end{itemize}
+		\item Oblique line ($z=mx+k$)
+			\begin{itemize}
+				\item $\var{A} = \left(0, \var{DD}, k\right)$ (case when $x=0$)
+				\item $\var{B} = \left(\frac{-k}{m}, \var{DD}, 0\right)$ (case when $z=0$)
+			\end{itemize}
+	\end{enumerate}
+	
+	\begin{figure}
+		\centering
+		
+		\begin{tabular}{cc}
+		Vertical line ($x=\text{constant}$) & Horizontal line ($z=k$) \\
+		\begin{picture}(150,100)
+			\put(10,10){\line(1,0){130}}
+			\put(10,10){\line(0,1){80}}
+			\put(10,90){\line(1,0){130}}
+			\put(140,10){\line(0,1){80}}
+			
+			\put(30,20){\vector(-1,0){10}}
+			\put(30,20){\vector(0,1){10}}
+			\put(18,22){$x$}
+			\put(33,27){$z$}
+			
+			\thicklines
+			\put(60,10){\line(0,1){80}}
+			\put(60, 30){\circle*{4}}
+			\put(65, 30){$\var{A}\;(k,0)$}
+			\put(60, 70){\circle*{4}}
+			\put(65, 70){$\var{B}\;(k,0.1)$}
+		\end{picture}
+		&
+		\begin{picture}(150,100)
+			\put(10,10){\line(1,0){130}}
+			\put(10,10){\line(0,1){80}}
+			\put(10,90){\line(1,0){130}}
+			\put(140,10){\line(0,1){80}}
+			
+			\put(30,20){\vector(-1,0){10}}
+			\put(30,20){\vector(0,1){10}}
+			\put(18,22){$x$}
+			\put(33,27){$z$}
+			
+			\thicklines
+			\put(10,60){\line(1,0){130}}
+			\put(30, 60){\circle*{4}}
+			\put(30, 65){$\var{A}\;(0,k)$}
+			\put(100, 60){\circle*{4}}
+			\put(100, 65){$\var{B}\;(0.1,k)$}
+		\end{picture} \\
+		
+		Oblique line when $k=0$ ($z=mx$) & Oblique line ($z=mx+k$) \\
+		\begin{picture}(150,100)
+			\put(10,10){\line(1,0){130}}
+			\put(10,10){\line(0,1){80}}
+			\put(10,90){\line(1,0){130}}
+			\put(140,10){\line(0,1){80}}
+			
+			\put(30,70){\vector(-1,0){10}}
+			\put(30,70){\vector(0,1){10}}
+			\put(18,62){$x$}
+			\put(33,77){$z$}
+			
+			\thicklines
+			\put(10,10){\line(3,2){120}}
+			\put(30, 23){\circle*{4}}
+			\put(35, 18){$\var{A}\;(0,0)$}
+			\put(100, 70){\circle*{4}}
+			\put(105, 65){$\var{B}\;(\frac{1}{m},1)$}
+		\end{picture}
+		&
+		\begin{picture}(150,100)
+			\put(10,10){\line(1,0){130}}
+			\put(10,10){\line(0,1){80}}
+			\put(10,90){\line(1,0){130}}
+			\put(140,10){\line(0,1){80}}
+			
+			\put(30,70){\vector(-1,0){10}}
+			\put(30,70){\vector(0,1){10}}
+			\put(18,62){$x$}
+			\put(33,77){$z$}
+			
+			\thicklines
+			\put(10,40){\line(5,2){125}}
+			\put(30, 48){\circle*{4}}
+			\put(35, 43){$\var{A}\;(0,k)$}
+			\put(100, 76){\circle*{4}}
+			\put(105, 71){$\var{B}\;(-\frac{k}{m},1)$}
+		\end{picture}
+		\end{tabular}
+		
+		\label{fig:cases}
+		\caption{Four different cases of Kikuchi lines}
+	\end{figure}
 	
 	
+	Let define the normal of the plane form by points $\var{I}$, $\var{A}$ and $\var{B}$ as $\vec{N}$ as seen in Figure~\ref{fig:widthangle1}. Note that in Figure~\ref{fig:widthangle1}, the origin of the axes is located at $(0,\var{DD},0)$ to illustrate better the positions relative to the detector screen. Equation~\ref{eq:pointline} can be re-written using the new defined points.
+	\begin{eqnarray}
+		d = \frac{\norm{\vec{N}}}{\norm{\overrightarrow{\var{AB}}}}
+		\label{eq:pointline2}
+	\end{eqnarray}
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/widthangle1}
+		\caption{Schematics of points and vectors to find the distance between $\var{I}$ and the Kikuchi line $\var{AB}$}
+		\label{fig:widthangle1}
+	\end{figure}
+	
+	From Figure~\ref{fig:widthangle}, we have the following orthogonality relations:
+	\begin{eqnarray}
+		\overrightarrow{\var{IP}} \cdot \vec{N} & = & 0 \; (\angle\var{IPP^\prime} = \pi/2)\\
+		\overrightarrow{\var{AB}} \cdot \vec{N} & = & 0 \; (\angle\var{APP^\prime} = \angle\var{BPP^\prime} = \pi/2)\\
+		\overrightarrow{\var{IP}} \cdot \overrightarrow{\var{AB}} & = & 0 \; (\angle\var{IPA} = \angle\var{IPB} = \pi/2)
+		\label{eq:orthogonality}
+	\end{eqnarray}
+	
+	Excepted when the Kikuchi line passes through the pattern center, the normal $\vec{N}$ is not parallel to the detector screen, forming an angle $\alpha$ with the latter. To solve for the width of the band $\norm{\overrightarrow{\var{PP}^{\prime\prime}}}$ we introduce the vector $\vec{S}$, which is defined as a vector parallel to the detector screen and perpendicular to $\overrightarrow{\var{AB}}$. The coordinates of $\vec{s}$ are therefore $(N_x, 0, N_z)$. Figure~\ref{fig:widthangle2}, which is a projection in the $x$-direction of Figure~\ref{fig:widthangle1}, illustrates the definition of $\vec{S}$ and $\alpha$.
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/widthangle2}
+		\caption{Schematics of points, vectors and angles to find the distance between $\var{P}$ and $\var{P}^{\prime\prime}$ above the Kikuchi line $\var{AB}$}
+		\label{fig:widthangle2}
+	\end{figure}
+	
+	The angle $\alpha$ can be calculated using the dot product of vectors $\vec{S}$ and $\vec{N}$. 
+	\begin{eqnarray}
+		\alpha = \arccos{\frac{\vec{S}\cdot\vec{N}}{\norm{\vec{S}}\norm{\vec{N}}}}
+		\label{eq:alpha}
+	\end{eqnarray}
+	
+	The vectors $\vec{S}$ and $\vec{N}$ forms a scalene triangle $\triangle\var{PP^\prime P^{\prime\prime}}$. 
+	Knowing that the $\angle\var{PP^\prime P^{\prime\prime}} = \frac{\pi}{2}-\theta$ and $\angle\var{P^\prime PP^{\prime\prime}} = \alpha$, the $\angle\var{PP^{\prime\prime}P^\prime}$ is equal to $\frac{\pi}{2} + \theta - \alpha$. 
+	Using the Sin's Law, the following relation can be established:
+	\begin{eqnarray}
+		\frac{\sin{\left(\frac{\pi}{2} + \theta - \alpha\right)}}{\norm{\overrightarrow{\var{PP^\prime}}}} = \frac{\sin{\left(\frac{\pi}{2} - \theta\right)}}{\norm{\overrightarrow{\var{PP^{\prime\prime}}}}}
+		\label{eq:sinlaw}
+	\end{eqnarray}
+	
+	Knowing that $\norm{\overrightarrow{\var{PP^\prime}}} = d\tan\theta$ and solving for $\norm{\overrightarrow{\var{PP^{\prime\prime}}}}$, we obtain
+	\begin{eqnarray}
+		\norm{\overrightarrow{\var{PP^{\prime\prime}}}} = d\tan\theta \frac{\sin{\left(\frac{\pi}{2} - \theta\right)}}{\sin{\left(\frac{\pi}{2} + \theta - \alpha\right)}} = d\tan\theta \frac{\cos{\theta}}{\cos{\left(\alpha - \theta\right)}} = d \frac{\sin{\theta}}{\cos{\left(\alpha - \theta\right)}}
+		\label{eq:width1}
+	\end{eqnarray}
+	
+	The Kikuchi bands also extends below the Kikuchi line. To calculate this distance we can use the same relationships as for the one above (Figure~\ref{fig:widthangle3}. 
+	We obtain:
+	\begin{eqnarray}
+		\norm{\overrightarrow{\var{PQ^{\prime\prime}}}} = d \frac{\sin{\theta}}{\cos{\left(\alpha + \theta\right)}}
+		\label{eq:width2}
+	\end{eqnarray}
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/widthangle3}
+		\caption{Schematics of points, vectors and angles to find the distance between $\var{P}$ and $\var{P}^{\prime\prime}$ below the Kikuchi line $\var{AB}$}
+		\label{fig:widthangle3}
+	\end{figure}
+	
+	Equation~\ref{eq:width1} and \ref{eq:width2}, as well as Figure~\ref{fig:widthangle3} show that the half-widths of a Kikuchi band are not equal.
+	When drawing filled Kikuchi bands, we will approximate that the half-widths are the same and equal to half the total width. 
+	This approximate introduces an error less than 10\% on the center of the band.
+	\begin{eqnarray}
+		w = d \sin{\theta} \left[\sec{\left(\alpha - \theta\right)} + \sec{\left(\alpha + \theta\right)}\right]
+		\label{eq:totalwidth}
+	\end{eqnarray}
+	
+	However, when drawing the edges of the bands, the difference between the half-widths will be taken into account.
+	For the equations for the lines representing the edges, they will have the same slope as the Kikuchi line, $m$, but a different intercept, $k$.
+	As defined above, the half-widths found are perpendicular to the Kikuchi line. 
+	Therefore, to determine the intercept of the edges, we need to find the variation in $z$ ($h$) related to the half-widths.
+	As seen in Figure~\ref{fig:widthangle4}, 
+	\begin{eqnarray}
+		h = \norm{\overrightarrow{\var{PP^{\prime\prime}}}} \cos\beta\\
+		h^\prime = \norm{\overrightarrow{\var{PQ^{\prime\prime}}}} \cos\beta
+		\label{eq:height1}
+	\end{eqnarray}
+	where $\beta$ is the angle with respect to the $x$-axis of the Kikuchi line $\var{AB}$.
+	The angle $\beta$ can be calculated using the slope of the Kikuchi line.
+	\begin{eqnarray}
+		\beta = \arctan{m}
+		\label{eq:beta}
+	\end{eqnarray}
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/widthangle4}
+		\caption{Schematics of points, vectors and angles to find the intercepts of the Kikuchi band' edges}
+		\label{fig:widthangle4}
+	\end{figure}
+	
+	The equations of the two edges are:
+	\begin{itemize}
+		\item $z = mx + k + h$
+		\item $z = mx + k - h^\prime$
+	\end{itemize}
+	
+	\subsection{Bands Intensity}
 	
 	
 \end{document}
