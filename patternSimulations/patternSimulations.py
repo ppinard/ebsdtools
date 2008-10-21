@@ -141,7 +141,7 @@ def drawPattern(L
     else:
       grayLevel = 255
     
-#    print plane, 'm', m, 'k', k, 'd', d, 'theta', theta, 'w', w, 'alpha', cosalpha, 'g', grayLevel
+    print plane, 'm', m, 'k', k#, 'd', d, 'theta', theta, 'w', w, 'alpha', cosalpha, 'g', grayLevel
     
     if bandcenter:
       im.drawLinearFunction(m=m
@@ -191,7 +191,7 @@ def main():
            (0,0.5,0.5): 14}
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
-  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
+  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=1)
   #BCC
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
@@ -237,7 +237,7 @@ def main():
   
 #  print q1 * q1.conjugate(), q1.conjugate() * q1
   
-  for theta in range(0,5, 5):
+  for theta in range(0,95, 5):
 #    angles = eulers.fromHKLeulers(-pi/2.0, theta/180.0*pi, pi/2.0) #y
 #    angles = eulers.negativeEulers(theta/180.0*pi, 0, 0) #z
     angles = eulers.negativeEulers(0, theta/180.0*pi, 0) #x
@@ -255,9 +255,9 @@ def main():
 #    print qRotations
     
     image = drawPattern(L
-                , bandcenter=True
-                , bandedges=True
-                , bandfull=False
+                , bandcenter=False
+                , bandedges=False
+                , bandfull=True
                 , intensity=False
                 , patternCenter=(0,0)
                 , detectorDistance=0.3

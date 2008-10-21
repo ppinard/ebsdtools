@@ -91,6 +91,8 @@
 		\end{itemize}
 	
 	\subsection{Units}
+	All dimensions are given as a multiple of the width of the detector, except in the $\var{PC}$ where the $\var{PC}_z$ is a multiple of the height.
+	In other words, a $\var{PC}$ with the coordinates $(0, 0)$ is located in the middle of the detector.	
 	
 	\section{Planes to Kikuchi bands}
 	From planes representing a particular crystallographic orientation to their representations as Kikuchi bands on the detector, several steps are involved:
@@ -99,18 +101,28 @@
 		\item Specimen coordinates system $\xrightarrow{\text{Crystal orientation}}$ Crystal coordinates system
 		\item Crystal coordinates system $\xrightarrow{\text{Tilt}}$ Tilted coordinates system
 		\item Tilted coordinates system $\xrightarrow{\text{Detector orientation}}$ Detector corrected or Diffraction coordinates system
-		\item Diffraction coordinates system $\rightarrow{\text{Diffraction}}$ Kikuchi bands
+		\item Diffraction coordinates system $\xrightarrow{\text{Diffraction}}$ Kikuchi bands
 	\end{enumerate}
 	
 	\subsection{Specimen orientation}
-	
+	This orientation corresponds to how the specimen is mounted in the microscope with respect to the RD, TD and ND. 
+	To compare acquisitions where the specimen was not mounted in the same direction, the specimen orientation can be adjusted for each mapping.
+	This is performed using a quaternion that can be calculated from Euler angles, an axis of rotation or a matrix.
 	
 	\subsection{Crystal orientation}
+	The crystal orientation is the orientation of the crystal relative to the specimen rotation. 
+	This is the crystallographic orientation of the region analyzed.
+	As the specimen orientation, a quaternion is used.
 	
 	\subsection{Tilt}
-	
+	Tilting of the specimen is performed using an axis of rotation and an angle of rotation. 
+	In most cases, the specimen is tilted by \ang{70} in the clockwise direction.
 	
 	\subsection{Detector orientation}
+	The detector orientation depends on the microscope configuration.
+	In other words, it represents where the detector is located with respect to the tilt axis.
+	The detector orientation can also compensates with small errors in the stage tilt and pattern center.\cite{OxfordChannel5}
+	To simulate the rotation of the detector with respect to the \emph{Reference coordinate system}, the inverse rotation is applied to the specimen.
 	
 	\subsection{Diffraction}
 	\subsubsection{Kikuchi Line}
@@ -134,11 +146,11 @@
 	For this correction, $x$ becomes $x-\var{PC}_x$ and $z$, $z-\var{PC}_z$.
 	Rewriting the equation, we obtain:
 	\begin{eqnarray}
-		z = \left(-\frac{n_x}{n_z}\right)x + \left(\frac{n_x}{n_z}\var{PC}_x + - \frac{n_y}{n_z}\var{DD} + \var{PC}_z\right)
+		z = \left(-\frac{n_x}{n_z}\right)x + \left(\frac{n_x}{n_z}\var{PC}_x - \frac{n_y}{n_z}\var{DD} + \var{PC}_z\right)
 		\label{eq:plane3}
 	\end{eqnarray}
 	
-	The slope is therefore $m=-\frac{n_x}{n_z}$ and the intercept $k=\frac{n_x}{n_z}\var{PC}_x + - \frac{n_y}{n_z}\var{DD} + \var{PC}_z$. We shall refer to the equation of Kikuchi line as Equation~\ref{eq:kikuchi_eq}.
+	The slope is therefore $m=-\frac{n_x}{n_z}$ and the intercept $k=\frac{n_x}{n_z}\var{PC}_x - \frac{n_y}{n_z}\var{DD} + \var{PC}_z$. We shall refer to the equation of Kikuchi line as Equation~\ref{eq:kikuchi_eq}.
 	\begin{eqnarray}
 		z = mx + k
 		\label{eq:kikuchi_eq}
@@ -147,7 +159,7 @@
 	Equation~\ref{eq:plane3} is undetermined when $n_z = 0$. 
 	This situations corresponds to a vertical line $x = \text{constant}$.
 	\begin{eqnarray}
-		n_x x + n_y \var{DD} + (0) z = 0 \\\nonumber
+		n_x (x - \var{PC}_x) + n_y \var{DD} + (0) (z - \var{PC}_x) = 0 \\\nonumber
 		x = -\frac{n_y}{n_x}\var{DD} + \var{PC}_x
 		\label{eq:plane4}
 	\end{eqnarray}
@@ -163,11 +175,18 @@
 	\end{eqnarray}
 	
 	
-	The scattering angle creates two Kikuchi cones (Figure~\ref{}). 
+	The scattering angle creates two Kikuchi cones (Figure~\ref{fig:ebsd_formation}). 
 	It is the intersection of these cones with the detector that gives a width to the Kikuchi bands.
 	The intersection of cones with a planes gives an hyperbola. 
 	However, since the scattering angle is small for electron energies used in SEM, the hyperbola can be approximated as two lines. 
 	So, to simplify the calculations, the cones are replaced by two planes separated by an angle $2\theta$.
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.3\textwidth]{figures/ebsd_formation}
+		\caption{Formation of Kikuchi cones\cite{http://level2.phys.strath.ac.uk/ssd/HTML/charhtml/ebsd.htm}}
+		\label{fig:ebsd_formation}
+	\end{figure}
 	
 	To convert the scattering angle $\theta$ to a distance on the detector $w$, we first find the smallest distance between the Kikuchi line and the origin. 
 	This distance would correspond to half the distance between the two inflexion points of the hyperbola.
@@ -179,12 +198,12 @@
 	
 	\begin{figure}
 		\centering
-		\includegraphics[width=0.3\textwidth]{figures/pointline}
+		\includegraphics[width=0.5\textwidth]{figures/pointline}
 		\caption{Distance between a point and a line}
 		\label{fig:pointline}
 	\end{figure}
 	
-	Using our \emph{Reference coordinates system}'s notation, $\vec{x}_0$ is the point of incidence $\var{I}$, and $\vec{x}_1$ and $\vec{x}_2$, as two points on the Kikuchi line, which we shall refer to as $\var{A}$ and $\var{B}$.  The selection of these two points requires to be discussed in more details since they are depend on the slope and intercept of the Kikuchi line (Figure~\ref{fig:cases}).
+	Using our \emph{Reference coordinates system}'s notation, $\vec{x}_0$ is the point of incidence $\var{I}$, and $\vec{x}_1$ and $\vec{x}_2$, as two points on the Kikuchi line, which we shall refer to as $\var{A}$ and $\var{B}$.  The selection of these two points requires to be discussed in more details since they are depend on the slope and intercept of the Kikuchi line (Figure~\ref{fig:kikuchi_cases}).
 	\begin{enumerate}
 		\item Vertical line ($x=\text{constant}$)
 			\begin{itemize}
@@ -291,8 +310,9 @@
 		\end{picture}
 		\end{tabular}
 		
-		\label{fig:cases}
+		
 		\caption{Four different cases of Kikuchi lines}
+		\label{fig:kikuchi_cases}
 	\end{figure}
 	
 	
@@ -309,7 +329,7 @@
 		\label{fig:widthangle1}
 	\end{figure}
 	
-	From Figure~\ref{fig:widthangle}, we have the following orthogonality relations:
+	From Figure~\ref{fig:widthangle1}, we have the following orthogonality relations:
 	\begin{eqnarray}
 		\overrightarrow{\var{IP}} \cdot \vec{N} & = & 0 \; (\angle\var{IPP^\prime} = \pi/2)\\
 		\overrightarrow{\var{AB}} \cdot \vec{N} & = & 0 \; (\angle\var{APP^\prime} = \angle\var{BPP^\prime} = \pi/2)\\
@@ -333,8 +353,7 @@
 	\end{eqnarray}
 	
 	The vectors $\vec{S}$ and $\vec{N}$ forms a scalene triangle $\triangle\var{PP^\prime P^{\prime\prime}}$. 
-	Knowing that the $\angle\var{PP^\prime P^{\prime\prime}} = \frac{\pi}{2}-\theta$ and $\angle\var{P^\prime PP^{\prime\prime}} = \alpha$, the $\angle\var{PP^{\prime\prime}P^\prime}$ is equal to $\frac{\pi}{2} + \theta - \alpha$. 
-	Using the Sin's Law, the following relation can be established:
+	Knowing that the $\angle\var{PP^\prime P^{\prime\prime}} = \frac{\pi}{2}-\theta$ and $\angle\var{P^\prime PP^{\prime\prime}} = \alpha$, the $\angle\var{PP^{\prime\prime}P^\prime}$ is equal to $\frac{\pi}{2} + \theta - \alpha$, the sin's Law can be used to find the following relation:
 	\begin{eqnarray}
 		\frac{\sin{\left(\frac{\pi}{2} + \theta - \alpha\right)}}{\norm{\overrightarrow{\var{PP^\prime}}}} = \frac{\sin{\left(\frac{\pi}{2} - \theta\right)}}{\norm{\overrightarrow{\var{PP^{\prime\prime}}}}}
 		\label{eq:sinlaw}
@@ -346,7 +365,7 @@
 		\label{eq:width1}
 	\end{eqnarray}
 	
-	The Kikuchi bands also extends below the Kikuchi line. To calculate this distance we can use the same relationships as for the one above (Figure~\ref{fig:widthangle3}. 
+	The Kikuchi bands also extends below the Kikuchi line. To calculate this distance we can use the same relationships as for the one above (Figure~\ref{fig:widthangle3}). 
 	We obtain:
 	\begin{eqnarray}
 		\norm{\overrightarrow{\var{PQ^{\prime\prime}}}} = d \frac{\sin{\theta}}{\cos{\left(\alpha + \theta\right)}}
@@ -398,7 +417,9 @@
 		\item $z = mx + k - h^\prime$
 	\end{itemize}
 	
-	\subsection{Bands Intensity}
+	\subsubsection{Bands Intensity}
+	The Kikuchi bands' intensity is calculated using the atomic scattering factors as described in \ref{sec:reflectors}.
+	For each band, its normalized intensity, ranging from 0.0 to 1.0, is multiplied by 255 and used as its color.
 	
 	
 \end{document}
