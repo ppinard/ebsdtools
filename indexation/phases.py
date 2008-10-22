@@ -22,41 +22,162 @@ import os
 
 # Local modules.
 import RandomUtilities.DrawingTools.drawing as drawing
-from EBSDTools.mathTools.mathExtras import zeroPrecision
+from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
+import EBSDTools.indexation.houghPeaks as houghPeaks
+import EBSDTools.mathTools.vectors as vectors
+import EBSDTools.crystallography.reciprocal as reciprocal
+import EBSDTools.mathTools.triplets as triplets
 
-def houghPeakToLine(rho, theta, patternSize):
-  
-  if theta < zeroPrecision:
-    m = None
-    k = rho
+def kikuchiLineToNormal(m, k, patternCenter, detectorDistance):
+  #Shift line to a pattern centre at (0,0)
+  if m != None:
+      k -= -m*patternCenter[0] + patternCenter[1]
   else:
-    m = -1.0/tan(theta)
-    k = -rho / sin(theta) / patternSize[0] 
+    k -= patternCenter[0]
   
-  return m, k
+  #Build two vectors (x2-x1 and x1-x0) to calculate the normal
+  x0 = vectors.vector(0,0,0)
+  
+  if m == None:
+    x1 = vectors.vector(k, detectorDistance, 0.0)
+    x2 = vectors.vector(k, detectorDistance, 0.1)
+  elif abs(m) < zeroPrecision:
+    x1 = vectors.vector(0.0, detectorDistance, k)
+    x2 = vectors.vector(0.1, detectorDistance, k)
+  else:
+    x1 = vectors.vector(0.0, detectorDistance, k)
+    if abs(k) > zeroPrecision:
+      x2 = vectors.vector(-k/m, detectorDistance, 0.0)
+    else: # abs(k) < zeroPrecision:
+      x2 = vectors.vector((1-k)/m, detectorDistance, 1.0)
+  
+  n = vectors.cross(x2-x1, x1-x0)
+  
+  return n
 
-def lineToNormal():
-  pass
-
-if __name__ == '__main__':
-  patternSize = (2680,2040)
-  patternCenter = (0.5, 0.5)
-  detectorDistance = 0.3
+def reconstructedPattern(peaks, patternSize):
+  """
+    Return an image of the reconstructed pattern from the hough peaks
+  """
   
   im = drawing.ImageLine(patternSize, origin='center')
   
-  peaks = [(-812, 145), (-812,35), (350,130), (350,50)] #5deg
-  peaks = [(229,53), (229,127), (-980,154), (-980,26)] #85deg
-  peaks = [(-1130,7), (-1130, 173), (33,126), (33,55)] #70deg
-  
   for peak in peaks:
-    m,k = houghPeakToLine(peak[0], peak[1]/180.0*pi, patternSize)
-  
-    print m, k
-  
-  
+    m, k = houghPeaks.houghPeakToKikuchiLine(peak['rho'], peak['theta'], patternSize)
+    
     im.drawLinearFunction(m=m
                             , k=k)
   
+  return im()
+  
+class Phases:
+  def __init__(self
+               , Ls
+               , peaks
+               , patternCenter
+               , detectorDistance
+               , patternSize
+               , angularPrecision=0.5/180.0*pi):
+    
+    self.angularPrecision = angularPrecision
+    
+    self._calculatePatternAngles(peaks, patternCenter, detectorDistance, patternSize)
+    
+    self.latticesAngles ={}
+    for latticeId in Ls:
+      self._calculateLatticeAngles(latticeId, Ls[latticeId])
+    
+    self._compareAngles()
+  
+  def _calculatePatternAngles(self, peaks, patternCenter, detectorDistance, patternSize):
+    
+    #Find the normal of each Kikuchi line
+    normals = []
+    for peak in peaks:
+      m, k = houghPeaks.houghPeakToKikuchiLine(rho = peak['rho']
+                                               , theta = peak['theta']
+                                               , patternSize = patternSize)
+      
+      n = kikuchiLineToNormal(m, k, patternCenter, detectorDistance)
+      
+      normals.append(n)
+    
+    #Find the angles between each normal
+    angles = []
+    for i, n1 in enumerate(normals):
+      for j, n2 in enumerate(normals):
+        if j >= i:
+          continue
+        
+        angle = _acos(vectors.dot(n1, n2) / (n1.norm() * n2.norm()))
+        
+        angles.append(angle)
+  
+    self.patternAngles = angles
+    print angles
+  
+  def _calculateLatticeAngles(self, latticeId, L):
+    angles = {}
+    
+    reflectors = L.getReflectors().getReflectorsList()
+    for i, reflector1 in enumerate(reflectors):
+      for j, reflector2 in enumerate(reflectors):
+        if j >= i:
+          continue
+        
+        angle = reciprocal.interplanarAngle(reflector1, reflector2, L)
+        key = '%s-%s' % (reflector1, reflector2)
+        
+        angles.setdefault(key, angle)
+    
+    self.latticesAngles[latticeId] = angles
+    print angles
+  
+  def _compareAngles(self):
+    bandsTriplets = triplets.findTriplets(len(peaks))
+    
+    for latticeId in self.latticesAngles:
+      for bandTriplets in bandsTriplets:
+        m1 = self.findLatticeMatch(latticeId, self.patternAngles[bandTriplets[0]])
+        m2 = self.findLatticeMatch(latticeId, self.patternAngles[bandTriplets[1]])
+        m3 = self.findLatticeMatch(latticeId, self.patternAngles[bandTriplets[2]])
+        
+        print m1, m2, m3
+  
+  def findLatticeMatch(self, latticeId, angle):
+    for planes in self.latticesAngles[latticeId]:
+      if abs(self.latticesAngles[latticeId][planes] - angle) < self.angularPrecision:
+        return (True, planes)
+    
+    return False,
+
+
+if __name__ == '__main__':
+  from EBSDTools.indexation.houghPeaks import rmlImage
+  import EBSDTools.crystallography.lattice as lattice
+  
+  patternSize = (335,255)
+  patternCenter = (0.0, 0.0)
+  detectorDistance = 0.3
+  
+  #Pattern reconstruction
+  peaks = rmlImage('I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation/m_000.csv').getPeaksList()
+  image = reconstructedPattern(peaks, patternSize)
   folder = 'I:/Philippe Pinard/workspace/EBSDTools/indexation/test'
-  im().save(os.path.join(folder, 'test.jpg'))
+  image.save(os.path.join(folder, 'test.jpg'))
+  
+  atoms = {(0,0,0): 14,
+           (0.5,0.5,0): 14,
+           (0.5,0,0.5): 14,
+           (0,0.5,0.5): 14}
+#  atoms = {(0,0,0): 14,
+#           (0.5,0.5,0.5): 14}
+  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
+  
+  phases = Phases(Ls = {'fcc': L}
+                  , peaks = peaks
+                  , patternCenter = patternCenter
+                  , detectorDistance = detectorDistance
+                  , patternSize = patternSize)
+  
+  

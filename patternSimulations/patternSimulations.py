@@ -43,22 +43,24 @@ def computePlaneEquationOnCamera(plane
       (m, b): a tuple with the slope m and y-intercept k
   """
   
-  h = plane[0]
-  k = plane[1]
-  l = plane[2]
+  nx = plane[0]
+  ny = plane[1]
+  nz = plane[2]
   
-  if abs(l) > zeroPrecision:
-    m = -(h/l)
-    b = (h/l)*patternCenter[0] - detectorDistance*k/l + patternCenter[1]
+  if abs(nz) > zeroPrecision:
+    m = -(nx/nz)
+#    b = (h/l)*patternCenter[0] - detectorDistance*k/l + patternCenter[1]
+    k = - detectorDistance*ny/nz
   else:
-    if abs(h) > zeroPrecision:
+    if abs(nx) > zeroPrecision:
       m = None
-      b = -detectorDistance*k/h + patternCenter[0]
+#      b = -detectorDistance*k/h + patternCenter[0]
+      k = -detectorDistance*ny/nx
     else: #Plane parallel to the screen
       m = None
-      b = None
+      k = None
 
-  return m, b
+  return m, k
 
 def drawPattern(L
                 , bandcenter=False
@@ -88,6 +90,7 @@ def drawPattern(L
   """
   
   im = drawing.ImageLine(patternSize, origin='center')
+  im.drawGrayBrackground(grayLevel=1)
   
   reflectors = L.getReflectors()
   
@@ -141,7 +144,13 @@ def drawPattern(L
     else:
       grayLevel = 255
     
-    print plane, 'm', m, 'k', k#, 'd', d, 'theta', theta, 'w', w, 'alpha', cosalpha, 'g', grayLevel
+#    print plane, 'm', m, 'k', k#, 'd', d, 'theta', theta, 'w', w, 'alpha', cosalpha, 'g', grayLevel
+    
+    #Translation due to the pattern center
+    if m != None:
+      k += -m*patternCenter[0] + patternCenter[1]
+    else:
+      k += patternCenter[0]
     
     if bandcenter:
       im.drawLinearFunction(m=m
@@ -191,7 +200,7 @@ def main():
            (0,0.5,0.5): 14}
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
-  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=1)
+  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
   #BCC
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
@@ -237,19 +246,18 @@ def main():
   
 #  print q1 * q1.conjugate(), q1.conjugate() * q1
   
-  for theta in range(0,95, 5):
+#  for n in range(0,95, 5):
+  for n in range(0, 1, 1):
 #    angles = eulers.fromHKLeulers(-pi/2.0, theta/180.0*pi, pi/2.0) #y
 #    angles = eulers.negativeEulers(theta/180.0*pi, 0, 0) #z
-    angles = eulers.negativeEulers(0, theta/180.0*pi, 0) #x
-    print theta
+    angles = eulers.negativeEulers(0, 0.0*n/180.0*pi, 0) #x
+    print n
     
     qSpecimenRotation = quaternions.quaternion(1,0,0,0)
     qCrystalRotation = quaternions.eulerAnglesToQuaternion(angles)
     qTilt = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
     qDetectorOrientation = quaternions.axisAngleToQuaternion(90/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(pi, (0,0,1))
-    #quaternions.eulerAnglesToQuaternion(eulers.negativeEulers(theta/180.0*pi, 0.0/180.0*pi, 0.0/180.0*pi)).conjugate()
     qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
-    
     
     qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
 #    print qRotations
@@ -259,16 +267,16 @@ def main():
                 , bandedges=False
                 , bandfull=True
                 , intensity=False
-                , patternCenter=(0,0)
+                , patternCenter=(0.0,n/10.0)
                 , detectorDistance=0.3
                 , energy=20e3
                 , qRotations=qRotations
-                , patternSize=(2680 ,2040)
-                , patternCenterVisible=True)
+                , patternSize=(335 ,255)
+                , patternCenterVisible=False)
     
 #    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
     folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
-    imageName = '%s_%3i.jpg' % ('theta2', theta)
+    imageName = '%s_%3i.bmp' % ('m', n)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))
   
