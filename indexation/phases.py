@@ -69,7 +69,28 @@ def reconstructedPattern(peaks, patternSize):
                             , k=k)
   
   return im()
-  
+
+def positiveIndices(plane):
+    h = plane[0]
+    k = plane[1]
+    l = plane[2]
+    
+    #h always greater than 0
+    if h < 0:
+      h = -h
+      k = -k
+      l = -l
+    elif h == 0 and k < 0:
+      h = 0
+      k = -k
+      l = -l
+    elif h == 0 and k == 0 and l <0:
+      h = 0
+      k = 0
+      l = -l
+    
+    return vectors.vector(h,k,l)
+
 class Phases:
   def __init__(self
                , Ls
@@ -83,9 +104,9 @@ class Phases:
     
     self._calculatePatternAngles(peaks, patternCenter, detectorDistance, patternSize)
     
-    self.latticesAngles ={}
+    self.latticesTriplets ={}
     for latticeId in Ls:
-      self._calculateLatticeAngles(latticeId, Ls[latticeId])
+      self._calculateLatticeTriplets(latticeId, Ls[latticeId])
     
     self._compareAngles()
   
@@ -109,6 +130,8 @@ class Phases:
         if j >= i:
           continue
         
+        n1 = n1.positive()
+        n2 = n2.positive()
         angle = _acos(vectors.dot(n1, n2) / (n1.norm() * n2.norm()))
         
         angles.append(angle)
@@ -116,38 +139,74 @@ class Phases:
     self.patternAngles = angles
     print angles
   
-  def _calculateLatticeAngles(self, latticeId, L):
-    angles = {}
-    
+  def _calculateLatticeTriplets(self, latticeId, L):
+    latticeTriplets = []
     reflectors = L.getReflectors().getReflectorsList()
-    for i, reflector1 in enumerate(reflectors):
-      for j, reflector2 in enumerate(reflectors):
-        if j >= i:
-          continue
-        
-        angle = reciprocal.interplanarAngle(reflector1, reflector2, L)
-        key = '%s-%s' % (reflector1, reflector2)
-        
-        angles.setdefault(key, angle)
+    basisTriplets = triplets.findTriplets(len(reflectors))
     
-    self.latticesAngles[latticeId] = angles
-    print angles
+    for basisTriplet in basisTriplets:
+      A = reflectors[basisTriplet[0]]
+      B = reflectors[basisTriplet[1]]
+      C = reflectors[basisTriplet[2]]
+      
+      AB = reciprocal.interplanarAngle(A, B, L)
+      BC = reciprocal.interplanarAngle(B, C, L)
+      AC = reciprocal.interplanarAngle(A, C, L)
+      
+      latticeTriplets.append({'A': A, 'B': B, 'C': C, 'AB': AB, 'BC': BC, 'AC': AC})
+#      print {'A': A, 'B': B, 'C': C, 'AB': AB, 'BC': BC, 'AC': AC}
+    
+    self.latticesTriplets[latticeId] = latticeTriplets
   
   def _compareAngles(self):
-    bandsTriplets = triplets.findTriplets(len(peaks))
+    peaksTriplets = triplets.findTriplets(len(peaks))
     
-    for latticeId in self.latticesAngles:
-      for bandTriplets in bandsTriplets:
-        m1 = self.findLatticeMatch(latticeId, self.patternAngles[bandTriplets[0]])
-        m2 = self.findLatticeMatch(latticeId, self.patternAngles[bandTriplets[1]])
-        m3 = self.findLatticeMatch(latticeId, self.patternAngles[bandTriplets[2]])
+#    self.patternAngles = [1.910,1.2309,1.2309,1.2309,1.2309,1.910]
+    
+    results = {}
+    
+    for latticeId in self.latticesTriplets:
+      hits = 0
+      for peakTriplets in peaksTriplets:
+        ab = self.patternAngles[peakTriplets[0]]
+        bc = self.patternAngles[peakTriplets[1]]
+        ac = self.patternAngles[peakTriplets[2]]
         
-        print m1, m2, m3
+        match = self.findLatticeMatch(latticeId, ab, bc, ac)
+        if match[0] == True:
+          print match[1]
+          hits += 1
+      
+      results[latticeId] = hits
+    
+    print results
+
   
-  def findLatticeMatch(self, latticeId, angle):
-    for planes in self.latticesAngles[latticeId]:
-      if abs(self.latticesAngles[latticeId][planes] - angle) < self.angularPrecision:
-        return (True, planes)
+  def findLatticeMatch(self, latticeId, ab, bc, ac):
+    for latticeTriplets in self.latticesTriplets[latticeId]:
+#      print ab, bc, ac, latticeTriplets['AB'], latticeTriplets['BC'], latticeTriplets['AC']
+      
+      if abs(ab - latticeTriplets['AB']) < self.angularPrecision:
+        if abs(bc - latticeTriplets['BC']) < self.angularPrecision:
+          if abs(ac - latticeTriplets['AC']) < self.angularPrecision:
+            return True, latticeTriplets
+        elif abs(bc - latticeTriplets['AC']) < self.angularPrecision:
+          if abs(ac - latticeTriplets['BC']) < self.angularPrecision:
+            return True, latticeTriplets
+      elif abs(ab - latticeTriplets['BC']) < self.angularPrecision:
+        if abs(bc - latticeTriplets['AB']) < self.angularPrecision:
+          if abs(ac - latticeTriplets['AC']) < self.angularPrecision:
+            return True, latticeTriplets
+        elif abs(bc - latticeTriplets['AC']) < self.angularPrecision:
+          if abs(ac - latticeTriplets['AB']) < self.angularPrecision:
+            return True, latticeTriplets
+      elif abs(ab - latticeTriplets['AC']) < self.angularPrecision:
+        if abs(bc - latticeTriplets['BC']) < self.angularPrecision:
+          if abs(ac - latticeTriplets['AB']) < self.angularPrecision:
+            return True, latticeTriplets
+        elif abs(bc - latticeTriplets['AB']) < self.angularPrecision:
+          if abs(ac - latticeTriplets['BC']) < self.angularPrecision:
+            return True, latticeTriplets
     
     return False,
 
@@ -161,20 +220,24 @@ if __name__ == '__main__':
   detectorDistance = 0.3
   
   #Pattern reconstruction
-  peaks = rmlImage('I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation/m_000.csv').getPeaksList()
-  image = reconstructedPattern(peaks, patternSize)
-  folder = 'I:/Philippe Pinard/workspace/EBSDTools/indexation/test'
-  image.save(os.path.join(folder, 'test.jpg'))
+#  folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation/m_000.csv'
+  folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation/theta_000.csv'
+  peaks = rmlImage(folder).getPeaksList()
+  
+#  image = reconstructedPattern(peaks, patternSize)
+#  folder = 'I:/Philippe Pinard/workspace/EBSDTools/indexation/test'
+#  image.save(os.path.join(folder, 'test.jpg'))
   
   atoms = {(0,0,0): 14,
            (0.5,0.5,0): 14,
            (0.5,0,0.5): 14,
            (0,0.5,0.5): 14}
-#  atoms = {(0,0,0): 14,
-#           (0.5,0.5,0.5): 14}
-  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
+  Lfcc = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=1)
+  atoms = {(0,0,0): 14,
+           (0.5,0.5,0.5): 14}
+  Lbcc = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=1)
   
-  phases = Phases(Ls = {'fcc': L}
+  phases = Phases(Ls = {'fcc': Lfcc, 'bcc': Lbcc}
                   , peaks = peaks
                   , patternCenter = patternCenter
                   , detectorDistance = detectorDistance

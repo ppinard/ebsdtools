@@ -130,42 +130,23 @@ class Reflectors:
     planes = self.__findReflectors(maxIndice)
     
     for plane in planes:
-      self.reflectors.setdefault(plane, {})
-      self.reflectors[plane]['reflector'] = plane
+      planeKey = plane.toTuple()
+      self.reflectors.setdefault(planeKey, {})
+      self.reflectors[planeKey]['reflector'] = plane
       
       planeSpacing = self.__calculatePlaneSpacing(plane)
-      self.reflectors[plane]['plane spacing'] = planeSpacing
+      self.reflectors[planeKey]['plane spacing'] = planeSpacing
       
       intensity = self.__calculateIntensity(plane, planeSpacing)
       intensities.append(intensity)
-      self.reflectors[plane]['intensity'] = intensity
+      self.reflectors[planeKey]['intensity'] = intensity
     
     intensityMax = max(intensities)
     if intensityMax > 0.0:
       for plane in planes:
-        self.reflectors[plane]['normalized intensity'] = self.reflectors[plane]['intensity'] / intensityMax
+        planeKey = plane.toTuple()
+        self.reflectors[planeKey]['normalized intensity'] = self.reflectors[planeKey]['intensity'] / intensityMax
     
-  def __positiveIndices(self, plane):
-    h = plane[0]
-    k = plane[1]
-    l = plane[2]
-    
-    #h always greater than 0
-    if h < 0:
-      h = -h
-      k = -k
-      l = -l
-    elif h == 0 and k < 0:
-      h = 0
-      k = -k
-      l = -l
-    elif h == 0 and k == 0 and l <0:
-      h = 0
-      k = 0
-      l = -l
-    
-    return (h,k,l)
-  
   def __areEquivalent(self, plane1, plane2):
     angle = reciprocal.interplanarAngle(plane1, plane2, self.L)
     
@@ -196,16 +177,16 @@ class Reflectors:
     for h in range(-maxIndice, maxIndice+1):
       for k in range(-maxIndice, maxIndice+1):
         for l in range(-maxIndice, maxIndice+1):
-          plane = self.__positiveIndices((h,k,l))
+          plane = vectors.vector(h,k,l).positive()
           
-          if not plane == (0,0,0): #Remove plane (0,0,0)
+          if not plane == vectors.vector(0,0,0): #Remove plane (0,0,0)
             if self.__isDiffracting(plane):
               for reflector in reflectors:
                 if self.__areEquivalent(plane, reflector):
-                  plane = None
+                  plane = vectors.vector(None)
                   break
                   
-              if plane != None:
+              if plane[0] != None:
                 reflectors.append(plane)
     
     reflectors.sort()

@@ -212,7 +212,13 @@ class vector:
 
   def __len__(self):
     return len(self.vector)
-
+  
+  def toList(self):
+    return self.vector
+  
+  def toTuple(self):
+    return tuple(self.vector)
+  
   def norm(self):
     """
       Return the norm of the vector
@@ -228,6 +234,24 @@ class vector:
     output = []
     for i in range(len(self.vector)):
       output.append(self.vector[i] / norm)
+    
+    return vector(output)
+  
+  def positive(self):
+    output = []
+    
+    for i in range(len(self.vector)):
+      if self.vector[i] == 0:
+        output.append(self.vector[i])
+        continue
+      elif self.vector[i] < 0:
+        for j in range(i, len(self.vector)):
+          output.append(-self.vector[j])
+        break
+      else:
+        for j in range(i, len(self.vector)):
+          output.append(self.vector[j])
+        break
     
     return vector(output)
 
@@ -259,10 +283,8 @@ def angle(v1, v2):
 
 if __name__ == "__main__":
   a = vector([0,0,1])
-  b = vector(1,0,0)
+  b = vector(-1,0,1)
   e = vector(1.0,0,0)
   c = vector(1)
   
-  d = a.normalize()
-  print a < b, a <= b, a > b, a >= b, a == b, a != b
-  print b == e, b != e
+  print b.positive()

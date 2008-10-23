@@ -26,6 +26,7 @@ from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
 import EBSDTools.crystallography.bragg as bragg
 import RandomUtilities.DrawingTools.drawing as drawing
 
+
 def computePlaneEquationOnCamera(plane
                                  , patternCenter=(0,0)
                                  , detectorDistance=1.0
@@ -200,7 +201,7 @@ def main():
            (0,0.5,0.5): 14}
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
-  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
+  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=1)
   #BCC
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
@@ -255,8 +256,9 @@ def main():
     
     qSpecimenRotation = quaternions.quaternion(1,0,0,0)
     qCrystalRotation = quaternions.eulerAnglesToQuaternion(angles)
-    qTilt = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
+    qTilt = quaternions.axisAngleToQuaternion(-0/180.0*pi, (1,0,0))
     qDetectorOrientation = quaternions.axisAngleToQuaternion(90/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(pi, (0,0,1))
+    qDetectorOrientation = quaternions.quaternion(1,0,0,0)
     qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
     
     qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
@@ -274,8 +276,8 @@ def main():
                 , patternSize=(335 ,255)
                 , patternCenterVisible=False)
     
-#    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
-    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
+    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
+#    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
     imageName = '%s_%3i.bmp' % ('m', n)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))
