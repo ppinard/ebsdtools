@@ -7,7 +7,6 @@ __version__ = ""
 __date__ = ""
 __copyright__ = "Copyright (c) 2008 Philippe Pinard"
 __license__ = ""
-__reference__ = "Altmann (1986) Rotation, Quaternions and Double Groups"
 
 # Subversion informations for the file.
 __svnRevision__ = ""
@@ -248,7 +247,7 @@ def main():
 #  print q1 * q1.conjugate(), q1.conjugate() * q1
   
 #  for n in range(0,95, 5):
-  for n in range(0, 1, 1):
+  for n in range(-5, 5, 1):
 #    angles = eulers.fromHKLeulers(-pi/2.0, theta/180.0*pi, pi/2.0) #y
 #    angles = eulers.negativeEulers(theta/180.0*pi, 0, 0) #z
     angles = eulers.negativeEulers(0, 0.0*n/180.0*pi, 0) #x
@@ -256,7 +255,7 @@ def main():
     
     qSpecimenRotation = quaternions.quaternion(1,0,0,0)
     qCrystalRotation = quaternions.eulerAnglesToQuaternion(angles)
-    qTilt = quaternions.axisAngleToQuaternion(-0/180.0*pi, (1,0,0))
+    qTilt = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
     qDetectorOrientation = quaternions.axisAngleToQuaternion(90/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(pi, (0,0,1))
     qDetectorOrientation = quaternions.quaternion(1,0,0,0)
     qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
@@ -278,7 +277,7 @@ def main():
     
     folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
 #    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
-    imageName = '%s_%3i.bmp' % ('m', n)
+    imageName = '%s_%3i.bmp' % ('fcc_1_pcz_', n)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))
   

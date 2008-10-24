@@ -7,7 +7,6 @@ __version__ = ""
 __date__ = ""
 __copyright__ = "Copyright (c) 2008 Philippe Pinard"
 __license__ = ""
-__reference__ = "Altmann (1986) Rotation, Quaternions and Double Groups"
 
 # Subversion informations for the file.
 __svnRevision__ = ""
