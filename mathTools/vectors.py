@@ -143,14 +143,15 @@ class vector:
     """
       Comparison of two vectors: Equal
     """
-    if len(self.vector) == len(other.vector):
-      for i in range(len(self.vector)):
-        if self.vector[i] != other.vector[i]:
-          return False
-      
-      return True
-    else:
-      return False
+    if isinstance(self, vector) and isinstance(other, vector):
+      if len(self.vector) == len(other.vector):
+        for i in range(len(self.vector)):
+          if self.vector[i] != other.vector[i]:
+            return False
+        
+        return True
+    
+    return False
   
   def __ne__(self, other):
     """

@@ -200,7 +200,7 @@ def main():
            (0,0.5,0.5): 14}
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
-  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=1)
+  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
   #BCC
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
@@ -208,46 +208,8 @@ def main():
 #  #HCP
 #  L = lattice.Lattice(a=2, b=2, c=4, alpha=pi/2, beta=pi/2, gamma=120.0/180*pi, atomPositions=[])
 
-
-#  for plane in L.planes:
-#    print plane, L.planes[plane]['intensity']
-  
-  
-#  planes = [(1,-1,-1), (1,1,1), (1,1,-1), (1,-1,1),
-#            (2,-2,0), (2,0,-2), (0,2,-2), (2,2,0), (0,2,2), (2,0,2),
-#            (0,0,4), (4,0,0), (0,4,0)]
-#  
-##  planes = [(2,0,2),(2,0,-2)]
-  
-  q = quaternions.quaternion(0, 1, 0, 0)
-#  
-#  q1 = quaternions.axisAngleToQuaternion(pi/2.0, (0,0,1))
-#  q2 = quaternions.axisAngleToQuaternion(pi/2.0, (1,0,0))
-#  
-#  qOut1 = quaternions.rotate(q, [q1])
-#  print quaternions.rotate(qOut1, [q2])
-#  print quaternions.rotate(q, [q1,q2])
-#  print quaternions.rotate(q, [q2,q1])
-  
-  
-  
-#  q2 = quaternions.eulerAnglesToQuaternion(60, 80, 152)
-#  q3 = quaternions.eulerAnglesToQuaternion(150,0,12)
-#  
-#  qq1 = quaternions.rotate(q, [q1])
-#  qq1q2 = quaternions.rotate(qq1, [q2])
-#  qq1q2q3 = quaternions.rotate(qq1q2, [q3])
-#  
-#  print qq1q2q3
-#  
-#  print quaternions.rotate(q, [q1,q2,q3])
-#  print quaternions.rotate(q, [q3,q2,q1])
-  
-  
-#  print q1 * q1.conjugate(), q1.conjugate() * q1
-  
 #  for n in range(0,95, 5):
-  for n in range(-5, 5, 1):
+  for n in range(0, 1, 1):
 #    angles = eulers.fromHKLeulers(-pi/2.0, theta/180.0*pi, pi/2.0) #y
 #    angles = eulers.negativeEulers(theta/180.0*pi, 0, 0) #z
     angles = eulers.negativeEulers(0, 0.0*n/180.0*pi, 0) #x
@@ -255,7 +217,7 @@ def main():
     
     qSpecimenRotation = quaternions.quaternion(1,0,0,0)
     qCrystalRotation = quaternions.eulerAnglesToQuaternion(angles)
-    qTilt = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
+    qTilt = quaternions.axisAngleToQuaternion(-0/180.0*pi, (1,0,0))
     qDetectorOrientation = quaternions.axisAngleToQuaternion(90/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(pi, (0,0,1))
     qDetectorOrientation = quaternions.quaternion(1,0,0,0)
     qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
@@ -275,9 +237,9 @@ def main():
                 , patternSize=(335 ,255)
                 , patternCenterVisible=False)
     
-    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
-#    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
-    imageName = '%s_%3i.bmp' % ('fcc_1_pcz_', n)
+#    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
+    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
+    imageName = '%s_%3i.bmp' % ('test_2', n)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))
   
