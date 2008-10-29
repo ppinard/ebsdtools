@@ -28,6 +28,16 @@ def _acos(angle):
   else:
     return acos(angle)
 
+def smallAngle(angle):
+  """
+    Return an angle between 0 and pi/2.0
+  """
+  if angle >= 0 and angle <= pi:
+    if angle > pi/2.0:
+      angle = pi - angle
+  
+  return angle
+
 """
   Physics constants
   References: Wikipedia

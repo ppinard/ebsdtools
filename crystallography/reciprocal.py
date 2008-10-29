@@ -79,7 +79,7 @@ def planeSpacing(plane, L):
 
 def interplanarAngle(plane1, plane2, L):
   """
-    Calculate the interplanar spacing
+    Calculate the interplanar angle
     
     Inputs:
       plane1: a vector representing (hkl). h, k and l must be integer

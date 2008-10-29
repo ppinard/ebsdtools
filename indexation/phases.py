@@ -22,7 +22,7 @@ import os
 # Local modules.
 import RandomUtilities.DrawingTools.drawing as drawing
 import RandomUtilities.sort.sortDict as sortDict
-from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
+from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos, smallAngle
 import EBSDTools.indexation.houghPeaks as houghPeaks
 import EBSDTools.mathTools.vectors as vectors
 import EBSDTools.crystallography.reciprocal as reciprocal
@@ -70,6 +70,8 @@ def reconstructedPattern(peaks, patternSize):
   
   return im()
 
+
+
 class Phases:
   def __init__(self
                , Ls
@@ -100,108 +102,97 @@ class Phases:
                                                , theta = peak['theta']
                                                , patternSize = patternSize)
       
-      n = kikuchiLineToNormal(m, k, patternCenter, detectorDistance)
+      n = kikuchiLineToNormal(m, k, patternCenter, detectorDistance).positive()
       
       normals.append(n)
+    
+    #Build the triplets
+    self.peakTripletsAngles = []
+    peaksTriplets = triplets.findTriplets(len(peaks))
+    
+    for peakTriplet in peaksTriplets:
+      peakAngles = []
+      AB0 = smallAngle(vectors.angle(normals[peakTriplet[0]], normals[peakTriplet[1]]))
+      AB1 = smallAngle(vectors.angle(normals[peakTriplet[1]], normals[peakTriplet[2]]))
+      AB2 = smallAngle(vectors.angle(normals[peakTriplet[2]], normals[peakTriplet[0]]))
       
-    #Find the angles between each normal
-    angles = []
-    for i, n1 in enumerate(normals):
-      for j, n2 in enumerate(normals):
-        if j >= i:
-          continue
-        
-        n1 = n1.positive()
-        n2 = n2.positive()
-        angle = _acos(vectors.dot(n1, n2) / (n1.norm() * n2.norm()))
-        
-        angles.append({'A': n1, 'B': n2, 'AB': angle})
-  
-    self.patternAngles = angles
-#    print angles
-#    print len(angles)
-  
+      peakAngles.append({'A': normals[peakTriplet[0]], 'B': normals[peakTriplet[1]], 'AB': AB0})
+      peakAngles.append({'A': normals[peakTriplet[1]], 'B': normals[peakTriplet[2]], 'AB': AB1})
+      peakAngles.append({'A': normals[peakTriplet[2]], 'B': normals[peakTriplet[0]], 'AB': AB2})
+      peakAngles = sortDict.sortListByKey(peakAngles, 'AB')
+      
+      self.peakTripletsAngles.append(peakAngles)
+    
+#    print len(self.peakTripletsAngles)
+    
   def _calculateLatticeTripletsAngles(self, latticeId, L):
     latticeTripletsAngles = []
-    reflectors = L.getReflectors().getReflectorsList()[:32]
-    basisTriplets = triplets.findTriplets(len(reflectors))
+    reflectors = L.getReflectors().getReflectorsList()[:self.numberOfReflectors]
+    latticeTriplets = triplets.findTriplets(len(reflectors))
     
-    for basisTriplet in basisTriplets:
+    for latticeTriplet in latticeTriplets:
       latticeAngles = []
-      latticeAngles.append({'A': reflectors[basisTriplet[0]], 'B': reflectors[basisTriplet[1]], 'AB': reciprocal.interplanarAngle(reflectors[basisTriplet[0]], reflectors[basisTriplet[1]], L)})
-      latticeAngles.append({'A': reflectors[basisTriplet[1]], 'B': reflectors[basisTriplet[2]], 'AB': reciprocal.interplanarAngle(reflectors[basisTriplet[1]], reflectors[basisTriplet[2]], L)})
-      latticeAngles.append({'A': reflectors[basisTriplet[2]], 'B': reflectors[basisTriplet[0]], 'AB': reciprocal.interplanarAngle(reflectors[basisTriplet[2]], reflectors[basisTriplet[0]], L)})
+      AB0 = smallAngle(reciprocal.interplanarAngle(reflectors[latticeTriplet[0]], reflectors[latticeTriplet[1]], L))
+      AB1 = smallAngle(reciprocal.interplanarAngle(reflectors[latticeTriplet[1]], reflectors[latticeTriplet[2]], L))
+      AB2 = smallAngle(reciprocal.interplanarAngle(reflectors[latticeTriplet[2]], reflectors[latticeTriplet[0]], L))
+      
+      latticeAngles.append({'A': reflectors[latticeTriplet[0]], 'B': reflectors[latticeTriplet[1]], 'AB': AB0})
+      latticeAngles.append({'A': reflectors[latticeTriplet[1]], 'B': reflectors[latticeTriplet[2]], 'AB': AB1})
+      latticeAngles.append({'A': reflectors[latticeTriplet[2]], 'B': reflectors[latticeTriplet[0]], 'AB': AB2})
       latticeAngles = sortDict.sortListByKey(latticeAngles, 'AB')
       
       latticeTripletsAngles.append(latticeAngles)
     
     self.latticesTripletsAngles[latticeId] = latticeTripletsAngles
+#    print len(latticeTripletsAngles)
 #    print latticesAngle
   
   def _compareAngles(self, peaks):
-    peaksTriplets = triplets.findTriplets(len(peaks))
-    
-    results = {}
     
     for latticeId in self.latticesTripletsAngles:
-      hits = 0
-      for peakTriplets in peaksTriplets:
-        patternTripletsAngles = []
-        patternTripletsAngles.append(self.patternAngles[peakTriplets[0]])
-        patternTripletsAngles.append(self.patternAngles[peakTriplets[1]])
-        patternTripletsAngles.append(self.patternAngles[peakTriplets[2]])
-        patternTripletsAngles = sortDict.sortListByKey(patternTripletsAngles, 'AB')
-        
-        match = self.findLatticeMatch(latticeId, patternTripletsAngles)
-        print match
-#        if match[0] == True:
-##          print patternTripletsAngles
-#          print match
-#          
-#          
-#          hits += 1
+      total = 0
       
-      results[latticeId] = hits
-    
-    print results
-
-  
-  def findLatticeMatch(self, latticeId, patternTripletsAngles):
-    hits = 0
-    for latticeTripletsAngles in self.latticesTripletsAngles[latticeId]:
-#      print ab, bc, ac, latticeTriplets['AB'], latticeTriplets['BC'], latticeTriplets['AC']
-      if abs(patternTripletsAngles[0]['AB'] - latticeTripletsAngles[0]['AB']) < self.angularPrecision:
-        if abs(patternTripletsAngles[1]['AB'] - latticeTripletsAngles[1]['AB']) < self.angularPrecision:
-          if abs(patternTripletsAngles[2]['AB'] - latticeTripletsAngles[2]['AB']) < self.angularPrecision:
-#            print '.'*80
-#            
-#            print patternTripletsAngles[0]['AB'], patternTripletsAngles[0]['AB']
-#            print patternTripletsAngles[0]['A'], patternTripletsAngles[0]['B']
-#            print latticeTripletsAngles[0]['A'], latticeTripletsAngles[0]['B']
-#            
-#            print patternTripletsAngles[1]['AB'], patternTripletsAngles[1]['AB']
-#            print patternTripletsAngles[1]['A'], patternTripletsAngles[1]['B']
-#            print latticeTripletsAngles[1]['A'], latticeTripletsAngles[1]['B']
-#            
-#            print patternTripletsAngles[2]['AB'], patternTripletsAngles[2]['AB']
-#            print patternTripletsAngles[2]['A'], patternTripletsAngles[2]['B']
-#            print latticeTripletsAngles[2]['A'], latticeTripletsAngles[2]['B']
-#            
-#            common = self.commonReflector(patternTripletsAngles[0], patternTripletsAngles[1])
-#            if common != None:
-#              match.append((self.commonReflector(latticeTripletsAngles[0], latticeTripletsAngles[1]),common))
-#            
-#            common = self.commonReflector(patternTripletsAngles[1], patternTripletsAngles[2])
-#            if common != None:
-#              match.append((self.commonReflector(latticeTripletsAngles[1], latticeTripletsAngles[2]),common))
-#            
-#            common = self.commonReflector(patternTripletsAngles[2], patternTripletsAngles[0])
-#            if common != None:
-#              match.append((self.commonReflector(latticeTripletsAngles[2], latticeTripletsAngles[0]),common))
-#            
-#            print match
+      for latticeTripletsAngles in self.latticesTripletsAngles[latticeId]:
+        hits = 0
+        
+        for peakTripletsAngles in self.peakTripletsAngles:
+          match = self.match(peakTripletsAngles, latticeTripletsAngles)
+          
+          if match:
             hits += 1
-    return hits
+            
+            
+#                 latticeTripletsAngles2[1]['AB'] == latticeTripletsAngles[0]['AB'] or \
+#                 latticeTripletsAngles2[2]['AB'] == latticeTripletsAngles[0]['AB']:
+                
+              
+#            print latticeTripletsAngles[0]['AB'], latticeTripletsAngles[1]['AB'], latticeTripletsAngles[2]['AB']
+#            print peakTripletsAngles[0]
+#            print latticeTripletsAngles[0]
+#            
+#            print peakTripletsAngles[1]
+#            print latticeTripletsAngles[1]
+#            
+#            print peakTripletsAngles[2]
+#            print latticeTripletsAngles[2]
+          
+#          if hits >= 10:
+#            return
+        
+        total += hits
+#        if hits > 0:
+#          print hits, latticeTripletsAngles
+      
+      print latticeId, total, float(total) / len(self.peakTripletsAngles)**2
+      
+  
+  def match(self, peakTripletsAngles, latticeTripletsAngles):
+    if abs(peakTripletsAngles[0]['AB'] - latticeTripletsAngles[0]['AB']) < self.angularPrecision:
+      if abs(peakTripletsAngles[1]['AB'] - latticeTripletsAngles[1]['AB']) < self.angularPrecision:
+        if abs(peakTripletsAngles[2]['AB'] - latticeTripletsAngles[2]['AB']) < self.angularPrecision:
+          return True
+    
+    return False
     
   def commonReflector(self, triplet1, triplet2):
     if triplet1['A'] == triplet2['A'] or triplet1['A'] == triplet2['B']:
@@ -228,15 +219,17 @@ def run():
   detectorDistance = 0.3
   
   #Pattern reconstruction
+#  root = 'i:/Philippe Pinard/'
+  root = 'c:/documents/'
 #  folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation/m_000.csv'
 #  folder = 'c:/documents/workspace/EBSDTools/patternSimulations/test/fcc_pcz__001.bmp' + ".csv"
-  folder = 'i:/Philippe Pinard/workspace/EBSDTools/indexation/test/fcc_pcz__000.bmp' + ".csv"
-  folder = 'i:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation/test_2_000' + ".csv"
+#  folder = os.path.join(root, 'workspace/EBSDTools/indexation/test/fcc_pcz__000.bmp' + ".csv")
+  folder = os.path.join(root, 'workspace/EBSDTools/patternSimulations/rotation/test_2_000' + ".csv")
   peaks = rmlImage(folder).getPeaksList()[:8]
   
   image = reconstructedPattern(peaks, patternSize)
-#  folder = 'c:/documents/workspace/EBSDTools/indexation/test'
-  folder = 'i:/Philippe Pinard/workspace/EBSDTools/indexation/test'
+  folder = 'c:/documents/workspace/EBSDTools/indexation/test'
+#  folder = 'i:/Philippe Pinard/workspace/EBSDTools/indexation/test'
   image.save(os.path.join(folder, 'test.jpg'))
   
   atoms = {(0,0,0): 14,
