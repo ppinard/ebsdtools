@@ -21,6 +21,7 @@ from math import sin, cos, pi, acos, atan2, sqrt
 
 # Local modules.
 import EBSDTools.mathTools.vectors as vectors
+from EBSDTools.mathTools.mathExtras import zeroPrecision
 
 def axisAngleToQuaternion(*data):
   """
@@ -387,15 +388,23 @@ class quaternion:
         False: not equal
     """
     
-    if (self._a - other._a) < 0.0001 and \
-       (self._A[0] - other._A[0]) < 0.0001 and \
-       (self._A[1] - other._A[1]) < 0.0001 and \
-       (self._A[2] - other._A[2]) < 0.0001:
+    if (self._a - other._a) < zeroPrecision and \
+       (self._A[0] - other._A[0]) < zeroPrecision and \
+       (self._A[1] - other._A[1]) < zeroPrecision and \
+       (self._A[2] - other._A[2]) < zeroPrecision:
       return True
     else:
       return False
   
-  
+  def __hash__(self):
+    a = hash(self._a)
+    b = hash(self._A[0])* 10**len(str(a))
+    c = hash(self._A[1])* 10**(len(str(a))+len(str(b)))
+    d = hash(self._A[2])* 10**(len(str(a))+len(str(b))+len(str(c)))
+    
+    value = a + b + c + d
+    
+    return value
   
   def conjugate(self):
     """
@@ -476,7 +485,7 @@ class quaternion:
     
     n = []
     for i in [0,1,2]:
-      if denominator == 0:
+      if abs(denominator) < zeroPrecision:
         n.append(self._A[i])
       else:
         n.append(self._A[i]/denominator)
@@ -516,11 +525,11 @@ class quaternion:
     
     qCalc = self.normalize()
     
-    if qCalc._A[0] == 0 and qCalc._A[1] == 0:
+    if abs(qCalc._A[0]) < zeroPrecision and abs(qCalc._A[1]) < zeroPrecision:
       theta1 = 2*atan2(qCalc._A[2], qCalc._a)
       theta2 = 0
       theta3 = 0
-    elif qCalc._A[0]**2 + qCalc._A[1]**2 > 0.99999 and qCalc._A[0]**2 + qCalc._A[1]**2 < 1.000001:
+    elif abs(qCalc._A[0]**2 + qCalc._A[1]**2 - 1.0) < zeroPrecision:
       theta1 = 2*atan2(-qCalc._A[1], qCalc._A[0])
       theta2 = pi
       theta3 = 0
@@ -530,7 +539,10 @@ class quaternion:
       theta2 = acos(1 - 2*qCalc._A[0]**2 - 2*qCalc._A[1]**2)
     
     return (theta1, theta2, theta3)
-
+  
+  def toTuple(self):
+    return (self._a, self._A[0], self._A[1], self._A[2])
+  
 def rotate(qIn, qRotations):
   """
     Return the input quaternion (qIn) by all the rotation quaternion in qRotations
@@ -550,21 +562,18 @@ def rotate(qIn, qRotations):
   
   return qOut
 
+def similar(q1, q2, angularPrecision):
+  if abs(q1._a - q2._a) < cos(angularPrecision/2.0) and \
+      abs(q1._A[0] - q2._A[0]) < sin(angularPrecision/2.0) and \
+      abs(q1._A[1] - q2._A[1]) < sin(angularPrecision/2.0) and \
+      abs(q1._A[2] - q2._A[2]) < sin(angularPrecision/2.0):
+    return True
+  else:
+    return False
+
 if __name__ == '__main__':
-  h = 0
-  k = 1
-  l = 1
-  tilt = 70 * pi / 180
+  q = quaternion(-0.76889497255171957, 0.44598102610297174, 0.12136262327573186, -0.44178338494387015)
+  print q.toEulerAngles()
+  print q.toAxisAngle()
   
-  q1 = axisAngleToQuaternion(-tilt, (1,0,0))
-  v1 = quaternion(0, (h,k,l))
-  r1 = q1 * v1 * q1.conjugate()
   
-  print r1
-  print r1.toAxisAngle()
-  
-  h70 = h
-  k70 = k*cos(tilt) + l*sin(tilt)
-  l70 = -k*sin(tilt) + l*cos(tilt)
-  
-  print h70, k70, l70

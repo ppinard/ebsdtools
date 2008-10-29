@@ -124,7 +124,22 @@ class TestQuaternions(unittest.TestCase):
     
     self.assertEqual(qq1q2q3, quaternions.rotate(q, [q1,q2,q3])) #Order of rotation q1, q2 then q3
     self.assertNotEqual(qq1q2q3, quaternions.rotate(q, [q3,q2,q1]))
+  
+#  def test__hash__(self):
+#    import random
+#    
+#    hashValues = []
+#    
+#    for i in range(1000):
+#      q = quaternions.quaternion(random.random(), random.random(), random.random(), random.random())
+#      hashValue = q.__hash__()
+#      if hashValue in hashValues:
+#        print q
+#      
+#      hashValues.append(hashValue)
+#    
     
+  
   def test(self):
     import vectors
     v = quaternions.quaternion(0,1,0,0) #Vector (1,0,0)

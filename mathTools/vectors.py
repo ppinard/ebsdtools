@@ -40,6 +40,8 @@ class vector:
     elif len(data) == 1:
       if isinstance(data[0], list):
         self.vector = data[0]
+      elif isinstance(data[0], tuple):
+        self.vector = list(data[0])
       else:
         self.vector = [data[0]]
     elif len(data) > 1:
