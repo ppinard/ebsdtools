@@ -103,7 +103,7 @@ class scatteringFactors:
       a = [self.parameters_2_6[Z]['a1'], self.parameters_2_6[Z]['a2'], self.parameters_2_6[Z]['a3'], self.parameters_2_6[Z]['a4'], self.parameters_2_6[Z]['a5']]
       b = [self.parameters_2_6[Z]['b1'], self.parameters_2_6[Z]['b2'], self.parameters_2_6[Z]['b3'], self.parameters_2_6[Z]['b4'], self.parameters_2_6[Z]['b5']]
     else:
-      warnings.warn("Outside table range of s < 6\AA")
+      warnings.warn("Outside table range of s (%e) < 6\AA" % s)
       a = [self.parameters_2_6[Z]['a1'], self.parameters_2_6[Z]['a2'], self.parameters_2_6[Z]['a3'], self.parameters_2_6[Z]['a4'], self.parameters_2_6[Z]['a5']]
       b = [self.parameters_2_6[Z]['b1'], self.parameters_2_6[Z]['b2'], self.parameters_2_6[Z]['b3'], self.parameters_2_6[Z]['b4'], self.parameters_2_6[Z]['b5']]
       
@@ -197,8 +197,9 @@ class Reflectors:
   def __calculateIntensity(self, plane, planeSpacing):
     sum = 0.0
     
+    s = 2*pi/planeSpacing
+    
     for atom in self.L.atoms:
-      s = 2*pi/planeSpacing
       
       sum += (-1)**(2*vectors.dot(plane, atom)) * self.scatteringFactors.getScatteringFactor(self.L.atoms[atom], s)
     
@@ -252,10 +253,10 @@ if __name__ == '__main__':
            (0.5,0,0.5): 26,
            (0.5,0.5,0): 26}
   
-  L = lattice.Lattice(a=3.59, b=3.59, c=3.59, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
+  L = lattice.Lattice(a=3.59, b=3.59, c=3.59, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=4)
   
-  reflectors = L.getReflectors().getReflectorsList()
-  print reflectors
+  reflectors = L.getReflectors()
+  print reflectors.getReflectorNormalizedIntensity((4,0,0))
   
 #  for plane in reflectors.getReflectorsList():
 #    print '%2i%2i%2i %6.4f %e %4.2f' % (plane[0],plane[1],plane[2], reflectors.getReflectorPlaneSpacing(plane), reflectors.getReflectorIntensity(plane), reflectors.getReflectorNormalizedIntensity(plane)*100.0)

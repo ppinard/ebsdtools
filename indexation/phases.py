@@ -28,6 +28,7 @@ import EBSDTools.mathTools.vectors as vectors
 import EBSDTools.mathTools.quaternions as quaternions
 import EBSDTools.crystallography.reciprocal as reciprocal
 import EBSDTools.mathTools.triplets as triplets
+import EBSDTools.mathTools.eulers as eulers
 
 def kikuchiLineToNormal(m, k, patternCenter, detectorDistance):
   #Shift line to a pattern centre at (0,0)
@@ -170,13 +171,13 @@ class Phases:
               
               var = 0
               for result in results.keys():
-                if quaternions.similar(orientation, quaternions.quaternion(result[0], result[1], result[2], result[3]), self.angularPrecision):
+                if quaternions.similar(orientation, result, self.angularPrecision):
                   results[result] += 1
                   var = 1
                   break
               
               if var == 0:
-                results[orientation.toTuple()] = 1
+                results[orientation] = 1
             
           
 #          if hits >= 10:
@@ -189,15 +190,16 @@ class Phases:
       
       print latticeId, total, float(total) / len(self.peakTripletsAngles)**2
     
-      maxVote = ('s',0)
+      maxVote = ('q',0)
       for result in results:
-        if results[result] > 30:
-          print result, results[result]
+#        if results[result] > 30:
+#          print result, results[result]
         if results[result] > maxVote[1]:
           maxVote = (result, results[result])
       
       print maxVote
-      print quaternions.quaternion(maxVote[0][0], maxVote[0][1], maxVote[0][2], maxVote[0][3]).toEulerAngles()
+      print eulers.degEulers(eulers.positiveEulers(maxVote[0].toEulerAngles()))
+      print maxVote[0].toEulerAngles()
   
   def match(self, peakTripletsAngles, latticeTripletsAngles):
     if abs(peakTripletsAngles[0]['AB'] - latticeTripletsAngles[0]['AB']) < self.angularPrecision:
@@ -238,11 +240,11 @@ class Phases:
     
     qC = quaternions.matrixtoQuaternion([eC1.toList(), eC2.toList(), eC3.toList()])
     
-    qS = quaternions.axisAngleToQuaternion(-0/180.0*pi, (1,0,0))
+    qS = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
     
     g = qC.conjugate() * qP * qS.conjugate()
     
-    return g
+    return g.normalize()
 
 def run():
   from EBSDTools.indexation.houghPeaks import rmlImage
@@ -257,8 +259,8 @@ def run():
 #  root = 'c:/documents/'
 #  folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation/m_000.csv'
 #  folder = 'c:/documents/workspace/EBSDTools/patternSimulations/test/fcc_pcz__001.bmp' + ".csv"
-#  folder = os.path.join(root, 'workspace/EBSDTools/indexation/test/fcc_pcz__000.bmp' + ".csv")
-  folder = os.path.join(root, 'workspace/EBSDTools/patternSimulations/rotation/test_2_000' + ".csv")
+  folder = os.path.join(root, 'workspace/EBSDTools/indexation/test/fcc_pcz__000.bmp' + ".csv")
+#  folder = os.path.join(root, 'workspace/EBSDTools/patternSimulations/rotation/test_2_000' + ".csv")
   peaks = rmlImage(folder).getPeaksList()[:8]
   
 #  image = reconstructedPattern(peaks, patternSize)

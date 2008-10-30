@@ -397,6 +397,15 @@ class quaternion:
       return False
   
   def __hash__(self):
+    """
+      Return a unique integer to be use as dictionary key
+      
+      References:
+        http://effbot.org/zone/python-hash.htm
+      
+      Outputs:
+        an integer
+    """
     a = hash(self._a)
     b = hash(self._A[0])* 10**len(str(a))
     c = hash(self._A[1])* 10**(len(str(a))+len(str(b)))
@@ -541,6 +550,15 @@ class quaternion:
     return (theta1, theta2, theta3)
   
   def toTuple(self):
+    """
+      Return the 4 coefficients of the quaternion as a tuple
+      
+      Inputs:
+        None
+        
+      Outputs:
+        a tuple
+    """
     return (self._a, self._A[0], self._A[1], self._A[2])
   
 def rotate(qIn, qRotations):

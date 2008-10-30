@@ -70,6 +70,7 @@ def drawPattern(L
                 , patternCenter=(0.0,0.0)
                 , detectorDistance=0.3
                 , energy=20e3
+                , numberOfReflectors=32
                 , qRotations=quaternions.quaternion(1)
                 , patternSize=(2680,2040)
                 , patternCenterVisible=True):
@@ -94,10 +95,11 @@ def drawPattern(L
   
   reflectors = L.getReflectors()
   
-  planes = reflectors.getReflectorsList()
+  planes = reflectors.getReflectorsList()[:numberOfReflectors]
   planes.reverse()
   
   for plane in planes:
+    print plane, reflectors.getReflectorNormalizedIntensity(plane)
     qPlane = quaternions.quaternion(0, plane)
     planeRot = quaternions.rotate(qPlane, qRotations).vector()
     
@@ -200,7 +202,7 @@ def main():
            (0,0.5,0.5): 14}
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
-  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
+  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=4)
   #BCC
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
@@ -209,17 +211,18 @@ def main():
 #  L = lattice.Lattice(a=2, b=2, c=4, alpha=pi/2, beta=pi/2, gamma=120.0/180*pi, atomPositions=[])
 
 #  for n in range(0,95, 5):
-  for n in range(0, 1, 1):
+  for n in [0]:
 #    angles = eulers.fromHKLeulers(-pi/2.0, theta/180.0*pi, pi/2.0) #y
-#    angles = eulers.negativeEulers(theta/180.0*pi, 0, 0) #z
-    angles = eulers.negativeEulers(0, 0.0*n/180.0*pi, 0) #x
+    angles = eulers.negativeEulers(n/180.0*pi, 0, 0) #z
+#    angles = eulers.negativeEulers(0, 0.0*n/180.0*pi, 0) #x
+    angles = eulers.negativeEulers(261.155/180.0*pi, 4.593/180.0*pi, 0.222/180.0*pi) 
     print n
     
     qSpecimenRotation = quaternions.quaternion(1,0,0,0)
     qCrystalRotation = quaternions.eulerAnglesToQuaternion(angles)
-    qTilt = quaternions.axisAngleToQuaternion(-0/180.0*pi, (1,0,0))
+    qTilt = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
     qDetectorOrientation = quaternions.axisAngleToQuaternion(90/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(pi, (0,0,1))
-    qDetectorOrientation = quaternions.quaternion(1,0,0,0)
+#    qDetectorOrientation = quaternions.quaternion(1,0,0,0)
     qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
     
     qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
@@ -230,15 +233,16 @@ def main():
                 , bandedges=False
                 , bandfull=True
                 , intensity=False
-                , patternCenter=(0.0,n/10.0)
-                , detectorDistance=0.3
-                , energy=20e3
+                , patternCenter=(-0.1,0.3)
+                , detectorDistance=0.4
+                , energy=15e3
+                , numberOfReflectors=25
                 , qRotations=qRotations
                 , patternSize=(335 ,255)
                 , patternCenterVisible=False)
     
 #    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
-    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation'
+    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/comparison'
     imageName = '%s_%3i.bmp' % ('test_2', n)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))

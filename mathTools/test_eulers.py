@@ -38,6 +38,7 @@ class TestEulers(unittest.TestCase):
   
   def testPositiveEulers(self):
     self.assertEqual(eulers.positiveEulers(0,0,0), (0,0,0))
+    self.assertEqual(eulers.positiveEulers((0,0,0)), (0,0,0))
     self.assertEqual(eulers.positiveEulers(pi, 0, pi), (pi,0,pi))
     self.assertEqual(eulers.positiveEulers(-pi/2.0, 0, -pi), (3.0*pi/2.0, 0, pi))
   
