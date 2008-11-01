@@ -70,7 +70,11 @@ class TestQuaternions(unittest.TestCase):
     
     #Test calculation
     self.assertEqual(quaternions.eulerAnglesToQuaternion(0,0,0), quaternions.quaternion(1,0,0,0))
-    self.assertEqual(quaternions.eulerAnglesToQuaternion(0,pi/4,0), quaternions.quaternion(cos(0.5*pi/4),sin(0.5*pi/4),0,0))
+#    self.assertEqual(quaternions.eulerAnglesToQuaternion(0,pi/4,0), quaternions.quaternion(cos(0.5*pi/4),sin(0.5*pi/4),0,0))
+    
+    q1 = quaternions.eulerAnglesToQuaternion(35/180.0*pi,27/180.0*pi,102/180.0*pi)
+    q2 = quaternions.axisAngleToQuaternion(102/180.0*pi, (0,0,1)) * quaternions.axisAngleToQuaternion(27/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(35/180.0*pi, (0,0,1))
+    self.assertEqual(q1, q2)
     
     #Test back-conversion
     eulers = (pi/4,0,0)
@@ -133,70 +137,78 @@ class TestQuaternions(unittest.TestCase):
     for i in range(1000):
       q = quaternions.quaternion(random.random(), random.random(), random.random(), random.random())
       hashValue = q.__hash__()
-      if hashValue in hashValues:
-        print q
+      self.assertFalse(hashValue in hashValues)
       
       hashValues.append(hashValue)
     
     
   
+#  def test(self):
+#    import vectors
+#    v = quaternions.quaternion(0,1,0,0) #Vector (1,0,0)
+#    q1 = quaternions.eulerAnglesToQuaternion(13, 0, 93)
+#    q2 = quaternions.eulerAnglesToQuaternion(60, 80, 152)
+#    q3 = quaternions.eulerAnglesToQuaternion(150,0,12)
+#    
+#    m1 = quaternions.matrixtoQuaternion([[-0.2415, -0.4756, -0.8458], [-0.7794, -0.4242, 0.4611], [-0.5781, 0.7706, -0.2682]])
+#    m2 = quaternions.matrixtoQuaternion([[-0.7035, 0.7045, -0.0939], [-0.4704, -0.5606, -0.6815], [-0.5328, -0.4352, 0.7258]])
+#    
+#    m = quaternions.matrixtoQuaternion([[-0.2874, -0.1762, -0.9415], [-0.7645, -0.5499,  0.3363], [-0.5770, 0.8164, 0.0233]])
+#    
+#    m3 = m1*m2
+#    
+##    print m3.toMatrix()
+##    print m.toMatrix()
+#    
+#    n1 = vectors.vector(-0.24010292588373822, -0.22683031725977587, -0.085024905374393375)
+#    n2 = vectors.vector(-0.24617887985919915, 0.23186271949917425, 0.084766186144241265)
+#    
+#    n1 = vectors.vector(-0.089639962534049308, 0.089281365367841842, 0.089639962534049322).positive()
+#    n2 = vectors.vector(-0.089639962534049322, -0.089281365367841842, -0.089639962534049308).positive()
+#    
+#    eP1 = n1 / n1.norm()
+#    eP2 = vectors.cross(n1, n2)
+#    eP2 /= eP2.norm()
+#    eP3 = vectors.cross(eP1, eP2)
+#    
+#    mP = [eP1.toList(), eP2.toList(), eP3.toList()]
+#    qP = quaternions.matrixtoQuaternion(mP)
+#    
+#    n1 = vectors.vector(1,1,1)
+#    n2 = vectors.vector(1,-1,-1)
+#    
+#    eC1 = n1 / n1.norm()
+#    eC2 = vectors.cross(n1, n2)
+#    eC2 /= eC2.norm()
+#    eC3 = vectors.cross(eC1, eC2)
+#    
+#    mC = [eC1.toList(), eC2.toList(), eC3.toList()]
+#    qC = quaternions.matrixtoQuaternion(mC)
+#    
+#    qS = quaternions.axisAngleToQuaternion(-0/180.0*pi, (1,0,0))
+#    
+#    qC_ = quaternions.matrixtoQuaternion([[1,0,0], [0,1,0], [0,0,1]])
+#    
+#    g = qC.conjugate() * qP * qS.conjugate()
+#    
+#    print g
+#    print g.toEulerAngles()
+#    print g.toAxisAngle()
+#    
+#    g = quaternions.quaternion(1,0,0,0)
+#    
+#    gP_ = qC * g * qS
+    
   def test(self):
-    import vectors
-    v = quaternions.quaternion(0,1,0,0) #Vector (1,0,0)
-    q1 = quaternions.eulerAnglesToQuaternion(13, 0, 93)
-    q2 = quaternions.eulerAnglesToQuaternion(60, 80, 152)
-    q3 = quaternions.eulerAnglesToQuaternion(150,0,12)
+    v = quaternions.quaternion(0,1,1,1)
     
-    m1 = quaternions.matrixtoQuaternion([[-0.2415, -0.4756, -0.8458], [-0.7794, -0.4242, 0.4611], [-0.5781, 0.7706, -0.2682]])
-    m2 = quaternions.matrixtoQuaternion([[-0.7035, 0.7045, -0.0939], [-0.4704, -0.5606, -0.6815], [-0.5328, -0.4352, 0.7258]])
+    euler1 = 0/180.0*pi
+    euler2 = 90/180.0*pi
+    euler3 = 90/180.0*pi
     
-    m = quaternions.matrixtoQuaternion([[-0.2874, -0.1762, -0.9415], [-0.7645, -0.5499,  0.3363], [-0.5770, 0.8164, 0.0233]])
+    q = quaternions.axisAngleToQuaternion(euler3, (0,0,1)) * quaternions.axisAngleToQuaternion(euler2, (1,0,0)) * quaternions.axisAngleToQuaternion(euler1, (0,0,1))
     
-    m3 = m1*m2
-    
-#    print m3.toMatrix()
-#    print m.toMatrix()
-    
-    n1 = vectors.vector(-0.24010292588373822, -0.22683031725977587, -0.085024905374393375)
-    n2 = vectors.vector(-0.24617887985919915, 0.23186271949917425, 0.084766186144241265)
-    
-    n1 = vectors.vector(-0.089639962534049308, 0.089281365367841842, 0.089639962534049322).positive()
-    n2 = vectors.vector(-0.089639962534049322, -0.089281365367841842, -0.089639962534049308).positive()
-    
-    eP1 = n1 / n1.norm()
-    eP2 = vectors.cross(n1, n2)
-    eP2 /= eP2.norm()
-    eP3 = vectors.cross(eP1, eP2)
-    
-    mP = [eP1.toList(), eP2.toList(), eP3.toList()]
-    qP = quaternions.matrixtoQuaternion(mP)
-    
-    n1 = vectors.vector(1,1,1)
-    n2 = vectors.vector(1,-1,-1)
-    
-    eC1 = n1 / n1.norm()
-    eC2 = vectors.cross(n1, n2)
-    eC2 /= eC2.norm()
-    eC3 = vectors.cross(eC1, eC2)
-    
-    mC = [eC1.toList(), eC2.toList(), eC3.toList()]
-    qC = quaternions.matrixtoQuaternion(mC)
-    
-    qS = quaternions.axisAngleToQuaternion(-0/180.0*pi, (1,0,0))
-    
-    qC_ = quaternions.matrixtoQuaternion([[1,0,0], [0,1,0], [0,0,1]])
-    
-    g = qC.conjugate() * qP * qS.conjugate()
-    
-    print g
-    print g.toEulerAngles()
-    print g.toAxisAngle()
-    
-    g = quaternions.quaternion(1,0,0,0)
-    
-    gP_ = qC * g * qS
-    
-    
+    print quaternions.rotate(v, [q])
   
 if __name__ == '__main__':
   unittest.main()

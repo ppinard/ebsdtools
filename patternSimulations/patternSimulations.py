@@ -24,6 +24,7 @@ import EBSDTools.mathTools.vectors as vectors
 from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
 import EBSDTools.crystallography.bragg as bragg
 import RandomUtilities.DrawingTools.drawing as drawing
+import RandomUtilities.DrawingTools.colors as colors
 
 
 def computePlaneEquationOnCamera(plane
@@ -73,7 +74,8 @@ def drawPattern(L
                 , numberOfReflectors=32
                 , qRotations=quaternions.quaternion(1)
                 , patternSize=(2680,2040)
-                , patternCenterVisible=True):
+                , patternCenterVisible=True
+                , colorMode=False):
   """
     Draw a pattern based on the crystallography and detector parameters
     
@@ -91,15 +93,27 @@ def drawPattern(L
   """
   
   im = drawing.ImageLine(patternSize, origin='center')
-  im.drawGrayBrackground(grayLevel=1)
+  im.drawGrayBrackground(color=(1,1,1))
+  colorsList = colors.colorsList()
   
   reflectors = L.getReflectors()
   
-  planes = reflectors.getReflectorsList()[:numberOfReflectors]
-  planes.reverse()
+#  planes = reflectors.getReflectorsList()[:numberOfReflectors]
+#  planes.reverse()
   
-  for plane in planes:
-    print plane, reflectors.getReflectorNormalizedIntensity(plane)
+  planes = [(1,-1,-1), 
+            (1,1,-1), 
+            (1,1,1), 
+            (1,-1,1), 
+            (2,-2,0), 
+            (2,0,-2), 
+            (0,2,-2), 
+            (2,2,0), 
+            (0,2,2), 
+            (2,0,2)]
+  
+  for index, plane in enumerate(planes):
+#    print plane, reflectors.getReflectorNormalizedIntensity(plane)
     qPlane = quaternions.quaternion(0, plane)
     planeRot = quaternions.rotate(qPlane, qRotations).vector()
     
@@ -140,11 +154,17 @@ def drawPattern(L
       #Half-width of the band
       w = d * sin(theta) / cos(alpha-theta)
       w2 = d * sin(theta) / cos(alpha+theta)
-      
-    if intensity:
-      grayLevel = reflectors.getReflectorNormalizedIntensity(plane) * 255
+    
+    if colorMode:
+      baseColor = colorsList.getColorRGB(index)
     else:
-      grayLevel = 255
+      baseColor = (255,255,255)
+    
+    if intensity:
+      normalizedIntensity = reflectors.getReflectorNormalizedIntensity(plane)
+      color = (baseColor[0]*normalizedIntensity, baseColor[1]*normalizedIntensity, baseColor[2]*normalizedIntensity)
+    else:
+      color = baseColor
     
 #    print plane, 'm', m, 'k', k#, 'd', d, 'theta', theta, 'w', w, 'alpha', cosalpha, 'g', grayLevel
     
@@ -157,7 +177,7 @@ def drawPattern(L
     if bandcenter:
       im.drawLinearFunction(m=m
                             , k=k
-                            , grayLevel=grayLevel)
+                            , color=color)
     
     if bandedges:
       #Correction for the slope of the band
@@ -169,29 +189,27 @@ def drawPattern(L
       h = w*cos(alpha)
       im.drawLinearFunction(m=m
                             , k=k+h
-                            , grayLevel=grayLevel)
+                            , color=color)
       
       h2 = w2*cos(alpha)
       im.drawLinearFunction(m=m
                             , k=k-h2
-                            , grayLevel=grayLevel)
+                            , color=color)
     
     if bandfull:
       im.drawLinearFunction(m=m
                             , k=k
                             , width=2*w
-                            , grayLevel=grayLevel)
+                            , color=color)
   
   #Mark the pattern center
   if patternCenterVisible:
-    im.draw.ellipse((patternSize[0]/2.0-20+patternCenter[0],patternSize[1]/2.0-20+patternCenter[1] \
-                     ,patternSize[0]/2.0+20+patternCenter[0],patternSize[1]/2.0+20+patternCenter[1]), fill=255)
+    im.drawCrossMarker(position=patternCenter, color=(255,255,255))
   
   return im()
 
 def main():
   import EBSDTools.crystallography.lattice as lattice
-  import PIL.ImageEnhance
   import EBSDTools.mathTools.eulers as eulers
   import os.path
   
@@ -233,16 +251,17 @@ def main():
                 , bandedges=False
                 , bandfull=True
                 , intensity=False
-                , patternCenter=(-0.1,0.3)
+                , patternCenter=(0.4,0.4)
                 , detectorDistance=0.4
                 , energy=15e3
                 , numberOfReflectors=25
                 , qRotations=qRotations
                 , patternSize=(335 ,255)
-                , patternCenterVisible=False)
+                , patternCenterVisible=True
+                , colorMode=False)
     
-#    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
-    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/comparison'
+    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
+#    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/comparison'
     imageName = '%s_%3i.bmp' % ('test_2', n)
     imageName = imageName.replace(' ', '0')
     image.save(os.path.join(folder, imageName))

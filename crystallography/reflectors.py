@@ -27,6 +27,7 @@ import EBSDTools.mathTools.vectors as vectors
 import EBSDTools.crystallography.reciprocal as reciprocal
 import EBSDTools.crystallography.bragg as bragg
 import RandomUtilities.sort.sortDict as sortDict
+from EBSDTools.mathTools.mathExtras import zeroPrecision
 
 class scatteringFactors:
   def __init__(self
@@ -149,13 +150,19 @@ class Reflectors:
   def __areEquivalent(self, plane1, plane2):
     angle = reciprocal.interplanarAngle(plane1, plane2, self.L)
     
-    if angle < 1e-5 or abs(angle - pi) < 1e-5:
-      if abs(plane1[0]) == abs(plane2[0]):
+    if angle < zeroPrecision or abs(angle - pi) < zeroPrecision:
+      if self.__order(plane1) == self.__order(plane2):
         return True
       else:
         return False
     else:
       return False
+
+  def __order(self, plane):
+    """
+      Return the absolute sum of the indices
+    """
+    return abs(plane[0]) + abs(plane[1]) + abs(plane[2])
 
   def __isDiffracting(self, plane):
     sum = 0

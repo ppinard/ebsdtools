@@ -69,29 +69,26 @@ class TestReciprocal(unittest.TestCase):
   
   def testGetReflectorsList(self):
     #bcc
-    planesBCC = reflectors.Reflectors(self.Lbcc,maxIndice=1).getReflectorsList()
+    planesBCC = reflectors.Reflectors(self.Lbcc,maxIndice=4).getReflectorsList()
     planesBCC_ = [(0, 1, 1), (1, 1, 0), (1, 0, 1), (1, -1, 0), (1, 0, -1), (0, 1, -1)]
-    self.assertEqual(len(planesBCC), len(planesBCC_))
     
-    for plane in planesBCC:
-      self.assertTrue(plane in planesBCC_)
+    for plane in planesBCC_:
+      self.assertTrue(plane in planesBCC)
       self.assertEqual((plane[0] + plane[1] + plane[2]) % 2, 0)
     
     planesBCC = reflectors.Reflectors(self.Lbcc,maxIndice=2).getReflectorsList()
     planesBCC_ = [(1, 0, 1), (1, 1, 0), (1, 0, -1), (1, -1, 0), (0, 2, 0), (2, 0, 0), (0, 0, 2), (1, 1, 2), (1, 2, 1), (2, 1, 1), (1, -2, -1), (2, 1, -1), (2, -1, -1), (1, 1, -2), (1, -1, -2), (1, 2, -1), (2, -1, 1), (1, -2, 1), (1, -1, 2), (0, 2, 2), (2, 0, 2), (2, 2, 0), (2, -2, 0), (2, 0, -2), (0, 2, -2), (2, 2,2), (2, -2, -2), (2, -2, 2), (2, 2, -2)]
-    self.assertEqual(len(planesBCC), len(planesBCC_))
     
-    for plane in planesBCC:
-      self.assertTrue(plane in planesBCC_)
+    for plane in planesBCC_:
+      self.assertTrue(plane in planesBCC)
       self.assertEqual((plane[0] + plane[1] + plane[2]) % 2, 0)
     
     #fcc
-    planesFCC = reflectors.Reflectors(self.Lfcc,maxIndice=1).getReflectorsList()
+    planesFCC = reflectors.Reflectors(self.Lfcc,maxIndice=4).getReflectorsList()
     planesFCC_ = [(1, 1, 1), (1, -1, -1), (1, 1, -1), (1, -1, 1)]
-    self.assertEqual(len(planesFCC), len(planesFCC_))
     
-    for plane in planesFCC:
-      self.assertTrue(plane in planesFCC_)
+    for plane in planesFCC_:
+      self.assertTrue(plane in planesFCC)
       if plane[0] % 2 == 0: 
         self.assertEqual(plane[1] % 2, 0)
         self.assertEqual(plane[2] % 2, 0)
@@ -99,11 +96,11 @@ class TestReciprocal(unittest.TestCase):
         self.assertEqual(plane[1] % 2, 1)
         self.assertEqual(plane[2] % 2, 1)
     
-    planesFCC = reflectors.Reflectors(self.Lfcc,maxIndice=2).getReflectorsList()
+    planesFCC = reflectors.Reflectors(self.Lfcc,maxIndice=4).getReflectorsList()
     planesFCC_ = [(1, 1, 1), (1, -1, -1), (1, 1, -1), (1, -1, 1), (0, 2, 0), (0, 0, 2), (2, 0, 0), (0, 2, 2), (2, 0, 2), (2, 2, 0), (0, 2, -2), (2, 0, -2), (2, -2, 0), (2, 2, 2), (2, -2, 2), (2, -2, -2), (2, 2, -2)]
     
-    for plane in planesFCC:
-      self.assertTrue(plane in planesFCC_)
+    for plane in planesFCC_:
+      self.assertTrue(plane in planesFCC)
       if plane[0] % 2 == 0: 
         self.assertEqual(plane[1] % 2, 0)
         self.assertEqual(plane[2] % 2, 0)

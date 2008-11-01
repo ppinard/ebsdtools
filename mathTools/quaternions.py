@@ -140,17 +140,19 @@ def eulerAnglesToQuaternion(*angles):
     a2 = float(angles[1])
     a3 = float(angles[2])
   
-  c1 = cos(0.5*a1)
-  c2 = cos(0.5*a2)
-  c3 = cos(0.5*a3)
-  s1 = sin(0.5*a1)
-  s2 = sin(0.5*a2)
-  s3 = sin(0.5*a3)
+  return axisAngleToQuaternion(a1, (0,0,1)) * axisAngleToQuaternion(a2, (1,0,0)) * axisAngleToQuaternion(a3, (0,0,1))
   
-  return quaternion(c1*c2*c3 - s1*c2*s3,
-                    c1*s2*c3 + s1*s2*s3,
-                    c1*s2*s3 - s1*s2*c3,
-                    c1*c2*s3 + s1*c2*c3)
+#  c1 = cos(0.5*a1)
+#  c2 = cos(0.5*a2)
+#  c3 = cos(0.5*a3)
+#  s1 = sin(0.5*a1)
+#  s2 = sin(0.5*a2)
+#  s3 = sin(0.5*a3)
+#  
+#  return quaternion(c1*c2*c3 - s1*c2*s3,
+#                    c1*s2*c3 + s1*s2*s3,
+#                    c1*s2*s3 - s1*s2*c3,
+#                    c1*c2*s3 + s1*c2*c3)
 
 class quaternion:
   def __init__(self, *data):
