@@ -182,16 +182,16 @@ def drawPattern(L
     if bandedges:
       #Correction for the slope of the band
       if m != None:
-        alpha = atan(m)
+        beta = atan(m)
       else:
-        alpha = 0.0
+        beta = 0.0
       
-      h = w*cos(alpha)
+      h = w/cos(beta)
       im.drawLinearFunction(m=m
                             , k=k+h
                             , color=color)
       
-      h2 = w2*cos(alpha)
+      h2 = w2/cos(beta)
       im.drawLinearFunction(m=m
                             , k=k-h2
                             , color=color)
