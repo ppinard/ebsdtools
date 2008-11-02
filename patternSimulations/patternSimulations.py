@@ -75,7 +75,8 @@ def drawPattern(L
                 , qRotations=quaternions.quaternion(1)
                 , patternSize=(2680,2040)
                 , patternCenterVisible=True
-                , colorMode=False):
+                , colorMode=False
+                , reflectorsInfo=[]):
   """
     Draw a pattern based on the crystallography and detector parameters
     
@@ -98,19 +99,19 @@ def drawPattern(L
   
   reflectors = L.getReflectors()
   
-#  planes = reflectors.getReflectorsList()[:numberOfReflectors]
-#  planes.reverse()
+  planes = reflectors.getReflectorsList()[:numberOfReflectors]
+  planes.reverse()
   
-  planes = [(1,-1,-1), 
-            (1,1,-1), 
-            (1,1,1), 
-            (1,-1,1), 
-            (2,-2,0), 
-            (2,0,-2), 
-            (0,2,-2), 
-            (2,2,0), 
-            (0,2,2), 
-            (2,0,2)]
+#  planes = [(1,-1,-1), 
+#            (1,1,-1), 
+#            (1,1,1), 
+#            (1,-1,1), 
+#            (2,-2,0), 
+#            (2,0,-2), 
+#            (0,2,-2), 
+#            (2,2,0), 
+#            (0,2,2), 
+#            (2,0,2)]
   
   for index, plane in enumerate(planes):
 #    print plane, reflectors.getReflectorNormalizedIntensity(plane)
@@ -160,8 +161,8 @@ def drawPattern(L
     else:
       baseColor = (255,255,255)
     
+    normalizedIntensity = reflectors.getReflectorNormalizedIntensity(plane)
     if intensity:
-      normalizedIntensity = reflectors.getReflectorNormalizedIntensity(plane)
       color = (baseColor[0]*normalizedIntensity, baseColor[1]*normalizedIntensity, baseColor[2]*normalizedIntensity)
     else:
       color = baseColor
@@ -201,7 +202,9 @@ def drawPattern(L
                             , k=k
                             , width=2*w
                             , color=color)
-  
+    
+    if bandcenter or bandedges or bandfull:
+      reflectorsInfo.append({'indices': plane, 'rgb': color, 'intensity': normalizedIntensity})
   #Mark the pattern center
   if patternCenterVisible:
     im.drawCrossMarker(position=patternCenter, color=(255,255,255))
