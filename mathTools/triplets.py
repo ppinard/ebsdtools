@@ -39,6 +39,6 @@ def findTriplets(n):
   return triplets
 
 if __name__ == '__main__':
-  print numberOfTriplets(55)
-  print len(findTriplets(55))
-  print findTriplets(55)
+  print numberOfTriplets(5)
+  print len(findTriplets(5))
+  print findTriplets(5)

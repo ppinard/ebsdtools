@@ -88,10 +88,19 @@ class Phases:
     self.numberOfReflectors = numberOfReflectors
     
     self.latticesTripletsAngles ={}
+    self.latticesAngles ={}
     for latticeId in Ls:
       self._calculateLatticeTripletsAngles(latticeId, Ls[latticeId])
+      self._calculateLatticeAngles(latticeId, Ls[latticeId])
+    
+    self.peakAngles = []
     
     self._calculatePatternAngles(peaks, patternCenter, detectorDistance, patternSize)
+    
+    self.commonAngles = {}
+    for latticeId in Ls:
+      self._buildLookupTable(latticeId)
+      self._printout(latticeId)
     
     self._compareAngles(peaks)
   
@@ -107,6 +116,15 @@ class Phases:
       n = kikuchiLineToNormal(m, k, patternCenter, detectorDistance).positive()
       
       normals.append(n)
+    
+    for i in range(len(normals)):
+      for j in range(len(normals)):
+        if i >= j:
+          continue
+        
+        AB = smallAngle(vectors.angle(normals[i], normals[j]))
+        
+        self.peakAngles.append(AB)
     
     #Build the triplets
     self.peakTripletsAngles = []
@@ -124,6 +142,8 @@ class Phases:
       peakAngles = sortDict.sortListByKey(peakAngles, 'AB')
       
       self.peakTripletsAngles.append(peakAngles)
+      
+      
     
 #    print len(self.peakTripletsAngles)
     
@@ -149,11 +169,59 @@ class Phases:
 #    print len(latticeTripletsAngles)
 #    print latticesAngle
   
+  def _calculateLatticeAngles(self, latticeId, L):
+    latticeAngles = []
+    reflectors = L.getReflectors().getReflectorsList()[:self.numberOfReflectors]
+    
+    for i in range(len(reflectors)):
+      for j in range(len(reflectors)):
+        if i >= j:
+          continue
+        
+        AB = smallAngle(reciprocal.interplanarAngle(reflectors[i], reflectors[j], L))
+        
+        latticeAngles.append({'AB': AB, 'A': reflectors[i], 'B': reflectors[j]})
+    
+    self.latticesAngles[latticeId] = latticeAngles
+  
+  def _printout(self, latticeId):
+#    sortDict.sortListByKey(self.latticesAngles[latticeId], 'AB')
+    
+    print 'latticesAngles', len(self.latticesAngles[latticeId])
+    print 'peakAngles', len(self.peakAngles)
+    print 'latticesTripletsAngles', len(self.latticesTripletsAngles[latticeId])
+    print 'peakTripletsAngles', len(self.peakTripletsAngles)
+    print 'commonAngles', len(self.commonAngles[latticeId])
+    
+#    for latticeAngle in self.latticesAngles[latticeId]:
+#      print latticeAngle['AB'], latticeAngle['A'], latticeAngle['B']
+  
+  def _buildLookupTable(self, latticeId):
+    commonAngles = []
+    
+    self.peakAngles.sort()
+    sortDict.sortListByKey(self.latticesAngles[latticeId], 'AB')
+    
+    for peakAngle in self.peakAngles:
+      for latticeAngle in self.latticesAngles[latticeId]:
+        if abs(latticeAngle['AB'] - peakAngle) < self.angularPrecision:
+          commonAngles.append(latticeAngle)
+        if latticeAngle['AB'] > (peakAngle + self.angularPrecision):
+          break
+    
+#    print commonAngles
+    self.commonAngles[latticeId] = commonAngles
+  
   def _compareAngles(self, peaks):
+    
+    
     
     for latticeId in self.latticesTripletsAngles:
       total = 0
       results = {}
+      
+      
+      
       for latticeTripletsAngles in self.latticesTripletsAngles[latticeId]:
         hits = 0
         
@@ -163,21 +231,7 @@ class Phases:
           if match:
             hits += 1
             
-            for i in range(2):
-              orientation = self.calculateOrientation(n1=peakTripletsAngles[i]['A']
-                                      , n2=peakTripletsAngles[i]['B']
-                                      , hkl1=latticeTripletsAngles[i]['A']
-                                      , hkl2=latticeTripletsAngles[i]['B'])
-              
-              var = 0
-              for result in results.keys():
-                if quaternions.similar(orientation, result, self.angularPrecision):
-                  results[result] += 1
-                  var = 1
-                  break
-              
-              if var == 0:
-                results[orientation] = 1
+            
             
           
 #          if hits >= 10:
@@ -190,16 +244,7 @@ class Phases:
       
       print latticeId, total, float(total) / len(self.peakTripletsAngles)**2
     
-      maxVote = ('q',0)
-      for result in results:
-#        if results[result] > 30:
-#          print result, results[result]
-        if results[result] > maxVote[1]:
-          maxVote = (result, results[result])
-      
-      print maxVote
-      print eulers.degEulers(eulers.positiveEulers(maxVote[0].toEulerAngles()))
-      print maxVote[0].toEulerAngles()
+
   
   def match(self, peakTripletsAngles, latticeTripletsAngles):
     if abs(peakTripletsAngles[0]['AB'] - latticeTripletsAngles[0]['AB']) < self.angularPrecision:
@@ -261,7 +306,7 @@ def run():
 #  folder = 'c:/documents/workspace/EBSDTools/patternSimulations/test/fcc_pcz__001.bmp' + ".csv"
   folder = os.path.join(root, 'workspace/EBSDTools/indexation/test/fcc_pcz__000.bmp' + ".csv")
 #  folder = os.path.join(root, 'workspace/EBSDTools/patternSimulations/rotation/test_2_000' + ".csv")
-  peaks = rmlImage(folder).getPeaksList()[:8]
+  peaks = rmlImage(folder).getPeaksList()[:5]
   
 #  image = reconstructedPattern(peaks, patternSize)
 #  folder = 'c:/documents/workspace/EBSDTools/indexation/test'
@@ -281,7 +326,7 @@ def run():
 #  atoms = {}
 #  self.Lhexagonal = lattice.Lattice(a=2, b=2, c=3, alpha=pi/2, beta=pi/2, gamma=120.0/180*pi, atoms=atoms, reflectorsMaxIndice=1)
   
-  phases = Phases(Ls = {'fcc': Lfcc, 'bcc': Lbcc}
+  phases = Phases(Ls = {'fcc': Lfcc}#, 'bcc': Lbcc}
                   , peaks = peaks
                   , patternCenter = patternCenter
                   , detectorDistance = detectorDistance

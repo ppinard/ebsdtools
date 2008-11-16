@@ -41,8 +41,8 @@ class App:
              (0.5,0.5,0): 14,
              (0.5,0,0.5): 14,
              (0,0.5,0.5): 14}
-  #  atoms = {(0,0,0): 14,
-  #           (0.5,0.5,0.5): 14}
+#    atoms = {(0,0,0): 14,
+#             (0.5,0.5,0.5): 14}
     self.L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=4)
     
     #Image
@@ -154,7 +154,7 @@ class App:
                                , labelpos='w'
                                , label_text='R'
                                , entry_width=3
-                               , entryfield_value=9
+                               , entryfield_value=13
                                , datatype={'counter' : 'integer'}
                                , entryfield_validate={'validator' : 'integer', 'min' : 4, 'max' : 50}
                                , increment=1)

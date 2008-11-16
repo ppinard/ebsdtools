@@ -96,6 +96,27 @@ class scatteringFactors:
         a float of the scattering factor
     """
     
+    #Test with x-ray scattering factor
+#===============================================================================
+#    a = [6.292, 3.035, 1.989, 1.541]
+#    b = [2.439, 32.334, 0.678, 81.694]
+#    c = 1.141
+#    
+#    fx = 0.0
+#    
+#    x = s / (4*pi)
+#    
+#    for i in range(4):
+#      fx += a[i]*exp(-b[i]*x**2)
+#    
+#    fx += c
+#    
+#    fe = 0.023934 * (Z - fx) / x**2
+#    
+#    return fe
+#===============================================================================
+    
+    
     if s >= 0 and s < 2:
       a = [self.parameters_0_2[Z]['a1'], self.parameters_0_2[Z]['a2'], self.parameters_0_2[Z]['a3'], self.parameters_0_2[Z]['a4'], self.parameters_0_2[Z]['a5']]
       b = [self.parameters_0_2[Z]['b1'], self.parameters_0_2[Z]['b2'], self.parameters_0_2[Z]['b3'], self.parameters_0_2[Z]['b4'], self.parameters_0_2[Z]['b5']]
