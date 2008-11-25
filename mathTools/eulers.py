@@ -83,3 +83,22 @@ def degEulers(*thetas):
   theta2 *= 180.0 / pi
   
   return theta0, theta1, theta2
+
+def radEulers(*thetas):
+  """
+    Convert from deg to rad
+  """
+  if len(thetas) == 1:
+    theta0 = thetas[0][0]
+    theta1 = thetas[0][1]
+    theta2 = thetas[0][2]
+  elif len(thetas) == 3:
+    theta0 = thetas[0]
+    theta1 = thetas[1]
+    theta2 = thetas[2]
+    
+  theta0 *= pi / 180.0
+  theta1 *= pi / 180.0
+  theta2 *= pi / 180.0
+  
+  return theta0, theta1, theta2
