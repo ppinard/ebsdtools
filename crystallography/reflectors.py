@@ -147,43 +147,63 @@ class Reflectors:
   def _calculateReflectors(self, maxIndice):
     self.reflectors = {}
     intensities = []
+    planeSpacings = []
     
     planes = self.__findReflectors(maxIndice)
     
     for plane in planes:
       planeKey = plane.toTuple()
       self.reflectors.setdefault(planeKey, {})
+      
       self.reflectors[planeKey]['reflector'] = plane
       
       planeSpacing = self.__calculatePlaneSpacing(plane)
+      if self.__isNewPlaneSpacing(planeSpacing, planeSpacings):
+        planeSpacings.append(planeSpacing)
       self.reflectors[planeKey]['plane spacing'] = planeSpacing
       
       intensity = self.__calculateIntensity(plane, planeSpacing)
       intensities.append(intensity)
       self.reflectors[planeKey]['intensity'] = intensity
     
-    intensityMax = max(intensities)
-    if intensityMax > 0.0:
-      for plane in planes:
-        planeKey = plane.toTuple()
-        self.reflectors[planeKey]['normalized intensity'] = self.reflectors[planeKey]['intensity'] / intensityMax
+    if len(planes) > 0:
+      intensityMax = max(intensities)
+      if intensityMax > 0.0:
+        for planeKey in self.reflectors.keys():
+          self.reflectors[planeKey]['normalized intensity'] = self.reflectors[planeKey]['intensity'] / intensityMax
+      
+      planeSpacings.sort(reverse=True)
+      for planeKey in self.reflectors.keys():
+        family = self.__getPlaneSpacingIndex(self.reflectors[planeKey]['plane spacing'], planeSpacings)
+        self.reflectors[planeKey]['family'] = family
+  
+  def __isNewPlaneSpacing(self, newPlaneSpacing, planeSpacings):
+    inPlaneSpacing = False
     
-  def __areEquivalent(self, plane1, plane2):
+    for existantPlaneSpacing in planeSpacings:
+      if abs(existantPlaneSpacing - newPlaneSpacing) < zeroPrecision:
+        inPlaneSpacing = True
+        break
+    
+    return not inPlaneSpacing
+  
+  def __getPlaneSpacingIndex(self, planeSpacing, planeSpacings):
+    for index, existantPlaneSpacing in enumerate(planeSpacings):
+      if abs(existantPlaneSpacing - planeSpacing) < zeroPrecision:
+        return index
+  
+  def __areEquivalentPlanes(self, plane1, plane2):
     angle = reciprocal.interplanarAngle(plane1, plane2, self.L)
+    planeSpacing1 = reciprocal.planeSpacing(plane1, self.L)
+    planeSpacing2 = reciprocal.planeSpacing(plane2, self.L)
     
     if angle < zeroPrecision or abs(angle - pi) < zeroPrecision:
-      if self.__order(plane1) == self.__order(plane2):
+      if abs(planeSpacing1 - planeSpacing2) < zeroPrecision:
         return True
       else:
         return False
     else:
       return False
-
-  def __order(self, plane):
-    """
-      Return the absolute sum of the indices
-    """
-    return abs(plane[0]) + abs(plane[1]) + abs(plane[2])
 
   def __isDiffracting(self, plane):
     sum = 0
@@ -209,7 +229,7 @@ class Reflectors:
           if not plane == vectors.vector(0,0,0): #Remove plane (0,0,0)
             if self.__isDiffracting(plane):
               for reflector in reflectors:
-                if self.__areEquivalent(plane, reflector):
+                if self.__areEquivalentPlanes(plane, reflector):
                   plane = vectors.vector(None)
                   break
                   
@@ -236,21 +256,22 @@ class Reflectors:
   def getReflectorsDict(self):
     return self.reflectors
   
-  def getReflectorsList(self):
+  def getReflectorsList(self, sortKey='normalized intensity', reverse=True):
     """
       Return a list of reflectors sorted in decreasing order of intensity
       
       Inputs:
-        None
+        sortKey: key that the reflector list will be sorted by
+        reverse: True: descending order, False: ascending order
       
       Outputs:
         a list
     """
     intensityDict = {}
     for reflector in self.reflectors.keys():
-      intensityDict.setdefault(reflector, self.reflectors[reflector]['normalized intensity'])
+      intensityDict.setdefault(reflector, self.reflectors[reflector][sortKey])
     
-    sortedIntensityDict = sortDict.sortDictByValue(intensityDict, reverse=True)
+    sortedIntensityDict = sortDict.sortDictByValue(intensityDict, reverse=reverse)
     
     keys = []
     for item in sortedIntensityDict:
@@ -258,9 +279,23 @@ class Reflectors:
     
     return keys
   
+  def getReflectorsListByFamily(self, family):
+    keys = []
+    
+    for reflector in self.reflectors.keys():
+      if self.reflectors[reflector]['family'] == family:
+        keys.append(self.reflectors[reflector]['reflector'])
+    
+    return keys
+      
+  
   def getReflectorInfo(self, plane):
     if plane in self.reflectors.keys():
       return self.reflectors[plane]
+  
+  def getReflectorFamily(self, plane):
+    if plane in self.reflectors.keys():
+      return self.reflectors[plane]['family']
   
   def getReflectorPlaneSpacing(self, plane):
     if plane in self.reflectors.keys():
@@ -283,10 +318,11 @@ if __name__ == '__main__':
   
   L = lattice.Lattice(a=3.59, b=3.59, c=3.59, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=4)
   
-  reflectors = L.getReflectors()
-  print reflectors.getReflectorNormalizedIntensity((4,0,0))
+  reflectors = L.getReflectors().getReflectorsDict()
+  reflectorsList = L.getReflectors().getReflectorsList(sortKey='family', reverse=False)
   
-#  for plane in reflectors.getReflectorsList():
-#    print '%2i%2i%2i %6.4f %e %4.2f' % (plane[0],plane[1],plane[2], reflectors.getReflectorPlaneSpacing(plane), reflectors.getReflectorIntensity(plane), reflectors.getReflectorNormalizedIntensity(plane)*100.0)
+  print len(reflectorsList)
+  
+#  for reflector in reflectorsList:
+#    print '%s, %i' % (reflector, reflectors[reflector]['family'])
 #  
-  
