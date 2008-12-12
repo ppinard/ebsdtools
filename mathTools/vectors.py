@@ -284,6 +284,14 @@ def angle(v1, v2):
   
   return _acos(costheta)
 
+def directionCosine(v1, v2):
+  costheta = dot(v1, v2) / (v1.norm() * v2.norm())
+  
+  return costheta
+
+def tripleProduct(v1, v2, v3):
+  return dot(cross(v1,v2), v3)
+
 if __name__ == "__main__":
   a = vector([0,0,1])
   b = vector(-1,0,1)
