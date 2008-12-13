@@ -133,7 +133,7 @@ def findBand(thetas, band3P, lut, L):
       if diff  < 1/180.0*pi:
         planes[i].append(item)
 #        print item['angle']*180/pi
-#  print planes
+  
 #  for theta in planes:
 #    print theta
 #    for item in planes[theta]:
@@ -154,7 +154,8 @@ def findBand(thetas, band3P, lut, L):
 
 #          print b0['indices'] == b1['indices'] or b1['indices'] == b2['indices'] or b2['indices'] == b0['indices']
 #          print planes0, planes1, planes2
-#          print b0, b1, b2
+#          print '='*20
+#          answers.append([b0, b1, b2])
           
 #          print planes0['angle'], vectors.angle(b0['indices'], b1['indices'])
 #          print planes1['angle'], vectors.angle(b1['indices'], b2['indices'])
@@ -384,8 +385,8 @@ if __name__ == '__main__':
   detectorDistance = 0.3
   
   #Pattern reconstruction
-  root = 'i:/Philippe Pinard/'
-#  root = 'c:/documents/'
+#  root = 'i:/Philippe Pinard/'
+  root = 'c:/documents/'
 #  folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/rotation/m_000.csv'
 #  folder = 'c:/documents/workspace/EBSDTools/patternSimulations/test/fcc_pcz__001.bmp' + ".csv"
 #  filename = os.path.join(root, 'workspace/EBSDTools/indexation/test/fcc_1_pcz__000.bmp' + ".csv")
@@ -489,4 +490,4 @@ if __name__ == '__main__':
 #  
 #  smallTotalThetas.sort()
 #  print smallTotalThetas
-#  print totalCounts
+#  print totalCounts>>>>>>> MERGE-SOURCE
