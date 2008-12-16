@@ -25,6 +25,7 @@ from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
 import EBSDTools.crystallography.bragg as bragg
 import RandomUtilities.DrawingTools.drawing as drawing
 import RandomUtilities.DrawingTools.colors as colors
+import EBSDTools.dev.orientation as orientation
 
 
 def computePlaneEquationOnCamera(plane
@@ -113,6 +114,8 @@ def drawPattern(L
 #            (0,2,2), 
 #            (2,0,2)]
   
+  print '-'*40
+  
   for index, plane in enumerate(planes):
 #    print plane, reflectors.getReflectorNormalizedIntensity(plane)
     qPlane = quaternions.quaternion(0, plane)
@@ -124,6 +127,13 @@ def drawPattern(L
     
     if m == None and k == None:
       continue
+    
+    try:
+      normal = orientation.kikuchiLineToNormal(m,k, patternCenter, detectorDistance)
+    except:
+      normal = []
+    
+    print plane, m, k, normal.positive()
     
     if bandedges or bandfull:
       x0 = vectors.vector(0,0,0)

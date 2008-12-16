@@ -156,7 +156,7 @@ class App:
                                , entry_width=3
                                , entryfield_value=13
                                , datatype={'counter' : 'integer'}
-                               , entryfield_validate={'validator' : 'integer', 'min' : 4, 'max' : 50}
+                               , entryfield_validate={'validator' : 'integer', 'min' : 2, 'max' : 50}
                                , increment=1)
     self.counterReflectors.grid(row=3, column=2, sticky='ew')
     self.counterReflectors.component('entryfield').configure(modifiedcommand=lambda func=self.update: func())
@@ -317,6 +317,7 @@ class App:
     qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
     
     qRotations = [qDetectorOrientation_ * qTilt * qCrystalRotation * qSpecimenRotation]
+    qRotations = [qTilt * qCrystalRotation * qSpecimenRotation]
     
     reflectorsInfo = []
     

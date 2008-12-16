@@ -51,13 +51,13 @@ def axisAngleToQuaternion(*data):
   elif len(data) == 4:
     n = vectors.vector(data[1], data[2], data[3])
   
-  norm = n.norm()
+  n = n.normalize()
   multiplier = sin(0.5*data[0])
   
   return quaternion(cos(0.5*data[0])
-                      , n[0] * multiplier / norm
-                      , n[1] * multiplier / norm
-                      , n[2] * multiplier / norm)
+                      , n[0] * multiplier
+                      , n[1] * multiplier
+                      , n[2] * multiplier)
 
 def matrixtoQuaternion(m):
   """
@@ -81,33 +81,42 @@ def matrixtoQuaternion(m):
   """
   #TODO: Modify tex accordingly
   
-  trace = 1 + m[0][0] + m[1][1] + m[2][2]
+  w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
   
-  if trace > 0:
-    s = 0.5 / sqrt(trace)
-    w = 0.25 / s
-    x = (m[2][1] - m[1][2]) * s
-    y = (m[0][2] - m[2][0]) * s
-    z = (m[1][0] - m[0][1]) * s
+  if abs(w) > zeroPrecision:
+    x = (m[1][2] - m[2][1]) / (4*w)
+    y = (m[2][0] - m[0][2]) / (4*w)
+    z = (m[0][1] - m[1][0]) / (4*w)
   else:
-    if (m[0][0] > m[1][1]) and (m[0][0] > m[2][2]):
-      s = sqrt(1.0 + m[0][0] - m[1][1] - m[2][2] ) * 2 
-      w = (m[2][1] - m[1][2]) / s
-      x= 0.25 * s
-      y= (m[0][1] + m[1][0]) / s
-      z= (m[0][2] + m[2][0]) / s
-    elif (m[1][1] > m[2][2]): 
-      s = sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]) * 2
-      w = (m[0][2] - m[2][0]) / s
-      x = (m[0][1] + m[1][0]) / s 
-      y = 0.25 * s
-      z = (m[1][2] + m[2][1]) / s 
-    else: 
-      s = sqrt(1.0 + m[2][2] - m[0][0] - m[1][1]) * 2
-      w = (m[1][0] - m[0][1]) / s
-      x = (m[0][2] + m[2][0]) / s 
-      y = (m[1][2] + m[2][1]) / s 
-      z = 0.25 * s
+    pass
+  
+#  trace = 1 + m[0][0] + m[1][1] + m[2][2]
+#  
+#  if trace > 0:
+#    s = 0.5 / sqrt(trace)
+#    w = 0.25 / s
+#    x = (m[2][1] - m[1][2]) * s
+#    y = (m[0][2] - m[2][0]) * s
+#    z = (m[1][0] - m[0][1]) * s
+#  else:
+#    if (m[0][0] > m[1][1]) and (m[0][0] > m[2][2]):
+#      s = sqrt(1.0 + m[0][0] - m[1][1] - m[2][2] ) * 2 
+#      w = (m[2][1] - m[1][2]) / s
+#      x = 0.25 * s
+#      y = (m[0][1] + m[1][0]) / s
+#      z = (m[0][2] + m[2][0]) / s
+#    elif (m[1][1] > m[2][2]): 
+#      s = sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]) * 2
+#      w = (m[0][2] - m[2][0]) / s
+#      x = (m[0][1] + m[1][0]) / s 
+#      y = 0.25 * s
+#      z = (m[1][2] + m[2][1]) / s 
+#    else: 
+#      s = sqrt(1.0 + m[2][2] - m[0][0] - m[1][1]) * 2
+#      w = (m[1][0] - m[0][1]) / s
+#      x = (m[0][2] + m[2][0]) / s 
+#      y = (m[1][2] + m[2][1]) / s 
+#      z = 0.25 * s
   
   return quaternion(w,x,y,z)
   
@@ -132,15 +141,22 @@ def eulerAnglesToQuaternion(*angles):
   """
 
   if len(angles) == 1:
-    a1 = float(angles[0][0])
-    a2 = float(angles[0][1])
-    a3 = float(angles[0][2])
+    t1 = float(angles[0][0])
+    t2 = float(angles[0][1])
+    t3 = float(angles[0][2])
   elif len(angles) == 3:
-    a1 = float(angles[0])
-    a2 = float(angles[1])
-    a3 = float(angles[2])
+    t1 = float(angles[0])
+    t2 = float(angles[1])
+    t3 = float(angles[2])
   
-  return axisAngleToQuaternion(a1, (0,0,1)) * axisAngleToQuaternion(a2, (1,0,0)) * axisAngleToQuaternion(a3, (0,0,1))
+#  return axisAngleToQuaternion(a3, (0,0,1)) * axisAngleToQuaternion(a2, (1,0,0)) * axisAngleToQuaternion(a1, (0,0,1))
+  
+  a  = cos(t2/2.0)*cos((t1 + t3)/2.0)
+  A1 = sin(t2/2.0)*cos((t3 - t1)/2.0)
+  A2 = sin(t2/2.0)*sin((t1 - t3)/2.0)
+  A3 = cos(t2/2.0)*sin((t1 + t3)/2.0)
+  
+  return quaternion(a, A1, A2, A3).positive()
   
 #  c1 = cos(0.5*a1)
 #  c2 = cos(0.5*a2)
@@ -380,6 +396,13 @@ class quaternion:
     else:
       return self.conjugate() * pow(abs(self), -2)
   
+  def __neg__(self):
+    """
+      Return the negative of the quaternion
+    """
+    
+    return quaternion(-self._a, -self._A[0], -self._A[1], -self._A[2])
+  
   def __eq__(self, other):
     """
       Comparison of quaternion
@@ -477,6 +500,28 @@ class quaternion:
   def scalar(self):
     return self._a
   
+  def positive(self):
+    """
+      Return a positive quaternion: The first non-zero term is positive
+      
+      Outputs:
+        a quaternion
+    """
+    
+    output = []
+    
+    qIndices = [self._a, self._A[0], self._A[1], self._A[2]]
+    
+    for qIndice in qIndices:
+      if abs(qIndice) < zeroPrecision:
+        continue
+      elif qIndice < zeroPrecision:
+        return -self
+      elif qIndice > zeroPrecision:
+        break
+    
+    return self
+  
   def toAxisAngle(self):
     """
       Give the axis angle or euler-rodrigues (\phi, \vec{n}) representation of the quaternion
@@ -519,9 +564,14 @@ class quaternion:
     a = qCalc._a
     A = qCalc._A
     
-    return [[1 - 2*A[1]**2 - 2*A[2]**2, 2*A[0]*A[1] - 2*A[2]*a    , 2*A[0]*A[2] + 2*A[1]*a   ],
-            [2*A[0]*A[1] + 2*A[2]*a   , 1 - 2*A[0]**2 - 2*A[2]**2 , 2*A[1]*A[2] - 2*A[0]*a   ],
-            [2*A[0]*A[2] - 2*A[1]*a   , 2*A[1]*A[2] + 2*A[0]*a    , 1 - 2*A[0]**2 - 2*A[1]**2]]
+    return [[a**2 + A[0]**2 - A[1]**2 - A[2]**2, 2*(A[0]*A[1] + a*A[2])            , 2*(A[0]*A[2] - a*A[1])            ],
+            [2*(A[0]*A[1] - a*A[2])            , a**2 - A[0]**2 + A[1]**2 - A[2]**2, 2*(A[1]*A[2] + a*A[0])            ],
+            [2*(A[0]*A[2] + a*A[1])            , 2*(A[1]*A[2] - a*A[0])            , a**2 - A[0]**2 - A[1]**2 + A[2]**2]]
+
+    
+#    return [[1 - 2*A[1]**2 - 2*A[2]**2, 2*A[0]*A[1] - 2*A[2]*a    , 2*A[0]*A[2] + 2*A[1]*a   ],
+#            [2*A[0]*A[1] + 2*A[2]*a   , 1 - 2*A[0]**2 - 2*A[2]**2 , 2*A[1]*A[2] - 2*A[0]*a   ],
+#            [2*A[0]*A[2] - 2*A[1]*a   , 2*A[1]*A[2] + 2*A[0]*a    , 1 - 2*A[0]**2 - 2*A[1]**2]]
   
   def toEulerAngles(self):
     """
@@ -536,20 +586,34 @@ class quaternion:
     
     qCalc = self.normalize()
     
-    if abs(qCalc._A[0]) < zeroPrecision and abs(qCalc._A[1]) < zeroPrecision:
+    theta2 = 2*atan2(sqrt(self._A[0]**2 + self._A[1]**2), sqrt(self._a**2 + self._A[2]**2))
+    
+    if abs(theta2) < zeroPrecision:
       theta1 = 2*atan2(qCalc._A[2], qCalc._a)
-      theta2 = 0
       theta3 = 0
-    elif abs(qCalc._A[0]**2 + qCalc._A[1]**2 - 1.0) < zeroPrecision:
-      theta1 = 2*atan2(-qCalc._A[1], qCalc._A[0])
-      theta2 = pi
+    elif abs(theta2 - pi) < zeroPrecision:
+      theta1 = 2*atan2(qCalc._A[1], qCalc._A[0])
       theta3 = 0
     else:
-      theta1 = atan2(qCalc._A[0]*qCalc._A[2] - qCalc._A[1]*qCalc._a, qCalc._A[1]*qCalc._A[2] + qCalc._A[0]*qCalc._a)
-      theta3 = atan2(qCalc._A[0]*qCalc._A[2] + qCalc._A[1]*qCalc._a, qCalc._A[0]*qCalc._a + qCalc._A[1]*qCalc._A[2])
-      theta2 = acos(1 - 2*qCalc._A[0]**2 - 2*qCalc._A[1]**2)
+      theta1 = atan2(self._A[2], self._a) + atan2(self._A[1], self._A[0])
+      theta3 = atan2(self._A[2], self._a) - atan2(self._A[1], self._A[0])
     
     return (theta1, theta2, theta3)
+    
+#    if abs(qCalc._A[0]) < zeroPrecision and abs(qCalc._A[1]) < zeroPrecision:
+#      theta1 = 2*atan2(qCalc._A[2], qCalc._a)
+#      theta2 = 0
+#      theta3 = 0
+#    elif abs(qCalc._A[0]**2 + qCalc._A[1]**2 - 1.0) < zeroPrecision:
+#      theta1 = 2*atan2(-qCalc._A[1], qCalc._A[0])
+#      theta2 = pi
+#      theta3 = 0
+#    else:
+#      theta1 = atan2(qCalc._A[0]*qCalc._A[2] - qCalc._A[1]*qCalc._a, qCalc._A[1]*qCalc._A[2] + qCalc._A[0]*qCalc._a)
+#      theta3 = atan2(qCalc._A[0]*qCalc._A[2] + qCalc._A[1]*qCalc._a, qCalc._A[0]*qCalc._a + qCalc._A[1]*qCalc._A[2])
+#      theta2 = acos(1 - 2*qCalc._A[0]**2 - 2*qCalc._A[1]**2)
+#    
+#    return (theta1, theta2, theta3)
   
   def toTuple(self):
     """
