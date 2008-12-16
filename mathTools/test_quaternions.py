@@ -24,6 +24,7 @@ import random
 import EBSDTools.mathTools.quaternions as quaternions
 
 # Globals and constants variables.
+rep = 100
 
 class TestQuaternions(unittest.TestCase):
 
@@ -53,10 +54,12 @@ class TestQuaternions(unittest.TestCase):
     self.assertEqual(q1.toAxisAngle()[1][0], q1.toAxisAngle()[1][1], q1.toAxisAngle()[1][2])
   
   def testMatrixToQuaternion(self):
+    import EBSDTools.mathTools.vectors as vectors
+    import EBSDTools.mathTools.matrices as matrices
     #Verified with Martin Baker (2008) Quaternion to AxisAngle, \url{http://www.euclideansplace.com}
     
     #Test calculation
-    m = [[1,0,0], [0,0,-1], [0,1,0]]
+    m = matrices.matrix([[1,0,0], [0,0,-1], [0,1,0]])
     self.assertEqual(quaternions.matrixtoQuaternion(m), quaternions.quaternion(sqrt(2)/2.0, sqrt(2)/2.0, 0, 0))
     
     #Test back-conversion
@@ -64,44 +67,71 @@ class TestQuaternions(unittest.TestCase):
     mQ = q1.toMatrix()
     for i in [0,1,2]:
       for j in [0,1,2]:
-        self.assertAlmostEqual(m[i][j], mQ[i][j], 3)
+        self.assertAlmostEqual(m[i][j], mQ[i][j], 4)
     
-#  def testEulerAnglesToQuaternion(self):
-#    #Verified with Rollett, Tony (2008) Advanced Characterization and Microstructural Analysis
-#    
-#    #Test calculation
-#    self.assertEqual(quaternions.eulerAnglesToQuaternion(0,0,0), quaternions.quaternion(1,0,0,0))
-##    self.assertEqual(quaternions.eulerAnglesToQuaternion(0,pi/4,0), quaternions.quaternion(cos(0.5*pi/4),sin(0.5*pi/4),0,0))
-#    
-#    q1 = quaternions.eulerAnglesToQuaternion(35/180.0*pi,27/180.0*pi,102/180.0*pi)
-#    q2 = quaternions.axisAngleToQuaternion(102/180.0*pi, (0,0,1)) * quaternions.axisAngleToQuaternion(27/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(35/180.0*pi, (0,0,1))
-#    self.assertEqual(q1, q2)
-#    
-#    #Test back-conversion
-#    eulers = (pi/4,0,0)
-#    results = quaternions.eulerAnglesToQuaternion(eulers).toEulerAngles()
-#    for i in [0,1,2]:
-#      self.assertAlmostEqual(results[i], eulers[i], 3)
-#    
-#    eulers = (0,pi/4,0)
-#    results = quaternions.eulerAnglesToQuaternion(eulers).toEulerAngles()
-#    for i in [0,1,2]:
-#      self.assertAlmostEqual(results[i], eulers[i], 3)
-#    
-#    eulers = (pi/6,pi/4,0)
-#    results = quaternions.eulerAnglesToQuaternion(eulers).toEulerAngles()
-#    for i in [0,1,2]:
-#      self.assertAlmostEqual(results[i], eulers[i], 3)
-#      
-#    results = quaternions.eulerAnglesToQuaternion((0,0,pi/4)).toEulerAngles()
-#    eulers = (pi/4, 0, 0) #because of when \theta_2 == 0, \theta_1 = \theta_1 + \theta_3 and \theta_3 = 0
-#    for i in [0,1,2]:
-#      self.assertAlmostEqual(results[i], eulers[i], 3)
-#    
-#    results = quaternions.eulerAnglesToQuaternion((0,pi,pi/4)).toEulerAngles()
-#    eulers = (-pi/4, pi, 0) #because of when \theta_2 == \pi, \theta_1 = \theta_1 - \theta_3 and \theta_3 = \pi
-#    for i in [0,1,2]:
-#      self.assertAlmostEqual(results[i], eulers[i], 3)
+    #Random test
+    for i in range(rep):
+      n = []
+      for j in range(2):
+        x = random.random() * (-1)**(int(random.random()*10))
+        z = random.random() * (-1)**(int(random.random()*10))
+        y = random.random() * (-1)**(int(random.random()*10))
+        n.append(vectors.vector(x,y,z).normalize())
+      
+      eP1 = n[0].normalize()
+      eP2 = vectors.cross(n[0], n[1])
+      eP2 = eP2.normalize()
+      eP3 = vectors.cross(eP1, eP2).normalize()
+      
+      m = matrices.matrix([[eP1[0], eP2[0], eP3[0]],
+                           [eP1[1], eP2[1], eP3[1]],
+                           [eP1[2], eP2[2], eP3[2]]])
+      
+      q = quaternions.matrixtoQuaternion(m)
+      mQ = q.toMatrix()
+      
+      for i in [0,1,2]:
+        for j in [0,1,2]:
+          self.assertAlmostEqual(m[i][j], mQ[i][j], 4)
+    
+    #Special case when trace + 1 = 0
+    
+  def testEulerAnglesToQuaternion(self):
+    #Verified with Rollett, Tony (2008) Advanced Characterization and Microstructural Analysis
+    
+    #Test calculation
+    self.assertEqual(quaternions.eulerAnglesToQuaternion(0,0,0), quaternions.quaternion(1,0,0,0))
+    self.assertEqual(quaternions.eulerAnglesToQuaternion(0,pi/4,0), quaternions.quaternion(cos(0.5*pi/4),sin(0.5*pi/4),0,0))
+    
+    q1 = quaternions.eulerAnglesToQuaternion(35/180.0*pi,27/180.0*pi,102/180.0*pi)
+    q2 = quaternions.axisAngleToQuaternion(102/180.0*pi, (0,0,1)) * quaternions.axisAngleToQuaternion(27/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(35/180.0*pi, (0,0,1))
+    self.assertEqual(q1, q2)
+    
+    #Test back-conversion
+    eulers = (pi/4,0,0)
+    results = quaternions.eulerAnglesToQuaternion(eulers).toEulerAngles()
+    for i in [0,1,2]:
+      self.assertAlmostEqual(results[i], eulers[i], 3)
+    
+    eulers = (0,pi/4,0)
+    results = quaternions.eulerAnglesToQuaternion(eulers).toEulerAngles()
+    for i in [0,1,2]:
+      self.assertAlmostEqual(results[i], eulers[i], 3)
+    
+    eulers = (pi/6,pi/4,0)
+    results = quaternions.eulerAnglesToQuaternion(eulers).toEulerAngles()
+    for i in [0,1,2]:
+      self.assertAlmostEqual(results[i], eulers[i], 3)
+      
+    results = quaternions.eulerAnglesToQuaternion((0,0,pi/4)).toEulerAngles()
+    eulers = (pi/4, 0, 0) #because of when \theta_2 == 0, \theta_1 = \theta_1 + \theta_3 and \theta_3 = 0
+    for i in [0,1,2]:
+      self.assertAlmostEqual(results[i], eulers[i], 3)
+    
+    results = quaternions.eulerAnglesToQuaternion((0,pi,pi/4)).toEulerAngles()
+    eulers = (-pi/4, pi, 0) #because of when \theta_2 == \pi, \theta_1 = \theta_1 - \theta_3 and \theta_3 = \pi
+    for i in [0,1,2]:
+      self.assertAlmostEqual(results[i], eulers[i], 3)
 
   def testRotate(self):
     #Test of successive rotations
@@ -131,11 +161,9 @@ class TestQuaternions(unittest.TestCase):
     self.assertNotEqual(qq1q2q3, quaternions.rotate(q, [q3,q2,q1]))
   
   def test__hash__(self):
-    
-    
     hashValues = []
     
-    for i in range(1000):
+    for i in range(rep):
       q = quaternions.quaternion(random.random(), random.random(), random.random(), random.random())
       hashValue = q.__hash__()
       self.assertFalse(hashValue in hashValues)
@@ -158,7 +186,7 @@ class TestQuaternions(unittest.TestCase):
     import EBSDTools.mathTools.eulers as eulers
     
 #    #Random eulers
-    for i in range(100):
+    for i in range(rep):
       euler1 = random.random() * 360
       euler2 = random.random() * 180
       euler3 = random.random() * 360
@@ -173,7 +201,7 @@ class TestQuaternions(unittest.TestCase):
       self.assertAlmostEqual(euler3, qAngles[2], 4)
 #    
     #Special case when theta2 = 0 
-    for i in range(2):
+    for i in range(rep):
       euler1 = random.random() * 360
       euler2 = 0.0
       euler3 = random.random() * (360 - euler1)
@@ -203,7 +231,7 @@ class TestQuaternions(unittest.TestCase):
       self.assertAlmostEqual(0.0, qAngles[2])
     
     #Special case when theta2 = pi
-    for i in range(10):
+    for i in range(rep):
       euler1 = random.random() * 360
       euler2 = 180
       euler3 = random.random() * (360 - euler1)
@@ -236,61 +264,6 @@ class TestQuaternions(unittest.TestCase):
       self.assertAlmostEqual(angles[1], qAngles[1])
       self.assertAlmostEqual(angles[2], qAngles[2])
   
-#  def test(self):
-#    import vectors
-#    v = quaternions.quaternion(0,1,0,0) #Vector (1,0,0)
-#    q1 = quaternions.eulerAnglesToQuaternion(13, 0, 93)
-#    q2 = quaternions.eulerAnglesToQuaternion(60, 80, 152)
-#    q3 = quaternions.eulerAnglesToQuaternion(150,0,12)
-#    
-#    m1 = quaternions.matrixtoQuaternion([[-0.2415, -0.4756, -0.8458], [-0.7794, -0.4242, 0.4611], [-0.5781, 0.7706, -0.2682]])
-#    m2 = quaternions.matrixtoQuaternion([[-0.7035, 0.7045, -0.0939], [-0.4704, -0.5606, -0.6815], [-0.5328, -0.4352, 0.7258]])
-#    
-#    m = quaternions.matrixtoQuaternion([[-0.2874, -0.1762, -0.9415], [-0.7645, -0.5499,  0.3363], [-0.5770, 0.8164, 0.0233]])
-#    
-#    m3 = m1*m2
-#    
-##    print m3.toMatrix()
-##    print m.toMatrix()
-#    
-#    n1 = vectors.vector(-0.24010292588373822, -0.22683031725977587, -0.085024905374393375)
-#    n2 = vectors.vector(-0.24617887985919915, 0.23186271949917425, 0.084766186144241265)
-#    
-#    n1 = vectors.vector(-0.089639962534049308, 0.089281365367841842, 0.089639962534049322).positive()
-#    n2 = vectors.vector(-0.089639962534049322, -0.089281365367841842, -0.089639962534049308).positive()
-#    
-#    eP1 = n1 / n1.norm()
-#    eP2 = vectors.cross(n1, n2)
-#    eP2 /= eP2.norm()
-#    eP3 = vectors.cross(eP1, eP2)
-#    
-#    mP = [eP1.toList(), eP2.toList(), eP3.toList()]
-#    qP = quaternions.matrixtoQuaternion(mP)
-#    
-#    n1 = vectors.vector(1,1,1)
-#    n2 = vectors.vector(1,-1,-1)
-#    
-#    eC1 = n1 / n1.norm()
-#    eC2 = vectors.cross(n1, n2)
-#    eC2 /= eC2.norm()
-#    eC3 = vectors.cross(eC1, eC2)
-#    
-#    mC = [eC1.toList(), eC2.toList(), eC3.toList()]
-#    qC = quaternions.matrixtoQuaternion(mC)
-#    
-#    qS = quaternions.axisAngleToQuaternion(-0/180.0*pi, (1,0,0))
-#    
-#    qC_ = quaternions.matrixtoQuaternion([[1,0,0], [0,1,0], [0,0,1]])
-#    
-#    g = qC.conjugate() * qP * qS.conjugate()
-#    
-#    print g
-#    print g.toEulerAngles()
-#    print g.toAxisAngle()
-#    
-#    g = quaternions.quaternion(1,0,0,0)
-#    
-#    gP_ = qC * g * qS
     
   
   

@@ -21,6 +21,7 @@ from math import sin, cos, pi, acos, atan2, sqrt
 
 # Local modules.
 import EBSDTools.mathTools.vectors as vectors
+import EBSDTools.mathTools.matrices as matrices
 from EBSDTools.mathTools.mathExtras import zeroPrecision
 
 def axisAngleToQuaternion(*data):
@@ -73,22 +74,79 @@ def matrixtoQuaternion(m):
       Martin Baker (2008) Euclidean Space, \url{http://www.euclideansplace.com}
     
     Inputs:
-      m: list of list forming a 3D matrix
-        the matrix has a special orthogonal (SU3): det(matrix) = 1) and Tr(matrix) > 0
+      m: a matrix
     
     Outputs:
       a quaternion
   """
   #TODO: Modify tex accordingly
   
+  assert isinstance(m, matrices.matrix)
+  assert m.isSU3()
+  
+  A = []
   w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
   
   if abs(w) > zeroPrecision:
-    x = (m[1][2] - m[2][1]) / (4*w)
-    y = (m[2][0] - m[0][2]) / (4*w)
-    z = (m[0][1] - m[1][0]) / (4*w)
+    A.append((m[1][2] - m[2][1]) / (4*w))
+    A.append((m[2][0] - m[0][2]) / (4*w))
+    A.append((m[0][1] - m[1][0]) / (4*w))
   else:
-    pass
+    A.append(sqrt((m[0][0]+1)/2.0))
+    A.append(sqrt((m[1][1]+1)/2.0))
+    A.append(sqrt((m[2][2]+1)/2.0))
+    
+    s = A.index(max(A))
+    for i in range(len(A)):
+      if i != s:
+        if abs(m[i][i]) > zeroPrecision:
+          A[i] *= m[i][i] / abs(m[i][i])
+    
+  return quaternion(w, A)
+  
+#  trace = 1 + m[0][0] + m[1][1] + m[2][2]
+  
+#  if trace >= 0:
+#    w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
+#    
+#    if abs(w) > zeroPrecision:
+#      A.append((m[1][2] - m[2][1]) / (4*w))
+#      A.append((m[2][0] - m[0][2]) / (4*w))
+#      A.append((m[0][1] - m[1][0]) / (4*w))
+#    else:
+#      print 'case2'
+#      A.append(sqrt((m[0][0]+1)/2.0))
+#      A.append(sqrt((m[1][1]+1)/2.0))
+#      A.append(sqrt((m[2][2]+1)/2.0))
+#      
+#      s = A.index(max(A))
+#      for i in range(len(A)):
+#        if i != s:
+#          if abs(m[i][i]) > zeroPrecision:
+#            A[i] *= m[i][i] / abs(m[i][i])
+#      
+#    return quaternion(w, A)
+#  else:
+#    if (m[0][0] > m[1][1]) and (m[0][0] > m[2][2]):
+#      s = sqrt(1.0 + m[0][0] - m[1][1] - m[2][2] ) * 2 
+#      w = (m[2][1] - m[1][2]) / s
+#      x = 0.25 * s
+#      y = (m[0][1] + m[1][0]) / s
+#      z = (m[0][2] + m[2][0]) / s
+#    elif (m[1][1] > m[2][2]): 
+#      s = sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]) * 2
+#      w = (m[0][2] - m[2][0]) / s
+#      x = (m[0][1] + m[1][0]) / s 
+#      y = 0.25 * s
+#      z = (m[1][2] + m[2][1]) / s 
+#    else: 
+#      s = sqrt(1.0 + m[2][2] - m[0][0] - m[1][1]) * 2
+#      w = (m[1][0] - m[0][1]) / s
+#      x = (m[0][2] + m[2][0]) / s 
+#      y = (m[1][2] + m[2][1]) / s 
+#      z = 0.25 * s
+#  
+#    return quaternion(w,x,y,z)
   
 #  trace = 1 + m[0][0] + m[1][1] + m[2][2]
 #  
@@ -117,9 +175,9 @@ def matrixtoQuaternion(m):
 #      x = (m[0][2] + m[2][0]) / s 
 #      y = (m[1][2] + m[2][1]) / s 
 #      z = 0.25 * s
-  
-  return quaternion(w,x,y,z)
-  
+#  
+#  return quaternion(w,x,y,z)
+#  
 def eulerAnglesToQuaternion(*angles):
   """
     Convert Euler angles ($\theta_1$, $\theta_2$, $\theta_3$) to a quaternion
@@ -236,7 +294,7 @@ class quaternion:
   
   def __repr__(self):
     """
-      Return a tuple with the four quaternion coefficients
+      Return a string with the four quaternion coefficients
     """
     return "[[%f, %f, %f, %f]]" % (self._a, self._A[0], self._A[1], self._A[2])
   
@@ -564,9 +622,14 @@ class quaternion:
     a = qCalc._a
     A = qCalc._A
     
-    return [[a**2 + A[0]**2 - A[1]**2 - A[2]**2, 2*(A[0]*A[1] + a*A[2])            , 2*(A[0]*A[2] - a*A[1])            ],
-            [2*(A[0]*A[1] - a*A[2])            , a**2 - A[0]**2 + A[1]**2 - A[2]**2, 2*(A[1]*A[2] + a*A[0])            ],
-            [2*(A[0]*A[2] + a*A[1])            , 2*(A[1]*A[2] - a*A[0])            , a**2 - A[0]**2 - A[1]**2 + A[2]**2]]
+    m = matrices.matrix([[a**2 + A[0]**2 - A[1]**2 - A[2]**2, 2*(A[0]*A[1] + a*A[2])            , 2*(A[0]*A[2] - a*A[1])            ],
+                       [2*(A[0]*A[1] - a*A[2])            , a**2 - A[0]**2 + A[1]**2 - A[2]**2, 2*(A[1]*A[2] + a*A[0])            ],
+                       [2*(A[0]*A[2] + a*A[1])            , 2*(A[1]*A[2] - a*A[0])            , a**2 - A[0]**2 - A[1]**2 + A[2]**2]])
+    
+    #Assert that the matrix is orthogonal
+    assert m.isSU3()
+    
+    return m
 
     
 #    return [[1 - 2*A[1]**2 - 2*A[2]**2, 2*A[0]*A[1] - 2*A[2]*a    , 2*A[0]*A[2] + 2*A[1]*a   ],
