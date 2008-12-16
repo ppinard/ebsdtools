@@ -22,6 +22,7 @@ from math import sin, cos, pi, acos, atan2, sqrt
 # Local modules.
 import EBSDTools.mathTools.vectors as vectors
 import EBSDTools.mathTools.matrices as matrices
+import EBSDTools.mathTools.eulers as eulers
 from EBSDTools.mathTools.mathExtras import zeroPrecision
 
 def axisAngleToQuaternion(*data):
@@ -178,7 +179,7 @@ def matrixtoQuaternion(m):
 #  
 #  return quaternion(w,x,y,z)
 #  
-def eulerAnglesToQuaternion(*angles):
+def eulerAnglesToQuaternion(angles):
   """
     Convert Euler angles ($\theta_1$, $\theta_2$, $\theta_3$) to a quaternion
     
@@ -191,21 +192,17 @@ def eulerAnglesToQuaternion(*angles):
                   Rollett, Tony (2008) Advanced Characterization and Microstructural Analysis
     
     Inputs:
-      len(angles) == 1: a tuple or list of three angles (in rad)
-      len(angles) == 3: three angles (in rad)
+      angles: a euleurs
     
     Outputs:
       a quaternion
   """
-
-  if len(angles) == 1:
-    t1 = float(angles[0][0])
-    t2 = float(angles[0][1])
-    t3 = float(angles[0][2])
-  elif len(angles) == 3:
-    t1 = float(angles[0])
-    t2 = float(angles[1])
-    t3 = float(angles[2])
+  
+  assert isinstance(angles, eulers.eulers)
+  
+  t1 = angles['theta1']
+  t2 = angles['theta2']
+  t3 = angles['theta3']
   
 #  return axisAngleToQuaternion(a3, (0,0,1)) * axisAngleToQuaternion(a2, (1,0,0)) * axisAngleToQuaternion(a1, (0,0,1))
   
@@ -214,7 +211,7 @@ def eulerAnglesToQuaternion(*angles):
   A2 = sin(t2/2.0)*sin((t1 - t3)/2.0)
   A3 = cos(t2/2.0)*sin((t1 + t3)/2.0)
   
-  return quaternion(a, A1, A2, A3).positive()
+  return quaternion(a, A1, A2, A3)
   
 #  c1 = cos(0.5*a1)
 #  c2 = cos(0.5*a2)
@@ -459,7 +456,7 @@ class quaternion:
       Return the negative of the quaternion
     """
     
-    return quaternion(-self._a, -self._A[0], -self._A[1], -self._A[2])
+    return quaternion(self._a, -self._A[0], -self._A[1], -self._A[2])
   
   def __eq__(self, other):
     """
@@ -644,7 +641,7 @@ class quaternion:
         Inspired by Martin Baker (2008) Euclidean Space, \url{http://www.euclideansplace.com}
       
       Outputs:
-        a tuple of three angles (\theta_1, \theta_2, \theta_3)
+        a eulers
     """
     
     qCalc = self.normalize()
@@ -652,16 +649,19 @@ class quaternion:
     theta2 = 2*atan2(sqrt(self._A[0]**2 + self._A[1]**2), sqrt(self._a**2 + self._A[2]**2))
     
     if abs(theta2) < zeroPrecision:
+#      theta1 = 2 * acos(qCalc._a)
       theta1 = 2*atan2(qCalc._A[2], qCalc._a)
       theta3 = 0
     elif abs(theta2 - pi) < zeroPrecision:
+#      theta1 = 2 * acos(qCalc._A[0])
       theta1 = 2*atan2(qCalc._A[1], qCalc._A[0])
       theta3 = 0
     else:
       theta1 = atan2(self._A[2], self._a) + atan2(self._A[1], self._A[0])
       theta3 = atan2(self._A[2], self._a) - atan2(self._A[1], self._A[0])
     
-    return (theta1, theta2, theta3)
+    e1 = eulers.eulers(theta1, theta2, theta3).positive()
+    return e1
     
 #    if abs(qCalc._A[0]) < zeroPrecision and abs(qCalc._A[1]) < zeroPrecision:
 #      theta1 = 2*atan2(qCalc._A[2], qCalc._a)

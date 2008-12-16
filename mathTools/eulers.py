@@ -69,49 +69,47 @@ class eulers:
       self._theta1 = float(data[0])
       self._theta2 = float(data[1])
       self._theta3 = float(data[2])
-
-    assert self.__checkIntegrity()
   
-  def __checkIntegrity(self):
-    """
-      Check if the eulers respects the Bunge convention
-      
-      Outputs:
-        True if the eulers are correct
-    """
-    
-    if self._theta1 <= 0:
-      if self._theta1 < -(pi+zeroPrecision) or self._theta1 > (pi+zeroPrecision):
-        return False
-      if self._theta3 < -(pi+zeroPrecision) or self._theta3 > (pi+zeroPrecision):
-        return False
-    
-    if self._theta3 <= 0:
-      if self._theta1 < -(pi+zeroPrecision) or self._theta1 > (pi+zeroPrecision):
-        return False
-      if self._theta3 < -(pi+zeroPrecision) or self._theta3 > (pi+zeroPrecision):
-        return False
-    
-    if self._theta1 >= 0:
-      if self._theta1 > (2*pi+zeroPrecision):
-        return False
-    
-    if self._theta3 >= 0:
-      if self._theta3 > (2*pi+zeroPrecision):
-        return False
-      
-    if self._theta1 > (pi+zeroPrecision):
-      if self._theta3 < -zeroPrecision:
-        return False
-    
-    if self._theta3 > (pi+zeroPrecision):
-      if self._theta1 < -zeroPrecision:
-        return False
-    
-    if self._theta2 < -zeroPrecision or self._theta2 > (pi+zeroPrecision):
-      return False
-    
-    return True
+#  def __checkIntegrity(self):
+#    """
+#      Check if the eulers respects the Bunge convention
+#      
+#      Outputs:
+#        True if the eulers are correct
+#    """
+#    
+#    if self._theta1 <= 0:
+#      if self._theta1 < -(pi+zeroPrecision) or self._theta1 > (pi+zeroPrecision):
+#        return False
+#      if self._theta3 < -(pi+zeroPrecision) or self._theta3 > (pi+zeroPrecision):
+#        return False
+#    
+#    if self._theta3 <= 0:
+#      if self._theta1 < -(pi+zeroPrecision) or self._theta1 > (pi+zeroPrecision):
+#        return False
+#      if self._theta3 < -(pi+zeroPrecision) or self._theta3 > (pi+zeroPrecision):
+#        return False
+#    
+#    if self._theta1 >= 0:
+#      if self._theta1 > (2*pi+zeroPrecision):
+#        return False
+#    
+#    if self._theta3 >= 0:
+#      if self._theta3 > (2*pi+zeroPrecision):
+#        return False
+#      
+#    if self._theta1 > (pi+zeroPrecision):
+#      if self._theta3 < -zeroPrecision:
+#        return False
+#    
+#    if self._theta3 > (pi+zeroPrecision):
+#      if self._theta1 < -zeroPrecision:
+#        return False
+#    
+#    if self._theta2 < -zeroPrecision or self._theta2 > (pi+zeroPrecision):
+#      return False
+#    
+#    return True
   
   def __getitem__(self, key):
     """
@@ -181,8 +179,6 @@ class eulers:
         self._theta2 = value
       elif key == 3:
         self._theta3 = value
-    
-    assert self.__checkIntegrity()
   
   def __str__(self):
     return "(%f, %f, %f)" % (self._theta1, self._theta2, self._theta3)
@@ -218,11 +214,10 @@ class eulers:
     
     theta1 = self._theta1; theta2 = self._theta2; theta3 = self._theta3
     
-    if theta1 < 0:
+    while theta1 < 0:
       theta1 += 2*pi
-    if theta3 < 0:
+    while theta3 < 0:
       theta3 += 2*pi
-    
     
     return eulers(theta1, theta2, theta3)
   
@@ -240,17 +235,12 @@ class eulers:
     
     theta1 = self._theta1; theta2 = self._theta2; theta3 = self._theta3
     
-    if theta1 > pi:
+    while theta1 > pi:
       theta1 -= 2*pi
-    if theta3 > pi:
+    while theta3 > pi:
       theta3 -= 2*pi
     
-    
-    
     return eulers(theta1, theta2, theta3)
-
-def dummy(abc):
-  raise AssertionError, 'abcdsds'
 
 def positiveEulers(*thetas):
   """

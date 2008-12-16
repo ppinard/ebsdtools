@@ -1,7 +1,8 @@
-import EBSDTools.mathTools.vectors as vectors
 from EBSDTools.mathTools.mathExtras import zeroPrecision
 import EBSDTools.mathTools.quaternions as quaternions
 import EBSDTools.mathTools.eulers as eulers
+import EBSDTools.mathTools.matrices as matrices
+import EBSDTools.mathTools.vectors as vectors
 from math import pi, sqrt
 import visual
 
@@ -41,9 +42,9 @@ def calculateOrientation(n1, n2, hkl1, hkl2):
   
 #  print eP1, eP2, eP3
   
-  mP = [[eP1[0], eP2[0], eP3[0]],
-       [eP1[1], eP2[1], eP3[1]],
-       [eP1[2], eP2[2], eP3[2]]]
+  mP = matrices.matrix([[eP1[0], eP2[0], eP3[0]],
+                        [eP1[1], eP2[1], eP3[1]],
+                        [eP1[2], eP2[2], eP3[2]]])
   
   qP = quaternions.matrixtoQuaternion(mP)
 #  qP = quaternions.matrixtoQuaternion([eP1.toList(), eP2.toList(), eP3.toList()])
@@ -53,9 +54,9 @@ def calculateOrientation(n1, n2, hkl1, hkl2):
   eC2 /= eC2.norm()
   eC3 = vectors.cross(eC1, eC2).normalize()
   
-  mC = [[eC1[0], eC2[0], eC3[0]],
-       [eC1[1], eC2[1], eC3[1]],
-       [eC1[2], eC2[2], eC3[2]]]
+  mC = matrices.matrix([[eC1[0], eC2[0], eC3[0]],
+                        [eC1[1], eC2[1], eC3[1]],
+                        [eC1[2], eC2[2], eC3[2]]])
   
   qC = quaternions.matrixtoQuaternion(mC)
 #  qC = quaternions.matrixtoQuaternion([eC1.toList(), eC2.toList(), eC3.toList()])
@@ -65,7 +66,7 @@ def calculateOrientation(n1, n2, hkl1, hkl2):
 #  print mP
 #  print mC
   
-  g = qP * qC.conjugate()
+  g = qC.conjugate() * qP
   
 #  print g.toMatrix()
   
