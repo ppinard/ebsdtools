@@ -15,7 +15,7 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import sin, cos, pi, acos, atan2, sqrt
+from math import sin, cos, pi, acos, atan2, sqrt, asin, atan
 
 # Third party modules.
 
@@ -80,8 +80,6 @@ def matrixtoQuaternion(m):
     Outputs:
       a quaternion
   """
-  #TODO: Modify tex accordingly
-  
   assert isinstance(m, matrices.matrix)
   assert m.isSU3()
   
@@ -89,9 +87,12 @@ def matrixtoQuaternion(m):
   w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
   
   if abs(w) > zeroPrecision:
-    A.append((m[1][2] - m[2][1]) / (4*w))
-    A.append((m[2][0] - m[0][2]) / (4*w))
-    A.append((m[0][1] - m[1][0]) / (4*w))
+#    A.append((m[1][2] - m[2][1]) / (4*w))
+#    A.append((m[2][0] - m[0][2]) / (4*w))
+#    A.append((m[0][1] - m[1][0]) / (4*w))
+    A.append((m[2][1] - m[1][2]) / (4*w))
+    A.append((m[0][2] - m[2][0]) / (4*w))
+    A.append((m[1][0] - m[0][1]) / (4*w))
   else:
     A.append(sqrt((m[0][0]+1)/2.0))
     A.append(sqrt((m[1][1]+1)/2.0))
@@ -205,11 +206,16 @@ def eulerAnglesToQuaternion(angles):
   t3 = angles['theta3']
   
 #  return axisAngleToQuaternion(a3, (0,0,1)) * axisAngleToQuaternion(a2, (1,0,0)) * axisAngleToQuaternion(a1, (0,0,1))
+#  
+  a  =  cos(t2/2.0)*cos((t1 + t3)/2.0)
+  A1 =  sin(t2/2.0)*cos((t1 - t3)/2.0)
+  A2 =  sin(t2/2.0)*sin((t1 - t3)/2.0)
+  A3 =  cos(t2/2.0)*sin((t1 + t3)/2.0)
   
-  a  = cos(t2/2.0)*cos((t1 + t3)/2.0)
-  A1 = sin(t2/2.0)*cos((t3 - t1)/2.0)
-  A2 = sin(t2/2.0)*sin((t1 - t3)/2.0)
-  A3 = cos(t2/2.0)*sin((t1 + t3)/2.0)
+#  a  =  cos(t2/2.0)*cos((t1 + t3)/2.0)
+#  A1 =  -sin(t2/2.0)*cos((t1 - t3)/2.0)
+#  A2 =  -sin(t2/2.0)*sin((t1 - t3)/2.0)
+#  A3 =  cos(t2/2.0)*sin((t1 + t3)/2.0)
   
   return quaternion(a, A1, A2, A3)
   
@@ -449,14 +455,14 @@ class quaternion:
     if self.isnormalized():
       return self.conjugate()
     else:
-      return self.conjugate() * pow(abs(self), -2)
+      return self.conjugate() / abs(self)
   
   def __neg__(self):
     """
       Return the negative of the quaternion
     """
     
-    return quaternion(self._a, -self._A[0], -self._A[1], -self._A[2])
+    return quaternion(-self._a, -self._A[0], -self._A[1], -self._A[2])
   
   def __eq__(self, other):
     """
@@ -468,10 +474,10 @@ class quaternion:
         False: not equal
     """
     
-    if (self._a - other._a) < zeroPrecision and \
-       (self._A[0] - other._A[0]) < zeroPrecision and \
-       (self._A[1] - other._A[1]) < zeroPrecision and \
-       (self._A[2] - other._A[2]) < zeroPrecision:
+    if abs(self._a - other._a) < zeroPrecision and \
+       abs(self._A[0] - other._A[0]) < zeroPrecision and \
+       abs(self._A[1] - other._A[1]) < zeroPrecision and \
+       abs(self._A[2] - other._A[2]) < zeroPrecision:
       return True
     else:
       return False
@@ -525,7 +531,7 @@ class quaternion:
         a bool
     """
     
-    if abs(self) == 1:
+    if abs(abs(self) - 1) < zeroPrecision:
       return True
     else:
       return False
@@ -615,6 +621,7 @@ class quaternion:
     """
     
     qCalc = self.normalize()
+    assert qCalc.isnormalized()
     
     a = qCalc._a
     A = qCalc._A
@@ -645,38 +652,34 @@ class quaternion:
     """
     
     qCalc = self.normalize()
+    assert qCalc.isnormalized()
     
-    theta2 = 2*atan2(sqrt(self._A[0]**2 + self._A[1]**2), sqrt(self._a**2 + self._A[2]**2))
+    q0 = qCalc._a
+    q1 = qCalc._A[0]
+    q2 = qCalc._A[1]
+    q3 = qCalc._A[2]
     
-    if abs(theta2) < zeroPrecision:
-#      theta1 = 2 * acos(qCalc._a)
-      theta1 = 2*atan2(qCalc._A[2], qCalc._a)
-      theta3 = 0
-    elif abs(theta2 - pi) < zeroPrecision:
-#      theta1 = 2 * acos(qCalc._A[0])
-      theta1 = 2*atan2(qCalc._A[1], qCalc._A[0])
-      theta3 = 0
+    x = (q0**2 + q3**2)*(q1**2 + q2**2)
+    
+    if abs(x) < zeroPrecision**2:
+      if abs(q1) < zeroPrecision and abs(q2) < zeroPrecision:
+        theta1 = atan2(2*q0*q3, q0**2 - q3**2)
+        theta2 = 0
+        theta3 = 0
+      elif abs(q0) < zeroPrecision and abs(q3) < zeroPrecision:
+        theta1 = atan2(2*q1*q2, q1**2 - q2**2)
+        theta2 = pi
+        theta3 = 0
     else:
-      theta1 = atan2(self._A[2], self._a) + atan2(self._A[1], self._A[0])
-      theta3 = atan2(self._A[2], self._a) - atan2(self._A[1], self._A[0])
+      theta1 = atan2(q3,q0) + atan2(q2, q1)
+      theta2 = acos(1 - 2*q1**2 - 2*q2**2)
+      theta3 = atan2(q3,q0) - atan2(q2, q1)
+      assert abs(theta2 - acos(q0**2 - q1**2 -q2**2 + q3**2)) < zeroPrecision
     
-    e1 = eulers.eulers(theta1, theta2, theta3).positive()
-    return e1
+    assert abs(2*atan2(sqrt(q1**2+q2**2), sqrt(q0**2+q3**2)) - theta2) < zeroPrecision
     
-#    if abs(qCalc._A[0]) < zeroPrecision and abs(qCalc._A[1]) < zeroPrecision:
-#      theta1 = 2*atan2(qCalc._A[2], qCalc._a)
-#      theta2 = 0
-#      theta3 = 0
-#    elif abs(qCalc._A[0]**2 + qCalc._A[1]**2 - 1.0) < zeroPrecision:
-#      theta1 = 2*atan2(-qCalc._A[1], qCalc._A[0])
-#      theta2 = pi
-#      theta3 = 0
-#    else:
-#      theta1 = atan2(qCalc._A[0]*qCalc._A[2] - qCalc._A[1]*qCalc._a, qCalc._A[1]*qCalc._A[2] + qCalc._A[0]*qCalc._a)
-#      theta3 = atan2(qCalc._A[0]*qCalc._A[2] + qCalc._A[1]*qCalc._a, qCalc._A[0]*qCalc._a + qCalc._A[1]*qCalc._A[2])
-#      theta2 = acos(1 - 2*qCalc._A[0]**2 - 2*qCalc._A[1]**2)
-#    
-#    return (theta1, theta2, theta3)
+    e1 = eulers.eulers(theta1, theta2, theta3)
+    return e1.positive()
   
   def toTuple(self):
     """
