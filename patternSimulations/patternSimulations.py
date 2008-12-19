@@ -133,7 +133,7 @@ def drawPattern(L
     except:
       normal = []
     
-    print plane, m, k, normal.positive()
+#    print plane, m, k, normal.positive()
     
     if bandedges or bandfull:
       x0 = vectors.vector(0,0,0)

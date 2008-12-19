@@ -301,7 +301,7 @@ class App:
     
     patternCenter = bool(self.varCheckPatternCenter.get())
     
-    angles = eulers.negativeEulers(euler1/180.0*pi, euler2/180.0*pi, euler3/180.0*pi) 
+    angles = eulers.eulers(euler1/180.0*pi, euler2/180.0*pi, euler3/180.0*pi) 
     
     vx = quaternions.quaternion(0,1,0,0)
     vy = quaternions.quaternion(0,0,1,0)
@@ -317,7 +317,7 @@ class App:
     qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
     
     qRotations = [qDetectorOrientation_ * qTilt * qCrystalRotation * qSpecimenRotation]
-    qRotations = [qTilt * qCrystalRotation * qSpecimenRotation]
+#    qRotations = [qTilt * qCrystalRotation * qSpecimenRotation]
     
     reflectorsInfo = []
     

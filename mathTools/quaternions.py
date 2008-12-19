@@ -87,12 +87,10 @@ def matrixtoQuaternion(m):
   w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
   
   if abs(w) > zeroPrecision:
-#    A.append((m[1][2] - m[2][1]) / (4*w))
-#    A.append((m[2][0] - m[0][2]) / (4*w))
-#    A.append((m[0][1] - m[1][0]) / (4*w))
-    A.append((m[2][1] - m[1][2]) / (4*w))
-    A.append((m[0][2] - m[2][0]) / (4*w))
-    A.append((m[1][0] - m[0][1]) / (4*w))
+    #Morawiec & orilib
+    A.append((m[1][2] - m[2][1]) / (4*w))
+    A.append((m[2][0] - m[0][2]) / (4*w))
+    A.append((m[0][1] - m[1][0]) / (4*w))
   else:
     A.append(sqrt((m[0][0]+1)/2.0))
     A.append(sqrt((m[1][1]+1)/2.0))
@@ -105,81 +103,31 @@ def matrixtoQuaternion(m):
           A[i] *= m[i][i] / abs(m[i][i])
     
   return quaternion(w, A)
-  
-#  trace = 1 + m[0][0] + m[1][1] + m[2][2]
-  
-#  if trace >= 0:
-#    w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
+
+#def matrixtoQuaternionBaker(m):
+#  w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
+#  
+#  if abs(w) > zeroPrecision:
+##    Martin Baker
+#    B = []
+#    B.append((m[2][1] - m[1][2]) / (4*w))
+#    B.append((m[0][2] - m[2][0]) / (4*w))
+#    B.append((m[1][0] - m[0][1]) / (4*w))
 #    
-#    if abs(w) > zeroPrecision:
-#      A.append((m[1][2] - m[2][1]) / (4*w))
-#      A.append((m[2][0] - m[0][2]) / (4*w))
-#      A.append((m[0][1] - m[1][0]) / (4*w))
-#    else:
-#      print 'case2'
-#      A.append(sqrt((m[0][0]+1)/2.0))
-#      A.append(sqrt((m[1][1]+1)/2.0))
-#      A.append(sqrt((m[2][2]+1)/2.0))
-#      
-#      s = A.index(max(A))
-#      for i in range(len(A)):
-#        if i != s:
-#          if abs(m[i][i]) > zeroPrecision:
-#            A[i] *= m[i][i] / abs(m[i][i])
-#      
-#    return quaternion(w, A)
-#  else:
-#    if (m[0][0] > m[1][1]) and (m[0][0] > m[2][2]):
-#      s = sqrt(1.0 + m[0][0] - m[1][1] - m[2][2] ) * 2 
-#      w = (m[2][1] - m[1][2]) / s
-#      x = 0.25 * s
-#      y = (m[0][1] + m[1][0]) / s
-#      z = (m[0][2] + m[2][0]) / s
-#    elif (m[1][1] > m[2][2]): 
-#      s = sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]) * 2
-#      w = (m[0][2] - m[2][0]) / s
-#      x = (m[0][1] + m[1][0]) / s 
-#      y = 0.25 * s
-#      z = (m[1][2] + m[2][1]) / s 
-#    else: 
-#      s = sqrt(1.0 + m[2][2] - m[0][0] - m[1][1]) * 2
-#      w = (m[1][0] - m[0][1]) / s
-#      x = (m[0][2] + m[2][0]) / s 
-#      y = (m[1][2] + m[2][1]) / s 
-#      z = 0.25 * s
+#  return quaternion(w,B)
+#
+#def matrixtoQuaternionOrilib(m):
+#  w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
 #  
-#    return quaternion(w,x,y,z)
-  
-#  trace = 1 + m[0][0] + m[1][1] + m[2][2]
+#  if abs(w) > zeroPrecision:
+#    #Morawiec & orilib
+#    A = []
+#    A.append((m[1][2] - m[2][1]) / (4*w))
+#    A.append((m[2][0] - m[0][2]) / (4*w))
+#    A.append((m[0][1] - m[1][0]) / (4*w))
 #  
-#  if trace > 0:
-#    s = 0.5 / sqrt(trace)
-#    w = 0.25 / s
-#    x = (m[2][1] - m[1][2]) * s
-#    y = (m[0][2] - m[2][0]) * s
-#    z = (m[1][0] - m[0][1]) * s
-#  else:
-#    if (m[0][0] > m[1][1]) and (m[0][0] > m[2][2]):
-#      s = sqrt(1.0 + m[0][0] - m[1][1] - m[2][2] ) * 2 
-#      w = (m[2][1] - m[1][2]) / s
-#      x = 0.25 * s
-#      y = (m[0][1] + m[1][0]) / s
-#      z = (m[0][2] + m[2][0]) / s
-#    elif (m[1][1] > m[2][2]): 
-#      s = sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]) * 2
-#      w = (m[0][2] - m[2][0]) / s
-#      x = (m[0][1] + m[1][0]) / s 
-#      y = 0.25 * s
-#      z = (m[1][2] + m[2][1]) / s 
-#    else: 
-#      s = sqrt(1.0 + m[2][2] - m[0][0] - m[1][1]) * 2
-#      w = (m[1][0] - m[0][1]) / s
-#      x = (m[0][2] + m[2][0]) / s 
-#      y = (m[1][2] + m[2][1]) / s 
-#      z = 0.25 * s
-#  
-#  return quaternion(w,x,y,z)
-#  
+#  return quaternion(w,A)
+
 def eulerAnglesToQuaternion(angles):
   """
     Convert Euler angles ($\theta_1$, $\theta_2$, $\theta_3$) to a quaternion
@@ -193,7 +141,7 @@ def eulerAnglesToQuaternion(angles):
                   Rollett, Tony (2008) Advanced Characterization and Microstructural Analysis
     
     Inputs:
-      angles: a euleurs
+      angles: a eulers
     
     Outputs:
       a quaternion
@@ -263,6 +211,9 @@ class quaternion:
       self._a = data[0]
       self._A = vectors.vector(data[1], data[2], data[3])
     
+    #Convert the quaternion to a positive quaternion since q=-q
+    self.positive()
+    
   def __getitem__(self, index):
     """
       Return the coefficient of one of the four quaternion parameters
@@ -303,7 +254,7 @@ class quaternion:
   
   def __mul__(self, other):
     """
-      Multiply two quaternions or one quaternion and a scaler
+      Multiply two quaternions or one quaternion and a scalar
       Multiplication of quaternions is not commutative (AB \neq BA)
       
       Multiplication is defined as
@@ -332,7 +283,8 @@ class quaternion:
       
       for i in [0,1,2]:
         qOut[i+1] = other * self._A[i]
-      
+    
+    qOut.positive()
     return qOut
 
   def __rmul__(self, other):
@@ -361,7 +313,8 @@ class quaternion:
       
       for i in [0,1,2]:
         qOut[i+1] = other * self._A[i]
-      
+    
+    qOut.positive()
     return qOut
   
   def __div__(self, other):
@@ -457,12 +410,12 @@ class quaternion:
     else:
       return self.conjugate() / abs(self)
   
-  def __neg__(self):
-    """
-      Return the negative of the quaternion
-    """
-    
-    return quaternion(-self._a, -self._A[0], -self._A[1], -self._A[2])
+#  def __neg__(self):
+#    """
+#      Return the negative of the quaternion
+#    """
+#    
+#    return quaternion(-self._a, -self._A[0], -self._A[1], -self._A[2])
   
   def __eq__(self, other):
     """
@@ -577,11 +530,13 @@ class quaternion:
       if abs(qIndice) < zeroPrecision:
         continue
       elif qIndice < zeroPrecision:
-        return -self
+        self._a = -self._a
+        self._A = -self._A
+        return
       elif qIndice > zeroPrecision:
         break
     
-    return self
+#    return self
   
   def toAxisAngle(self):
     """
@@ -623,22 +578,57 @@ class quaternion:
     qCalc = self.normalize()
     assert qCalc.isnormalized()
     
-    a = qCalc._a
-    A = qCalc._A
+    q0 = qCalc._a
+    q1 = qCalc._A[0]
+    q2 = qCalc._A[1]
+    q3 = qCalc._A[2]
     
-    m = matrices.matrix([[a**2 + A[0]**2 - A[1]**2 - A[2]**2, 2*(A[0]*A[1] + a*A[2])            , 2*(A[0]*A[2] - a*A[1])            ],
-                       [2*(A[0]*A[1] - a*A[2])            , a**2 - A[0]**2 + A[1]**2 - A[2]**2, 2*(A[1]*A[2] + a*A[0])            ],
-                       [2*(A[0]*A[2] + a*A[1])            , 2*(A[1]*A[2] - a*A[0])            , a**2 - A[0]**2 - A[1]**2 + A[2]**2]])
+    #Orilib
+    m = matrices.matrix([[q0**2 + q1**2 - q2**2 - q3**2, 2*(q1*q2 + q0*q3), 2*(q1*q3 - q0*q2)],
+                         [2*(q1*q2 - q0*q3), q0**2 - q1**2 + q2**2 - q3**2, 2*(q2*q3 + q0*q1)],
+                         [2*(q1*q3 + q0*q2), 2*(q2*q3 - q0*q1), q0**2 - q1**2 - q2**2 + q3**2]])
     
     #Assert that the matrix is orthogonal
     assert m.isSU3()
     
     return m
 
-    
-#    return [[1 - 2*A[1]**2 - 2*A[2]**2, 2*A[0]*A[1] - 2*A[2]*a    , 2*A[0]*A[2] + 2*A[1]*a   ],
-#            [2*A[0]*A[1] + 2*A[2]*a   , 1 - 2*A[0]**2 - 2*A[2]**2 , 2*A[1]*A[2] - 2*A[0]*a   ],
-#            [2*A[0]*A[2] - 2*A[1]*a   , 2*A[1]*A[2] + 2*A[0]*a    , 1 - 2*A[0]**2 - 2*A[1]**2]]
+#  def toMatrixBaker(self):
+#    qCalc = self.normalize()
+#    assert qCalc.isnormalized()
+#    
+#    q0 = qCalc._a
+#    q1 = qCalc._A[0]
+#    q2 = qCalc._A[1]
+#    q3 = qCalc._A[2]
+#    
+#    #Morawiec & Martin Baker
+#    m1 = matrices.matrix([[q0**2 + q1**2 - q2**2 - q3**2, 2*(q1*q2 - q0*q3), 2*(q1*q3 + q0*q2)],
+#                         [2*(q1*q2 + q0*q3), q0**2 - q1**2 + q2**2 - q3**2, 2*(q2*q3 - q0*q1)],
+#                         [2*(q1*q3 - q0*q2), 2*(q2*q3 + q0*q1), q0**2 - q1**2 - q2**2 + q3**2]])
+#    
+#    #Assert that the matrix is orthogonal
+#    assert m1.isSU3()
+#    
+#    return m1
+#  
+#  def toMatrixOrilib(self):
+#    qCalc = self.normalize()
+#    assert qCalc.isnormalized()
+#    
+#    q0 = qCalc._a
+#    q1 = qCalc._A[0]
+#    q2 = qCalc._A[1]
+#    q3 = qCalc._A[2]
+#    #Orilib
+#    m2 = matrices.matrix([[q0**2 + q1**2 - q2**2 - q3**2, 2*(q1*q2 + q0*q3), 2*(q1*q3 - q0*q2)],
+#                         [2*(q1*q2 - q0*q3), q0**2 - q1**2 + q2**2 - q3**2, 2*(q2*q3 + q0*q1)],
+#                         [2*(q1*q3 + q0*q2), 2*(q2*q3 - q0*q1), q0**2 - q1**2 - q2**2 + q3**2]])
+#    
+#    #Assert that the matrix is orthogonal
+#    assert m2.isSU3()
+#    
+#    return m2
   
   def toEulerAngles(self):
     """

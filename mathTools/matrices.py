@@ -66,6 +66,17 @@ class matrix:
     """
     return "%f, %f, %f\n%f, %f, %f\n%f, %f, %f" % (self._m[0][0], self._m[0][1], self._m[0][2], self._m[1][0], self._m[1][1], self._m[1][2], self._m[2][0], self._m[2][1], self._m[2][2])
   
+  def __mul__(self, other):
+    """
+      Multiply two matrices or one matrix and a scalar
+      Multiplication of matrices is not commutative (AB \neq BA)
+      
+      Outputs:
+        a matrix
+    """
+    
+    pass
+  
   def __eq__(self, other):
     """
       Comparison of matrices

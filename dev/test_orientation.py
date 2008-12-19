@@ -93,14 +93,14 @@ class TestOrientation(unittest.TestCase):
     patternCenter = (0.0, 0.0)
     detectorDistance = 0.3
     
-    planes = {'111': {'vector': (1,1,1)}, '1-1-1': {'vector': (1,-1,-1)}}
+    
     
     tilt = 0.0
     inputs = [{'eulers': [0.0, 0.0, 0.0], 'tilt': tilt},
               {'eulers': [34.0, 0.0, 0.0], 'tilt': tilt},
               {'eulers': [98.0, 0.0, 0.0], 'tilt': tilt},
               {'eulers': [198.0, 0.0, 0.0], 'tilt': tilt},
-              {'eulers': [305.0, 0.0, 0.0], 'tilt': tilt},
+              {'eulers': [355.0, 0.0, 0.0], 'tilt': tilt},
               {'eulers': [0.0, 36.0, 0.0], 'tilt': tilt},
               {'eulers': [78.0, 36.0, 256.0], 'tilt': tilt},
               {'eulers': [12.0, 36.0, 25.0], 'tilt': tilt},
@@ -114,6 +114,7 @@ class TestOrientation(unittest.TestCase):
       print '-'*35
       eulerAngles = input['eulers']
       tilt = input['tilt']
+      planes = {'111': {'vector': (1,1,1)}, '1-1-1': {'vector': (1,-1,-1)}}
       
       angles = eulers.degEulersToRadEulers(eulerAngles[0], eulerAngles[1], eulerAngles[2]) 
       
@@ -145,11 +146,12 @@ class TestOrientation(unittest.TestCase):
       
       n1 = orientation.kikuchiLineToNormal(planes['111']['m'], planes['111']['k'], patternCenter, detectorDistance)
       n2 = orientation.kikuchiLineToNormal(planes['1-1-1']['m'], planes['1-1-1']['k'], patternCenter, detectorDistance)
+      print n1, n2
       
       qRotations_ = [(qDetectorOrientation_ * qTilt).conjugate()]
       qRotations_ = [qTilt.conjugate()]
-      n1_ = orientation.setZpositive(quaternions.rotate(quaternions.quaternion(0, n1), qRotations_).vector().positive())
-      n2_ = orientation.setZnegative(quaternions.rotate(quaternions.quaternion(0, n2), qRotations_).vector().positive())
+      n1_ = orientation.setZpositive(quaternions.rotate(quaternions.quaternion(0, n1), qRotations_).vector())
+      n2_ = orientation.setZnegative(quaternions.rotate(quaternions.quaternion(0, n2), qRotations_).vector())
 #      n1_ = orientation.setZpositive(n1.positive())
 #      n2_ = orientation.setZnegative(n2.positive())
       
@@ -160,16 +162,15 @@ class TestOrientation(unittest.TestCase):
 #      n2_ = n2.positive()
 #      print n1_, n2_
       
-      q = orientation.calculateOrientation(n1, n2, vectors.vector(planes['111']['vector']), vectors.vector(planes['1-1-1']['vector']))
+      q = orientation.calculateOrientation(n1_, n2_, vectors.vector(planes['111']['vector']), vectors.vector(planes['1-1-1']['vector']))
 #      q = orientation.calculateOrientation(n1_, n2_, vectors.vector(planes['111']['vector']), vectors.vector(planes['1-1-1']['vector']))
       
-      qf = -q
+      qf = q.conjugate()
       qAngles = qf.toEulerAngles().toDeg()
       
 #      print abs(qAngles[0] - angles.toDeg()[0])
 #      if abs(qAngles[0] - angles.toDeg()[0]) > zeroPrecision:
-      print q
-      print qf.normalize(), qAngles
+      print qf, qAngles
       
 
 if __name__ == '__main__':
