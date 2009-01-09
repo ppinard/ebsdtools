@@ -36,7 +36,7 @@ def kikuchiLineToNormal(m, k, patternCenter, detectorDistance, color=None):
 #  visual.arrow(frame=f, pos=(0,0,0), axis=x1.normalize().toTuple(), color=visual.color.white, shaftwidth=0.01)
 #  visual.arrow(frame=f, pos=(0,0,0), axis=x2.normalize().toTuple(), color=visual.color.blue, shaftwidth=0.01)
   n = vectors.cross(x1,x2).normalize()
-  print vectors.cross(x2, x1).normalize(), vectors.cross(x1, x2).normalize()
+#  print vectors.cross(x2, x1).normalize(), vectors.cross(x1, x2).normalize()
   return n
 
 def calculateOrientation(n1, n2, hkl1, hkl2):
@@ -129,17 +129,17 @@ def main():
 ##              {'eulers': [78.0, 78.0, 1.0], 'tilt': tilt}
 #            ]
   
-  step =5
-#  for i in range(0,360,step):
-#    for j in range(0,180,step):
-#      for k in range(0,360,step):
-#        inputs.append({'eulers': [i, j, k], 'tilt': tilt})
+  step =15
+  for i in range(0,360,step):
+    for j in range(0,180,step):
+      for k in range(0,360,step):
+        inputs.append({'eulers': [i, j, k], 'tilt': tilt})
 #  
 #  for j in range(0,180,step):
 #    inputs.append({'eulers': [0, j, 0], 'tilt': tilt})
   
-  for k in range(0,360,step):
-    inputs.append({'eulers': [k, 0,0], 'tilt': tilt})
+#  for k in range(0,360,step):
+#    inputs.append({'eulers': [k, 0,0], 'tilt': tilt})
   
   ms = []
   ks = []
@@ -199,11 +199,11 @@ def main():
     qAngles = qf.toEulerAngles().toDeg()
     
     
-    print '-'*35
+#    print '-'*35
 #    print qCrystalRotation.normalize(), qCrystalRotation.toEulerAngles().toDeg()
 #    print (planes['111']['m'], planes['111']['k']), (planes['1-1-1']['m'], planes['1-1-1']['k'])
 #    print n1_, n2_
-    print qf, qAngles
+#    print qf, qAngles
     
     if planes['111']['m'] != None:
       ms.append(planes['111']['m'])
@@ -214,14 +214,14 @@ def main():
     else:
       ks.append(0)
     
-    time.sleep(0.5)
+#    time.sleep(0.5)
   
   
-  import Chart.scatter2
-  scatter = Chart.scatter2.scatter(subplots='1x1', axes={1:(1,2)})
-  scatter.addSerie(axis_id='ax1', x=range(0,180,5), y=ms)
-  scatter.addSerie(axis_id='ay2', x=range(0,180,5), y=ks)
-  scatter.show()
+#  import Chart.chart
+#  scatter = Chart.chart.Figure(subplots='1x1', axes={1:(1,2)})
+#  scatter.addSerieScatter(axis_id='ax1', x=range(0,180,5), y=ms)
+#  scatter.addSerieScatter(axis_id='ay2', x=range(0,180,5), y=ks)
+#  scatter.show()
 
 if __name__ == '__main__':
   main()
