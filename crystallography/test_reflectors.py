@@ -33,7 +33,7 @@ class TestReciprocal(unittest.TestCase):
     
     self.Lbcc = lattice.Lattice(a=2.87, b=2.87, c=2.87, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms = {(0,0,0): 26, (0.5,0.5,0.5): 26})
     self.Lfcc = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms = {(0,0,0): 14, (0.5,0.5,0): 14, (0.5,0,0.5): 14, (0,0.5,0.5): 14})
-#    self.Lhexagonal = lattice.Lattice(a=2, b=2, c=3, alpha=pi/2, beta=pi/2, gamma=120.0/180*pi)
+    self.Lhexagonal = lattice.Lattice(a=2, b=2, c=3, alpha=pi/2, beta=pi/2, gamma=120.0/180*pi, atoms = {(0,0,0): 13, (1/3.0, 2/3.0, 0.5): 13})
 #TODO: HCP crystal
     
   def tearDown(self):
@@ -111,14 +111,16 @@ class TestReciprocal(unittest.TestCase):
   def testGetReflectorInfo(self):
     #bcc
     planesBCC = reflectors.Reflectors(self.Lbcc,maxIndice=1).getReflectorInfo((1,0,1))
-    self.assertEqual(len(planesBCC), 4)
+    self.assertEqual(len(planesBCC), 5)
     self.assertEqual(planesBCC['normalized intensity'], 1.0)
     self.assertAlmostEqual(planesBCC['plane spacing'], 2.029396, 3)
+    self.assertEqual(planesBCC['family'], 0)
     
     planesFCC = reflectors.Reflectors(self.Lfcc,maxIndice=1).getReflectorInfo((1,1,1))
-    self.assertEqual(len(planesFCC), 4)
+    self.assertEqual(len(planesFCC), 5)
     self.assertEqual(planesFCC['normalized intensity'], 1.0)
     self.assertAlmostEqual(planesFCC['plane spacing'], 3.13501196, 3)
+    self.assertEqual(planesFCC['family'], 0)
   
   def testGetReflectorPlaneSpacing(self):
     #Compared with HKL Channel 5 Phases Database

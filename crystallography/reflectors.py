@@ -211,7 +211,10 @@ class Reflectors:
     atomPositions = self.L.getAtomsPositions()
     
     for atomPosition in atomPositions:
-      sum += (-1)**(2*vectors.dot(plane, atomPosition))
+      n = 2*abs(vectors.dot(plane, atomPosition))
+      if abs(n - int(n)) < zeroPrecision:
+        sum += (-1)**n
+      
     
     if sum > 0:
       return True
@@ -248,8 +251,9 @@ class Reflectors:
     s = 2*pi/planeSpacing
     
     for atom in self.L.atoms:
-      
-      sum += (-1)**(2*vectors.dot(plane, atom)) * self.scatteringFactors.getScatteringFactor(self.L.atoms[atom], s)
+      n = 2*abs(vectors.dot(plane, atom))
+      if abs(n - int(n)) < zeroPrecision:
+        sum += (-1)**n * self.scatteringFactors.getScatteringFactor(self.L.atoms[atom], s)
     
     return sum**2
   

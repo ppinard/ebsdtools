@@ -108,6 +108,29 @@ def interplanarAngle(plane1, plane2, L):
   
   return _acos(costheta)
 
+def MillerToBravaisMiller(plane):
+  """
+  Convert Miller indices to Bravais-Miller indices 
+  """
+  assert len(plane) == 3
+  
+  return vectors.vector((2*plane[0] - plane[1])/3.0
+                        , (2*plane[1] - plane[0])/3.0
+                        , -(plane[0] + plane[1])
+                        , plane[2])
+  
+
+def BravaisMillerToMiller(plane):
+  """
+  Convert Bravais-Miller indices to Miller indices 
+  """
+  assert len(plane) == 4
+  
+  return vectors.vector(plane[0] - plane[2]
+                        , plane[1] - plane[2]
+                        , plane[3])
+  
+
 if __name__ == '__main__':
   pass
 #  h = 1
