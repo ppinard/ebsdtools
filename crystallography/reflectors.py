@@ -34,8 +34,18 @@ class scatteringFactors:
                , filepath_0_2='data/elastic_atomic_scattering_factors_0_2.csv'
                , filepath_2_6='data/elastic_atomic_scattering_factors_2_6.csv'):
     """
+    Return the elastic atomic scattering factors as given by the Crystallography Tables.
+    The data is a exponential fit of the scattering factors.
+    It is calculated from :math:`s = \\frac{4\\pi\\sin\\theta}{\\lambda}`.
+    It is separated into two files: from 0 to 2 :math:`\\text{angstroms}^{-1}` and 2 to 6 :math:`\\text{angstroms}^{-1}`.
     
+    :arg filepath_0_2: Location of the data from 0 to 2 :math:`\\text{angstroms}^{-1}` (``default='data/elastic_atomic_scattering_factors_0_2.csv'``)
+    :type filepath_0_2: string
+    
+    :arg filepath_2_6: Location of the data from 2 to 6 :math:`\\text{angstroms}^{-1}` (``default='data/elastic_atomic_scattering_factors_2_6.csv'``)
+    :type filepath_2_6: string
     """
+    
     basedir = EBSDTools.__path__[0]
     
     reader = csv.reader(open(os.path.join(basedir,filepath_0_2), 'r'))
@@ -82,20 +92,21 @@ class scatteringFactors:
   
   def getScatteringFactor(self, Z, s):
     """
-      Return the scattering factor for atomic number Z and s
-      s is defined as $\frac{4\pi\sin\theta}{\lambda}$
-      
-      The values are limited for $0 < s < 2 \AA$
-      
-      References:
-        Prince2004
-      
-      Inputs:
-        Z: atomic number (integer)
-        s: norm of the scattering vector in $\AA$ (float)
-      
-      Outputs:
-        a float of the scattering factor
+    Return the scattering factor for atomic number *Z* and *s*.
+    *s* is defined as :math:`\\frac{4\\pi\\sin\\theta}{\\lambda}`
+    
+    The values are limited for :math:`0 < s < 6\\text{angstroms}^{-1}`
+    
+    :arg Z: atomic number
+    :type Z: integer
+    
+    :arg s: norm of the scattering vector in :math:`\\text{angstroms}^{-1}`
+    :type s: float
+    
+    :rtype: float
+    
+    **References:**
+      Prince2004
     """
     
     #Test with x-ray scattering factor
@@ -139,7 +150,21 @@ class scatteringFactors:
     return f
 
 class Reflectors:
-  def __init__(self, L, maxIndice=2):
+  def __init__(self, L, maxIndice=4):
+    """
+    .. note:: In most cases, this class should only be called by :class:`Lattice <EBSDTools.crystallography.lattice.Lattice>`. 
+              To access the functions of :class:`Reflectors <EBSDTools.crystallography.reflectors.Reflectors>`, use :func:`getReflectors() <EBSDTools.crystallography.lattice.Lattice.getReflectors>`.
+    
+    Calculate the reflectors for a given lattice *L*.
+    The reflectors indices, plane spacing, intensity, normalized intensity and family are all stored in this class.
+    
+    :arg L: a lattice
+    :type L: :class:`Lattice <EBSDTools.crystallography.lattice.Lattice>`
+    
+    :arg maxIndice: maximum indices for the reflectors (``default=4``)
+    :type maxIndice: integer
+    """
+    
     self.L = L
     
     self.scatteringFactors = scatteringFactors()
@@ -256,19 +281,39 @@ class Reflectors:
     return (sum * sum.conjugate()).real
   
   def getReflectorsDict(self):
+    """
+    Return all the information about the reflectors in a dictionary.
+    
+    :rtype: dict
+    
+    **Keys**
+    
+      ======================   ========================================================================================================================
+      key                      Description
+      ======================   ========================================================================================================================
+      'reflector'              :class:`vector <EBSDTools.mathTools.vectors.vector>` of the reflector
+      'plane spacing'          plane spacing of the reflector in :math:`\text{angstroms}`
+      'intensity'              intensity calculated from :class:`scatteringFactor <EBSDTools.crystallography.reflectors.scatteringFactors>`
+      'normalized intensity'   intensity divided by the highest intensity
+      'family'                 ordering of the reflectors by similar plane spacing. Two reflectors with the same plane spacing are in the same family.
+      ======================   ========================================================================================================================
+    
+    """
     return self.reflectors
   
   def getReflectorsList(self, sortKey='normalized intensity', reverse=True):
     """
-      Return a list of reflectors sorted in decreasing order of intensity
+    Return a list of reflectors sorted in decreasing order of intensity.
       
-      Inputs:
-        sortKey: key that the reflector list will be sorted by
-        reverse: True: descending order, False: ascending order
+    :arg sortKey: key that the reflector list will be sorted by. See :func:`getReflectorsDict() <EBSDTools.crystallography.reflectors.Reflectors.getReflectorsDict>` for the keys. (``default='normalized intensity'``)
+    :type sortKey: string
+    
+    :arg reverse: *True*: descending order, *False*: ascending order. (``default=True``)
+    :type reverse: bool
       
-      Outputs:
-        a list
+    :rtype: list
     """
+    
     intensityDict = {}
     for reflector in self.reflectors.keys():
       intensityDict.setdefault(reflector, self.reflectors[reflector][sortKey])
@@ -282,6 +327,15 @@ class Reflectors:
     return keys
   
   def getReflectorsListByFamily(self, family):
+    """
+    Return a list of reflectors that corresponding to *family*.
+    
+    :arg family: reflectors family
+    :type family: integer
+    
+    :rtype: list
+    """
+    
     keys = []
     
     for reflector in self.reflectors.keys():
@@ -292,22 +346,58 @@ class Reflectors:
       
   
   def getReflectorInfo(self, plane):
+    """
+    Return the dictionary containing all the info of a given *plane*.
+    See :func:`getReflectorsDict() <EBSDTools.crystallography.reflectors.Reflectors.getReflectorsDict>` for the keys.
+    
+    :arg plane: reflector indices
+    :type plane: tuple
+    """
+    
     if plane in self.reflectors.keys():
       return self.reflectors[plane]
   
   def getReflectorFamily(self, plane):
+    """
+    Return the family of a given *plane*.
+    
+    :arg plane: reflector indices
+    :type plane: tuple
+    """
+    
     if plane in self.reflectors.keys():
       return self.reflectors[plane]['family']
   
   def getReflectorPlaneSpacing(self, plane):
+    """
+    Return the plane spacing of a given *plane*.
+    
+    :arg plane: reflector indices
+    :type plane: tuple
+    """
+    
     if plane in self.reflectors.keys():
       return self.reflectors[plane]['plane spacing']
   
   def getReflectorIntensity(self, plane):
+    """
+    Return the intensity of a given *plane*.
+    
+    :arg plane: reflector indices
+    :type plane: tuple
+    """
+    
     if plane in self.reflectors.keys():
       return self.reflectors[plane]['intensity']
   
   def getReflectorNormalizedIntensity(self, plane):
+    """
+    Return the normalized intensity of a given *plane*.
+    
+    :arg plane: reflector indices
+    :type plane: tuple
+    """
+    
     if plane in self.reflectors.keys():
       return self.reflectors[plane]['normalized intensity']
 

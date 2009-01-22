@@ -27,7 +27,7 @@ class Lattice:
     """
     Initiate the :class:`Lattice`.
     The reciprocal basis and volume are automatically calculated.
-    A :class:`Reflectors` is initiated if the atoms positions are given
+    A :class:`Reflectors <EBSDTools.crystallography.reflectors.Reflectors>` is initiated if the atoms positions are given
     
     :arg a, b, c: lattice parameter in :math:`\\text{angstroms}`
     :type a, b, c: float
@@ -112,9 +112,9 @@ class Lattice:
             }
   def getReflectors(self):
     """
-    Return the :class:`Reflectors`. ``None`` is return if the atom positions were not set.
+    Return the :class:`Reflectors <EBSDTools.crystallography.reflectors.Reflectors>`. ``None`` is return if the atom positions were not set.
     
-    :rtype: :class:`Reflectors`
+    :rtype: :class:`Reflectors <EBSDTools.crystallography.reflectors.Reflectors>`
     """
     return self.reflectors
   

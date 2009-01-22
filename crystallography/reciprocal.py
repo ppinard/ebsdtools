@@ -27,9 +27,9 @@ def cartesianToReciprocal(a, b, c):
   Convert cartesian basis :math:`(a, b, c)` to reciprocal basis :math:`(a^*, b^*, c^*)`
     
   :arg a, b, c: vectors forming a basis in real (cartesian) space
-  :type a, b, c: :class:`EBSDTools.mathTools.vectors.vector`
+  :type a, b, c: :class:`vector <EBSDTools.mathTools.vectors.vector>`
   
-  :rtype: a tuple containing three :class:`EBSDTools.mathTools.vectors.vector`
+  :rtype: a tuple containing three :class:`vector <EBSDTools.mathTools.vectors.vector>`
   """
   
   volume = vectors.dot(vectors.cross(a, b), c)
@@ -45,9 +45,9 @@ def reciprocalToCartesion(a_, b_, c_):
   Convert reciprocal basis :math:`(a^*, b^*, c^*)` to cartesian basis :math:`(a, b, c)`
   
   :arg a\_, b\_, c\_: vectors forming a basis in reciprocal space
-  :type a, b, c: :class:`EBSDTools.mathTools.vectors.vector`
+  :type a, b, c: :class:`vector <EBSDTools.mathTools.vectors.vector>`
   
-  :rtype: a tuple containing three :class:`EBSDTools.mathTools.vectors.vector`
+  :rtype: a tuple containing three :class:`vector <EBSDTools.mathTools.vectors.vector>`
   """
   return cartesianToReciprocal(a_, b_, c_)
 
@@ -56,10 +56,10 @@ def planeSpacing(plane, L):
   Return the plane spacing of a *plane* in lattice *L*
   
   :arg plane: a plane (hkl)
-  :type plane: :class:`EBSDTools.mathTools.vectors.vector`
+  :type plane: :class:`vector <EBSDTools.mathTools.vectors.vector>`
   
   :arg L: a lattice
-  :type L: :class:`EBSDTools.crystallography.lattice.Lattice`
+  :type L: :class:`Lattice <EBSDTools.crystallography.lattice.Lattice>`
       
   :rtype: float
   """
@@ -82,13 +82,13 @@ def interplanarAngle(plane1, plane2, L):
   Return the interplanar angle between *plane1* and *plane2* in lattice *L*.
   
   :arg plane1: a plane (hkl)
-  :type plane1: :class:`EBSDTools.mathTools.vectors.vector`
+  :type plane1: :class:`vector <EBSDTools.mathTools.vectors.vector>`
   
   :arg plane2: a plane (hkl)
-  :type plane2: :class:`EBSDTools.mathTools.vectors.vector`
+  :type plane2: :class:`vector <EBSDTools.mathTools.vectors.vector>`
   
   :arg L: a lattice
-  :type L: :class:`EBSDTools.crystallography.lattice.Lattice`
+  :type L: :class:`Lattice <EBSDTools.crystallography.lattice.Lattice>`
       
   :rtype: float
   """
@@ -116,9 +116,9 @@ def MillerToBravaisMiller(plane):
   Convert Miller indices to Bravais-Miller indices 
   
   :arg plane: a plane (hkl)
-  :type plane: :class:`EBSDTools.mathTools.vectors.vector`
+  :type plane: :class:`vector <EBSDTools.mathTools.vectors.vector>`
   
-  :rtype: :class:`EBSDTools.mathTools.vectors.vector`
+  :rtype: :class:`vector <EBSDTools.mathTools.vectors.vector>`
   """
   assert len(plane) == 3
   
@@ -133,9 +133,9 @@ def BravaisMillerToMiller(plane):
   Convert Bravais-Miller indices to Miller indices 
   
   :arg plane: a plane (hkl)
-  :type plane: :class:`EBSDTools.mathTools.vectors.vector`
+  :type plane: :class:`vector <EBSDTools.mathTools.vectors.vector>`
   
-  :rtype: :class:`EBSDTools.mathTools.vectors.vector`
+  :rtype: :class:`vector <EBSDTools.mathTools.vectors.vector>`
   """
   assert len(plane) == 4
   

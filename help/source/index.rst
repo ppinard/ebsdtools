@@ -11,6 +11,7 @@ Contents:
    :maxdepth: 2
    
    crystallography.rst
+   mathTools.rst
    
 Indices and tables
 ==================
