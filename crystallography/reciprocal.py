@@ -24,13 +24,12 @@ from EBSDTools.mathTools.mathExtras import _acos
 
 def cartesianToReciprocal(a, b, c):
   """
-    Convert cartesian basis $(a, b, c)$ to reciprocal basis $(a^\ast, b^\ast, c^\ast)$
+  Convert cartesian basis :math:`(a, b, c)` to reciprocal basis :math:`(a^*, b^*, c^*)`
     
-    Inputs:
-      a, b, c: vectors
-    
-    Outputs:
-      a tuple containing $(a^\ast, b^\ast, c^\ast)$
+  :arg a, b, c: vectors forming a basis in real (cartesian) space
+  :type a, b, c: :class:`EBSDTools.mathTools.vectors.vector`
+  
+  :rtype: a tuple containing three :class:`EBSDTools.mathTools.vectors.vector`
   """
   
   volume = vectors.dot(vectors.cross(a, b), c)
@@ -43,27 +42,28 @@ def cartesianToReciprocal(a, b, c):
 
 def reciprocalToCartesion(a_, b_, c_):
   """
-    Convert reciprocal basis $(a^\ast, b^\ast, c^\ast)$ to cartesian basis $(a, b, c)$
-    
-    Inputs:
-      a_, b_, c_: vectors
-    
-    Outputs:
-      a tuple containing $(a, b, c)$
+  Convert reciprocal basis :math:`(a^*, b^*, c^*)` to cartesian basis :math:`(a, b, c)`
+  
+  :arg a\_, b\_, c\_: vectors forming a basis in reciprocal space
+  :type a, b, c: :class:`EBSDTools.mathTools.vectors.vector`
+  
+  :rtype: a tuple containing three :class:`EBSDTools.mathTools.vectors.vector`
   """
   return cartesianToReciprocal(a_, b_, c_)
 
 def planeSpacing(plane, L):
   """
-    Calculate the plane spacing
-    
-    Inputs:
-      plane: a vector representing (hkl). h, k and l must be integer
-      L: class Lattice
+  Return the plane spacing of a *plane* in lattice *L*
+  
+  :arg plane: a plane (hkl)
+  :type plane: :class:`EBSDTools.mathTools.vectors.vector`
+  
+  :arg L: a lattice
+  :type L: :class:`EBSDTools.crystallography.lattice.Lattice`
       
-    Outputs:
-      float of the plane spacing in units of the lattice parameters
+  :rtype: float
   """
+  
   h = float(plane[0])
   k = float(plane[1])
   l = float(plane[2])
@@ -79,15 +79,18 @@ def planeSpacing(plane, L):
 
 def interplanarAngle(plane1, plane2, L):
   """
-    Calculate the interplanar angle
-    
-    Inputs:
-      plane1: a vector representing (hkl). h, k and l must be integer
-      plane2: same as plane1
-      L: class Lattice
+  Return the interplanar angle between *plane1* and *plane2* in lattice *L*.
+  
+  :arg plane1: a plane (hkl)
+  :type plane1: :class:`EBSDTools.mathTools.vectors.vector`
+  
+  :arg plane2: a plane (hkl)
+  :type plane2: :class:`EBSDTools.mathTools.vectors.vector`
+  
+  :arg L: a lattice
+  :type L: :class:`EBSDTools.crystallography.lattice.Lattice`
       
-    Outputs:
-      float of the angle in rad between plane1 and plane2
+  :rtype: float
   """
   h1 = float(plane1[0]) 
   k1 = float(plane1[1])
@@ -111,6 +114,11 @@ def interplanarAngle(plane1, plane2, L):
 def MillerToBravaisMiller(plane):
   """
   Convert Miller indices to Bravais-Miller indices 
+  
+  :arg plane: a plane (hkl)
+  :type plane: :class:`EBSDTools.mathTools.vectors.vector`
+  
+  :rtype: :class:`EBSDTools.mathTools.vectors.vector`
   """
   assert len(plane) == 3
   
@@ -123,6 +131,11 @@ def MillerToBravaisMiller(plane):
 def BravaisMillerToMiller(plane):
   """
   Convert Bravais-Miller indices to Miller indices 
+  
+  :arg plane: a plane (hkl)
+  :type plane: :class:`EBSDTools.mathTools.vectors.vector`
+  
+  :rtype: :class:`EBSDTools.mathTools.vectors.vector`
   """
   assert len(plane) == 4
   

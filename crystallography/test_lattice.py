@@ -16,6 +16,7 @@ __svnId__ = "$Id$"
 # Standard library modules.
 import unittest
 import logging
+import warnings
 from math import pi, sqrt, sin
 
 # Third party modules.
@@ -24,6 +25,8 @@ from math import pi, sqrt, sin
 import EBSDTools.crystallography.lattice as lattice
 
 # Globals and constants variables.
+
+warnings.filterwarnings('ignore', category=UserWarning)
 
 class TestLattice(unittest.TestCase):
   def setUp(self):

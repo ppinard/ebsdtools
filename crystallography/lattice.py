@@ -23,12 +23,27 @@ from EBSDTools.mathTools.mathExtras import _acos, h
 import EBSDTools.crystallography.reflectors as reflectors
 
 class Lattice:
-  def __init__(self, a, b, c, alpha, beta, gamma, atoms=None, reflectorsMaxIndice=2):
+  def __init__(self, a, b, c, alpha, beta, gamma, atoms=None, reflectorsMaxIndice=4):
     """
+    Initiate the :class:`Lattice`.
+    The reciprocal basis and volume are automatically calculated.
+    A :class:`Reflectors` is initiated if the atoms positions are given
+    
+    :arg a, b, c: lattice parameter in :math:`\\text{angstroms}`
+    :type a, b, c: float
+    
+    :arg alpha, beta, gamma: lattice angle in :math:`\\text{radians}`
+    :type alpha, beta, gamma: float
+    
+    :arg atoms: atoms positions in fraction of lattice parameters and atomic number of the atom at that position (``default=None``)
+    :type atoms: dict
+    
+    :arg reflectorsMaxIndice: maximum indices for the reflectors calculation (``default=4``)
+    :type reflectorsMaxIndice: integer
+    
+    **Example** ::
       
-      Inputs:
-        a, b, c: lattice parameter (in $\AA$)
-        alpha, beta, gamma: lattice angle in rad
+      atoms = {(0,0,0): 14, (0.5,0.5,0.5): 13} #Si atoms at (0,0,0) and Aluminum atoms at (0.5, 0.5, 0.5)
     """
     
     self.a = float(a)
@@ -67,6 +82,19 @@ class Lattice:
     self.volume_ = 1.0 / self.volume
   
   def __call__(self):
+    """
+    Return the lattice parameters and angle in real and reciprocal space. 
+    The real and reciprocal volume are also returned.
+    
+    :key a, b, c: lattice parameters in :math:`\\text{angstroms}`
+    :key alpha, beta, gamma: lattice angle in :math:`\\text{radians}`
+    :key a*, b*, c*: reciprocal lattice parameters in :math:`\\text{angstroms}`
+    :key alpha*, beta*, gamma*: reciprocal lattice angle in :math:`\\text{radians}`
+    :key V: lattice volume in :math:`\\text{angstroms}^3`
+    :key V*: reciprocal lattice volume in :math:`\\text{angstroms}^3`
+    
+    :rtype: dict
+    """
     return {'a': self.a
             , 'b': self.b
             , 'c': self.c
@@ -83,9 +111,19 @@ class Lattice:
             , 'V*': self.volume_
             }
   def getReflectors(self):
+    """
+    Return the :class:`Reflectors`. ``None`` is return if the atom positions were not set.
+    
+    :rtype: :class:`Reflectors`
+    """
     return self.reflectors
   
   def getAtomsPositions(self):
+    """
+    Return the atom positions as a list (without the atomic numbers)
+    
+    :rtype: list
+    """
     return self.atoms.keys()
 
 if __name__ == '__main__':

@@ -23,13 +23,13 @@ from EBSDTools.mathTools.mathExtras import h, m_e, e, c
 
 def electronWavelength(energy):
   """
-    Return the relativistic electron wavelength
+  Return the relativistic electron wavelength
     
-    Inputs:
-      energy: Energy in eV
-    
-    Outputs:
-      wavelength in $\AA$
+  :arg energy: Energy in eV
+  :type energy: float
+  
+  :return: wavelength in angstroms
+  :rtype: float
   """
   a = h / sqrt(2*m_e*e)
   b = 2*e / (m_e * c**2)
@@ -38,15 +38,19 @@ def electronWavelength(energy):
 
 def diffractionAngle(planeSpacing, wavelength, order=1):
   """
-    Return the diffraction angle based on Bragg's Law ($n\lambda = 2d\sin\theta$)
+  Return the diffraction angle based on Bragg's Law (:math:`n\lambda = 2d\\sin \\theta`)
     
-    Inputs:
-      planeSpacing: d (in $\AA$)
-      wavelength: $\lambda$ (in $\AA$)
-      order: n (integer)
+  :arg planeSpacing: d in angstroms
+  :type planeSpacing: float
+  
+  :arg wavelength: :math:`\\lambda` in angstroms
+  :type wavelength: float
+  
+  :arg order: n 
+  :type order: integer
     
-    Outputs:
-      $\theta$ in radians
+  :return: :math:`\\theta` in radians
+  :rtype: float
   """
   return asin(order*wavelength / (2*planeSpacing))
   

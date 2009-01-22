@@ -33,7 +33,9 @@ class scatteringFactors:
   def __init__(self
                , filepath_0_2='data/elastic_atomic_scattering_factors_0_2.csv'
                , filepath_2_6='data/elastic_atomic_scattering_factors_2_6.csv'):
+    """
     
+    """
     basedir = EBSDTools.__path__[0]
     
     reader = csv.reader(open(os.path.join(basedir,filepath_0_2), 'r'))
@@ -211,12 +213,10 @@ class Reflectors:
     atomPositions = self.L.getAtomsPositions()
     
     for atomPosition in atomPositions:
-      n = 2*abs(vectors.dot(plane, atomPosition))
-      if abs(n - int(n)) < zeroPrecision:
-        sum += (-1)**n
+      n = 2*vectors.dot(plane, atomPosition)
+      sum += complex(cos(pi*n), sin(pi*n))
       
-    
-    if sum > 0:
+    if (sum * sum.conjugate()).real > zeroPrecision:
       return True
     else:
       return False
@@ -239,7 +239,7 @@ class Reflectors:
               if plane[0] != None:
                 reflectors.append(plane)
     
-    reflectors.sort()
+#    reflectors.sort()
     return reflectors
   
   def __calculatePlaneSpacing(self, plane):
@@ -247,15 +247,13 @@ class Reflectors:
   
   def __calculateIntensity(self, plane, planeSpacing):
     sum = 0.0
-    
     s = 2*pi/planeSpacing
     
     for atom in self.L.atoms:
       n = 2*abs(vectors.dot(plane, atom))
-      if abs(n - int(n)) < zeroPrecision:
-        sum += (-1)**n * self.scatteringFactors.getScatteringFactor(self.L.atoms[atom], s)
-    
-    return sum**2
+      sum += complex(cos(pi*n), sin(pi*n)) * self.scatteringFactors.getScatteringFactor(self.L.atoms[atom], s)
+      
+    return (sum * sum.conjugate()).real
   
   def getReflectorsDict(self):
     return self.reflectors
