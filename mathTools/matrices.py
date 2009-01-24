@@ -26,13 +26,17 @@ from EBSDTools.mathTools.mathExtras import zeroPrecision
 class matrix:
   def __init__(self, *data):
     """
-      Define a 3x3 matrix
-      
-      Inputs:
-        len(data) == 0: Zero matrix
-        len(data) == 1: List of lists [[a,b,c], [d,e,f], [g,h,i]]
-        len(data) == 3: Lists [a,b,c], [d,e,f], [g,h,i]
-        len(data) == 9: a,b,c,d,e,f,g,h,i
+    Define a 3x3 matrix
+    
+    **Parameters:**
+      =============   =========================================
+      ``len(data)``   Description
+      =============   =========================================
+      0               Zero matrix
+      1               List of lists [[a,b,c], [d,e,f], [g,h,i]]
+      3               Lists [a,b,c], [d,e,f], [g,h,i]
+      9               a,b,c,d,e,f,g,h,i
+      =============   =========================================
     """
     
     if len(data) == 0:
@@ -48,13 +52,18 @@ class matrix:
   
   def __getitem__(self, index):
     """
-      Return the coefficient or row of the matrix
+    Return the coefficient or row of the matrix.
       
-      Inputs:
-        index: integer between 0 and 2
+    :arg index: integer between 0 and 2
+    :type index: int
       
-      Outputs:
-        int/float or list
+    :rtype: float or list
+    
+    **Examples:** ::
+      
+      >>> m = matrix([[1,2,3], [4,5,6], [7,8,9]])
+      >>> print m[1][2]
+      >>> 5
     """
     
     if index >= 0 and index <= 2:
@@ -62,8 +71,11 @@ class matrix:
   
   def __repr__(self):
     """
-      Return a string of the matrix
+    Return a string of the matrix.
+    
+    :rtype: str
     """
+    
     return "%f, %f, %f\n%f, %f, %f\n%f, %f, %f" % (self._m[0][0], self._m[0][1], self._m[0][2], self._m[1][0], self._m[1][1], self._m[1][2], self._m[2][0], self._m[2][1], self._m[2][2])
   
   def __mul__(self, other):
@@ -79,12 +91,12 @@ class matrix:
   
   def __eq__(self, other):
     """
-      Comparison of matrices
-      Check if two matrices are equal, i.e. if all their elements are equal
+    .. note:: When ``m1 == m2`` is called.
+    
+    Comparison of matrices.
+    Check if two matrices are equal, i.e. if all their elements are equal
       
-      Outputs:
-        True: equal
-        False: not equal
+    :rtype: bool
     """
     
     for i in range(3):
@@ -96,11 +108,12 @@ class matrix:
   
   def isSU3(self):
     """
-      Return is the matrix is a special orthogonal (SU3)
-         det(matrix) = +1)
+    Return is the matrix is a special orthogonal (SU3)
+    
+    **Equations:**
+      :math:`\\deter{\\matrixL{M}} = +1`
          
-      Outputs:
-        True if the matrix is a SU3
+    :rtype: bool
     """
     
     if abs(det(self._m) - 1.0) < zeroPrecision: # and trace(self._m) > zeroPrecision:
@@ -109,10 +122,28 @@ class matrix:
       return False
 
 def det(m):
+  """
+  Return the determinant of a 3x3 matrix: :math:`\\deter{\\matrixL{M}}`.
+  
+  :arg m: a matrix
+  :type m: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
+  
+  rtype: float
+  """
+  
   a = m[0][0]*m[1][1]*m[2][2] + m[0][1]*m[1][2]*m[2][0] + m[0][2]*m[2][1]*m[1][0]
   b = m[0][0]*m[1][2]*m[2][1] + m[0][1]*m[2][2]*m[1][0] + m[0][2]*m[2][0]*m[1][1]
   
   return a - b
 
 def trace(m):
+  """
+  Return the trace of a 3x3 matrix: :math:`\\trace{\\matrixL{M}}`.
+  
+  :arg m: a matrix
+  :type m: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
+  
+  rtype: float
+  """
+  
   return m[0][0] + m[1][1] + m[2][2]

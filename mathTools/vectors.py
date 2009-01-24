@@ -224,6 +224,7 @@ class vector:
     """
     Addition (``+``) of two vectors
     """
+    
     output = []
     if len(self.vector) == len(other.vector):
       for i in range(len(self.vector)):
@@ -233,8 +234,14 @@ class vector:
 
   def __neg__(self):
     """
-      Negation of a vector
+    Negation of a vector
+    
+    **Example:** ::
+      
+      v = vector(1,2,3)
+      -v == vector(-1,-2,-3) #Equivalent
     """
+    
     output = []
     for i in range(len(self.vector)):
       output.append(-self.vector[i])
@@ -243,8 +250,9 @@ class vector:
   
   def __sub__(self, other):
     """
-      Addition of two vectors
+    Subtraction (``-``) of two vectors
     """
+    
     output = []
     if len(self.vector) == len(other.vector):
       for i in range(len(self.vector)):
@@ -254,8 +262,9 @@ class vector:
   
   def __mul__(self, other):
     """
-      Multiplication by a scalar
+    Multiplication (``*``) by a scalar
     """
+    
     if isinstance(other, float) or isinstance(other, int):
       output = []
       for i in range(len(self.vector)):
@@ -268,11 +277,18 @@ class vector:
 
   def __div__(self, other):
     """
-      Division by a scalar
+    Division (``/``)by a scalar
     """
+    
     return self * (1/float(other))
 
   def __len__(self):
+    """
+    Return the length of a vector. How many components a vector has.
+    
+    :rtype: int
+    """
+    
     return len(self.vector)
   
   def toList(self):

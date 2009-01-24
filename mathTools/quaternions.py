@@ -27,25 +27,22 @@ from EBSDTools.mathTools.mathExtras import zeroPrecision
 
 def axisAngleToQuaternion(*data):
   """
-    Convert ($\phi$, $\vec{n}$) to a quaternion
-    
-    Equations:
-      $a = \cos{\frac{\phi}{2}}$
-      $A_x = n_x * \sin{\frac{\phi}{2}}$
-      $A_y = n_y * \sin{\frac{\phi}{2}}$
-      $A_z = n_z * \sin{\frac{\phi}{2}}$
-        
-        Where $\vec{n}$ needs to be a normalized vector (automatically normalized by this function)
-    
-    Reference:
-      Martin Baker (2008) Euclidean Space, \url{http://www.euclideansplace.com}
+  Convert an axis angle :math:`(\\phi, \\vec{n})` to a quaternion
+  
+  **Parameters:** 
+    * ``len(data) == 2``: :math:`(\\phi, \\vec{n})`
+    * ``len(data) == 4``: :math:`(\\phi, n_x, n_y, n_z)`
+  
+  **Equations:**
+    * :math:`a = \\cos{\\frac{\\phi}{2}}`
+    * :math:`A_x = n_x \\sin{\\frac{\\phi}{2}}`
+    * :math:`A_y = n_y \\sin{\\frac{\\phi}{2}}`
+    * :math:`A_z = n_z \\sin{\\frac{\\phi}{2}}`
       
-    Inputs:
-      len(data) == 2: (phi, n)
-      len(data) == 4: (phi, n_x, n_y, n_z)
+  **Reference:**
+    Martin Baker (2008) Euclidean Space, `<http://www.euclideansplace.com>`_
     
-    Outputs:
-      a quaternion
+  :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
   """
   
   if len(data) == 2:
@@ -63,23 +60,23 @@ def axisAngleToQuaternion(*data):
 
 def matrixtoQuaternion(m):
   """
-    Convert a SO3 matrix to a quaternion
+  Convert a SO3 matrix to a quaternion
+  
+  :arg m: a SO3 matrix
+  :type m: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
+  
+  **Equations:**
+    * :math:`a = 0.5\\sqrt{1 + m00 + m11 + m22}`
+    * :math:`A_x = \\frac{m21 - m12}{4a}`
+    * :math:`A_y = \\frac{m02 - m20}{4a}`
+    * :math:`A_z = \\frac{m10 - m01}{4a}`
     
-    Equations:
-      $a = 0.5*\sqrt{1 + m00 + m11 + m22}$
-      $A_x = \frac{m21 - m12}{4a}$
-      $A_y = \frac{m02 - m20}{4a}$
-      $A_z = \frac{m10 - m01}{4a}$
+  **Reference:**
+    Martin Baker (2008) Euclidean Space, `<http://www.euclideansplace.com>`_
     
-    Reference:
-      Martin Baker (2008) Euclidean Space, \url{http://www.euclideansplace.com}
-    
-    Inputs:
-      m: a matrix
-    
-    Outputs:
-      a quaternion
+  :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
   """
+  
   assert isinstance(m, matrices.matrix)
   assert m.isSU3()
   
@@ -130,21 +127,20 @@ def matrixtoQuaternion(m):
 
 def eulerAnglesToQuaternion(angles):
   """
-    Convert Euler angles ($\theta_1$, $\theta_2$, $\theta_3$) to a quaternion
+  Convert Euler angles :math:`(\\theta_1, \\theta_2, \\theta_3)` to a quaternion
     
-    The Euler angles have to be in line with Bunge definition of the euler angles
-      $R(\theta_3\vec{k})R(\theta_2\vec{i})R(\theta_1\vec{k})$
-      Where the rotation is performed from $\theta_1\rightarrow\theta_2\rightarrow_3$
+  The Euler angles have to be in line with Bunge definition of the euler angles.
+    * :math:`R(\\theta_3\\vec{k})R(\\theta_2\\vec{i})R(\\theta_1\\vec{k})`
+    * Where the rotation is performed from :math:`\\theta_1\\rightarrow\\theta_2\\rightarrow\\theta_3`
+  
+  :arg angles: euler angles
+  :type angles: :class:`eulers <EBSDTools.mathTools.eulers.eulers>`
+  
+  **References:**
+    Inspired by Altmann, Simon (1986) Rotations, Quaternions, and Double Groups and 
+      Rollett, Tony (2008) Advanced Characterization and Microstructural Analysis
     
-    References:
-      Inspired by Altmann, Simon (1986) Rotations, Quaternions, and Double Groups and
-                  Rollett, Tony (2008) Advanced Characterization and Microstructural Analysis
-    
-    Inputs:
-      angles: a eulers
-    
-    Outputs:
-      a quaternion
+  :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
   """
   
   assert isinstance(angles, eulers.eulers)
@@ -182,17 +178,23 @@ def eulerAnglesToQuaternion(angles):
 class quaternion:
   def __init__(self, *data):
     """
-      By definition is a real scalar number (a) and a vector (\vec{A})
-      
-      Reference:
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
-      
-      Inputs:
-        len(data) == 0: Null quaternion [0,0,0,0]
-        len(data) == 1: Real quaternion [a,0,0,0]
-        len(data) == 2: [a, A]
-        len(data) == 3: Pure quaternion [0, Ax, Ay, Az]
-        len(data) == 4: [a, Ax, Ay, Az]
+    By definition, a quaternion is a real scalar number (:math:`a`) and a vector (:math:`\\vec{A}`): :math:`\\quaternionL{A} = \\quaternion{a}{\\vec{A}}`
+    
+    **Parameters:**
+      =============   ===============   ==================
+      ``len(data)``   data              Description
+      =============   ===============   ==================
+      0               [0,0,0,0]         Null quaternion
+      1               [a,0,0,0]         Real quaternion
+      2               [a, A]            quaternion
+      3               [0, Ax, Ay, Az]   Pure quaternion
+      4               [a, Ax, Ay, Az]   quaternion
+      =============   ===============   ==================
+    
+    **Reference:**
+      Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
+    
+    .. note:: The quaternion is always converted to a positive quaternion (see :func:`positive() <EBSDTools.mathTools.quaternions.quaternion.positive>`) since for rotation :math:`q = -q`.
     """
     
     if len(data) == 0:
@@ -216,13 +218,18 @@ class quaternion:
     
   def __getitem__(self, index):
     """
-      Return the coefficient of one of the four quaternion parameters
+    Return the coefficient of one of the four quaternion parameters.
       
-      Inputs:
-        index: integer between 0 and 3
+    :arg index: integer between 0 and 3
+    :type index: int
       
-      Outputs:
-        real value of the quaternion's coefficient
+    :rtype: float
+    
+    **Examples:** ::
+      
+      >>> q = quaternion(1,2,3,4)
+      >>> print q[2]
+      >>> 3.0
     """
     
     if index >= 0 and index <= 3:
@@ -233,11 +240,20 @@ class quaternion:
   
   def __setitem__(self, index, value):
     """
-      Set a new value for a cofficient
+    Set a new value for a cofficient.
+    
+    :arg index: integer between 0 and 3
+    :type index: int
+    
+    :arg value: new real number value of the coefficient
+    :type value: float
+    
+    **Examples:** ::
       
-      Inputs:
-        index: integer between 0 and 3
-        value: new real number value of the coefficient
+      >>> q = quaternion(1,2,3,4)
+      >>> q[3] = 5
+      >>> print q
+      >>> [[1.0, 2.0, 3.0, 5.0]]
     """
     
     if index >= 0 and index <= 3:
@@ -248,23 +264,35 @@ class quaternion:
   
   def __repr__(self):
     """
-      Return a string with the four quaternion coefficients
+    .. note:: When ``str(q)`` is called.
+    
+    Return a string with the four quaternion coefficients.
+    
+    :rtype: string
+    
+    **Examples:** ::
+      
+      >>> q = quaternion(1,2,3,4)
+      >>> print q
+      >>> [[1.0, 2.0, 3.0, 4.0]]
     """
     return "[[%f, %f, %f, %f]]" % (self._a, self._A[0], self._A[1], self._A[2])
   
   def __mul__(self, other):
     """
-      Multiply two quaternions or one quaternion and a scalar
-      Multiplication of quaternions is not commutative (AB \neq BA)
+    Multiply two quaternions or one quaternion and a scalar.
+    Multiplication of quaternions is not commutative (:math:`\\quaternionL{A}\\quaternionL{B} \\neq \\quaternionL{B}\\quaternionL{A}`).
       
-      Multiplication is defined as
-      = [ab - \vec{A}\bullet\vec{B}, a\vec{B} + b\vec{A} + \vec{A}\times\vec{B}]
+    **Equations:**
+      * scalar product
+          :math:`a\\quaternion{b}{\\vec{B}} = \\quaternion{a}{\\vec{0}}\\quaternion{b}{\\vec{B}}=\\quaternion{ab}{a\\vec{B}}`
+      * quaternion product 
+          :math:`\\quaternionL{AB} = \\quaternion{a}{\\vec{A}}\\quaternion{b}{\\vec{B}} = \\quaternion{ab-\\vec{A}\\bullet\\vec{B}}{a\\vec{B}+b\\vec{A}+\\vec{A}\\times\\vec{B}}`
+    
+    **Reference:**
+      Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
       
-      Reference:
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
-      
-      Outputs:
-        a quaternion
+    :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
     """
     
     #TODO: Implement multiplication with the multiplication table
@@ -289,14 +317,7 @@ class quaternion:
 
   def __rmul__(self, other):
     """
-      Multiply two quaternions or one quaternion and a scaler
-      Multiplication of quaternions is not commutative (AB \neq BA)
-      
-      Reference:
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
-      
-      Outputs:
-        a quaternion
+    .. seealso:: :func:`__mul__ <EBSDTools.mathTools.quaternions.quaternion.__mul__>`
     """
     
     qOut = quaternion()
@@ -319,14 +340,18 @@ class quaternion:
   
   def __div__(self, other):
     """
-      Division of quaternion by scalar or other quaternion
-      
-      Reference:
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
-      
-      Outputs:
-        a quaternion
-      
+    Division of quaternion by scalar or other quaternion.
+    
+    **Equations:**
+      * scalar division
+          :math:`\\frac{\\quaternion{a}{\\vec{A}}}{a} = \\frac{1}{a} \\quaternion{a}{\\vec{A}}`
+      * quaternion division (as defined by :math:`\\frac{\\quaternionL{A}}{\\quaternionL{B}} \\equiv \\quaternionL{A}\\quaternionL{B}^{-1} \\neq \\quaternionL{B}^{-1}\\quaternionL{A}`)
+          :math:`\\quaternion{a}{\\vec{A}}\\quaternion{b}{\\vec{B}}^{-1} = \\quaternion{ab + \\vec{A}\\bullet\\vec{B}}{b\\vec{A} - a\\vec{B} - \\vec{A}\\times\\vec{B}}`
+    
+    **Reference:**
+      Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
+    
+    :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
     """
     
     if isinstance(other, float) or isinstance(other, int): #inverse scalar product
@@ -340,13 +365,15 @@ class quaternion:
   
   def __add__(self, other):
     """
-      Addition of two quaternions
+    Addition of two quaternions.
+    
+    **Equations:**
+      :math:`\\quaternion{a}{\\vec{A}} + \\quaternion{b}{\\vec{B}} = \\quaternion{a + b}{\\vec{A} + \\vec{B}}`
       
-      References:
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
+    **References:**
+      Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
       
-      Outputs:
-        A quaternion
+    :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
     """
     
     return quaternion(self._a + other._a
@@ -356,13 +383,15 @@ class quaternion:
   
   def __sub__(self, other):
     """
-      Substraction of two quaternions
-      
-      References:
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
-      
-      Outputs:
-        A quaternion
+    Substraction of two quaternions.
+    
+    **Equations:**
+      :math:`\\quaternion{a}{\\vec{A}} - \\quaternion{b}{\\vec{B}} = \\quaternion{a - b}{\\vec{A} - \\vec{B}}`
+    
+    **References:**
+      Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
+    
+    :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
     """
     
     return quaternion(self._a - other._a
@@ -372,20 +401,18 @@ class quaternion:
   
   def __abs__(self):
     """
-      Return the norm of the quaternion
+    .. note:: When ``abs(q)`` is called.
+    
+    Return the norm of the quaternion: :math:`\\norm{\\quaternionL{A}}`.
+    
+    **Equations:**
+      :math:`\\norm{\\quaternionL{A}} = \\sqrt{\\quaternionL{A}\\conj{\\quaternionL{A}}} = \\sqrt{a^2 + A_x^2 + A_y^2 + A_z^2}`
       
-      The norm is defined by the multiplication of the quaternion by its conjugate
-      = \sqrt{A\conj{A}}
-      or
-      = \sqrt{a^2 + A_x^2 + A_y^2 + A_z^2}
+    **References:**
+      Martin Baker (2008) Euclidean Space, `<http://www.euclideansplace.com>`_
+      Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
       
-      References:
-        Martin Baker (2008) Euclidean Space, \url{http://www.euclideansplace.com}
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
-      
-      Outputs:
-        a float
-      
+    :rtype: float
     """
     
     return pow(self._a**2 + self._A[0]**2 + self._A[1]**2 + self._A[2]**2, 0.5)
@@ -393,16 +420,20 @@ class quaternion:
   
   def __invert__(self):
     """
-      Return the inverse of the quaternion
+    .. note:: When ``~q`` is called.
+    
+    Return the inverse of the quaternion: :math:`\\quaternionL{A}^{-1}`.
+    
+    **Equations:**
+      * For non-normalized quaternion
+          :math:`\\quaternionL{A}^{-1} = \\conj{A} \\norm{A}^{-2}`
+      * For normalized quaternion
+          :math:`\\quaternionL{A}^{-1} = \\conj{\\quaternionL{A}}`
       
-      For non-normalized quaternion, the inverse is defined as
-      = \conj{A} \norm{A}^{-2}
-      
-      References:
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
-      
-      Outputs:
-        a quaternion
+    **References:**
+      Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
+    
+    :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
     """
     
     if self.isnormalized():
@@ -419,12 +450,12 @@ class quaternion:
   
   def __eq__(self, other):
     """
-      Comparison of quaternion
-      Check if two quaternion are equal, i.e. if their coefficients are equal
+    .. note:: When ``q1 == q2`` is called.
+    
+    Comparison of quaternion.
+    Check if two quaternion are equal, i.e. if their coefficients are equal.
       
-      Outputs:
-        True: equal
-        False: not equal
+    :rtype: bool
     """
     
     if abs(self._a - other._a) < zeroPrecision and \
@@ -437,14 +468,14 @@ class quaternion:
   
   def __hash__(self):
     """
-      Return a unique integer to be use as dictionary key
+    Return a unique integer to be use as dictionary key.
       
-      References:
-        http://effbot.org/zone/python-hash.htm
+    **References:**
+      `<http://effbot.org/zone/python-hash.htm>`_
       
-      Outputs:
-        an integer
+    :rtype: int
     """
+    
     a = hash(self._a)
     b = hash(self._A[0])* 10**len(str(a))
     c = hash(self._A[1])* 10**(len(str(a))+len(str(b)))
@@ -456,16 +487,15 @@ class quaternion:
   
   def conjugate(self):
     """
-      Return the conjugate of the quaternion
+    Return the conjugate of the quaternion: :math:`\\conj{\\quaternionL{A}}`
+    
+    **Equations:**
+      The conjugate is defined by the inverse of the vector part of the quaternion: :math:`\\conj{\\quaternionL{A}} = \\conj{\\quaternion{a}{\\vec{A}}} = \\quaternion{a}{-\\vec{A}}`
       
-      The conjugate is defined by the inverse of the vector part of the quaternion
-      = (a, -\vec{A})
-      
-      References:
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
-      
-      Outputs:
-        a quaternion
+    **References:**
+      Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
+    
+    :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
     """
     
     return quaternion(self._a
@@ -475,13 +505,15 @@ class quaternion:
   
   def isnormalized(self):
     """
-      Check if the quaternion is normalized
+    Check if the quaternion is normalized.
+    
+    **Equations:**
+      :math:`\\norm{\\quaternionL{A}} = 1`
       
-      References:
-        Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
-      
-      Outputs:
-        a bool
+    **References:**
+      Altmann, Simon (1986) Rotations, Quaternions, and Double Groups
+    
+    :rtype: bool
     """
     
     if abs(abs(self) - 1) < zeroPrecision:
@@ -493,13 +525,15 @@ class quaternion:
   
   def normalize(self):
     """
-      Normalize quaternion
+    Normalize quaternion.
+    
+    **Equations:**
+      :math:`\\frac{\\quaternionL{A}}{\\norm{\\quaternionL{A}}}`
+    
+    **References:**
+      Confuted (2008) Rotations in Three Dimensions, Part V: Quaternions, `<http://cpprogramming.com/tutorial/3d/quaternions.html>`_
       
-      References:
-        Confuted (2008) Rotations in Three Dimensions, Part V: Quaternions, \url{http://cpprogramming.com/tutorial/3d/quaternions.html}
-      
-      Outputs:
-        a quaternion
+    :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
     """
     
     norm = abs(self)
@@ -508,18 +542,11 @@ class quaternion:
                       , self._A[1]/norm
                       , self._A[2]/norm)
   
-  def vector(self):
-    return self._A
-  
-  def scalar(self):
-    return self._a
-  
   def positive(self):
     """
-      Return a positive quaternion: The first non-zero term is positive
+    Return a positive quaternion: The first non-zero term is positive
       
-      Outputs:
-        a quaternion
+    :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
     """
     
     output = []
@@ -538,15 +565,40 @@ class quaternion:
     
 #    return self
   
+  def vector(self):
+    """
+    Return the vector part of the quaternion: :math:`\\vec{A}`.
+    
+    :rtype: :class:`vector <EBSDTools.mathTools.vectors.vector>`
+    """
+    
+    return self._A
+  
+  def scalar(self):
+    """
+    Return the scalar part of the quaternion: :math:`a`.
+    
+    :rtype: float
+    """
+    
+    return self._a
+  
+  def toTuple(self):
+    """
+    Return the 4 coefficients of the quaternion as a tuple.
+      
+    :rtype: typle
+    """
+    return (self._a, self._A[0], self._A[1], self._A[2])
+  
   def toAxisAngle(self):
     """
-      Give the axis angle or euler-rodrigues (\phi, \vec{n}) representation of the quaternion
+    Give the axis angle or euler-rodrigues :math:`(\\phi, \\vec{n})` representation of the quaternion.
       
-      References:
-        Martin Baker (2008) Euclidean Space, \url{http://www.euclideansplace.com}
+    **References:**
+      Martin Baker (2008) Euclidean Space, `<http://www.euclideansplace.com>`_
       
-      Outputs:
-        a tuple of \phi (in rad) and \vec{n}
+    :rtype: a tuple of :math:`\\phi` (in rad) and :math:`\\vec{n}`
     """
     
     qCalc = self.normalize()
@@ -566,13 +618,12 @@ class quaternion:
   
   def toMatrix(self):
     """
-      Give the SO3 matrix for the quaternion
+    Give the SO3 matrix for the quaternion.
       
-      References:
-        Martin Baker (2008) Euclidean Space, \url{http://www.euclideansplace.com}
+    **References:**
+      Martin Baker (2008) Euclidean Space, `<http://www.euclideansplace.com>`_
       
-      Outputs:
-        a list of 3 lists of 3 items
+    :rtype: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
     """
     
     qCalc = self.normalize()
@@ -632,13 +683,12 @@ class quaternion:
   
   def toEulerAngles(self):
     """
-      Give the euler angles for the quaternion 
+    Give the euler angles for the quaternion.
       
-      Reference:
-        Inspired by Martin Baker (2008) Euclidean Space, \url{http://www.euclideansplace.com}
-      
-      Outputs:
-        a eulers
+    **Reference:**
+      Inspired by Martin Baker (2008) Euclidean Space, `<http://www.euclideansplace.com>`_
+    
+    :rtype: :class:`eulers <EBSDTools.mathTools.eulers.eulers>`
     """
     
     qCalc = self.normalize()
@@ -671,29 +721,23 @@ class quaternion:
     e1 = eulers.eulers(theta1, theta2, theta3)
     return e1.positive()
   
-  def toTuple(self):
-    """
-      Return the 4 coefficients of the quaternion as a tuple
-      
-      Inputs:
-        None
-        
-      Outputs:
-        a tuple
-    """
-    return (self._a, self._A[0], self._A[1], self._A[2])
+  
   
 def rotate(qIn, qRotations):
   """
-    Return the input quaternion (qIn) by all the rotation quaternion in qRotations
-    Order of rotation: qRotations[0], qRotations[1], qRotations[2], ...
-    
-    Inputs:
-      qIn: a quaternion to be rotated
-      qRotations: a list of quaternions defining rotations
-    
-    Outputs:
-      a quaternion
+  Return the input quaternion (*qIn*) by all the rotation quaternion in *qRotations*.
+  Order of rotation: ``qRotations[0]``, ``qRotations[1]``, ``qRotations[2]``, ...
+  
+  :arg qIn: a quaternion to be rotated
+  :type qIn: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
+  
+  :arg qRotations: a list of quaternions defining rotations
+  :type qRotations: a list of :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
+  
+  **Equations:**
+    :math:`\\quaternionL{A^\prime} = \\quaternionL{B}\\quaternionL{A}\\conj{\\quaternionL{B}}`
+  
+  :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
   """
   qOut = qIn
   

@@ -23,12 +23,14 @@ from EBSDTools.mathTools.mathExtras import zeroPrecision
 
 def degEulersToRadEulers(*data):
   """
-    Return a eulers from a set of 3 euler angles (in degrees)
+  Return a eulers from a set of 3 euler angles (in degrees)
     
-    Inputs:
-      len(data) == 0: zero eulers (0,0,0)
-      len(data) == 1: List of 3 angles (theta1, theta2, theta3)
-      len(data) == 3: 3 angles theta1, theta2, theta3 
+  **Parameters:**
+    * ``len(data) == 0``: zero eulers (0,0,0)
+    * ``len(data) == 1``: List of 3 angles (theta1, theta2, theta3)
+    * ``len(data) == 3``: 3 angles theta1, theta2, theta3 
+  
+  :rtype: :class:`eulers <EBSDTools.mathTools.eulers.eulers>`
   """
   
   if len(data) == 0:
@@ -49,12 +51,12 @@ def degEulersToRadEulers(*data):
 class eulers:
   def __init__(self, *data):
     """
-      Define a set of 3 euler angles (in radians) as defined by the Bunge convention
+    Define a set of 3 euler angles (in radians) as defined by the Bunge convention
       
-      Inputs:
-        len(data) == 0: zero eulers (0,0,0)
-        len(data) == 1: List of 3 angles (theta1, theta2, theta3)
-        len(data) == 3: 3 angles theta1, theta2, theta3 
+    **Parameters:**
+      * ``len(data) == 0``: zero eulers (0,0,0)
+      * ``len(data) == 1``: List of 3 angles (theta1, theta2, theta3)
+      * ``len(data) == 3``: 3 angles theta1, theta2, theta3 
     """
     
     if len(data) == 0:
@@ -70,56 +72,21 @@ class eulers:
       self._theta2 = float(data[1])
       self._theta3 = float(data[2])
   
-#  def __checkIntegrity(self):
-#    """
-#      Check if the eulers respects the Bunge convention
-#      
-#      Outputs:
-#        True if the eulers are correct
-#    """
-#    
-#    if self._theta1 <= 0:
-#      if self._theta1 < -(pi+zeroPrecision) or self._theta1 > (pi+zeroPrecision):
-#        return False
-#      if self._theta3 < -(pi+zeroPrecision) or self._theta3 > (pi+zeroPrecision):
-#        return False
-#    
-#    if self._theta3 <= 0:
-#      if self._theta1 < -(pi+zeroPrecision) or self._theta1 > (pi+zeroPrecision):
-#        return False
-#      if self._theta3 < -(pi+zeroPrecision) or self._theta3 > (pi+zeroPrecision):
-#        return False
-#    
-#    if self._theta1 >= 0:
-#      if self._theta1 > (2*pi+zeroPrecision):
-#        return False
-#    
-#    if self._theta3 >= 0:
-#      if self._theta3 > (2*pi+zeroPrecision):
-#        return False
-#      
-#    if self._theta1 > (pi+zeroPrecision):
-#      if self._theta3 < -zeroPrecision:
-#        return False
-#    
-#    if self._theta3 > (pi+zeroPrecision):
-#      if self._theta1 < -zeroPrecision:
-#        return False
-#    
-#    if self._theta2 < -zeroPrecision or self._theta2 > (pi+zeroPrecision):
-#      return False
-#    
-#    return True
-  
   def __getitem__(self, key):
     """
-      Return the value of the euler angles as they are called
+    Return the value of the euler angles in radians as they are called
       
-      Inputs:
-        name: theta1, theta2, theta3 or phi1, phi, phi2 or alpha, beta, gamma
+    :arg name: Either theta1, theta2, theta3 or phi1, phi, phi2 or alpha, beta, gamma
+    :type name: string
       
-      Outputs:
-        an angle in radians
+    :rtype: float
+    
+    **Examples:** ::
+      
+      e = eulers(0.5, 1, 0.2)
+      print eulers['theta1'] #Return 0.5
+      print eulers['beta'] #Return 1.0
+      print eulers['phi2'] #Return 0.2
     """
     
     if isinstance(key, str):
@@ -158,11 +125,19 @@ class eulers:
   
   def __setitem__(self, key, value):
     """
-      Modify an euler angle
+    Modify an euler angle
       
-      Inputs:
-        name: theta1, theta2, theta3 or phi1, phi, phi2 or alpha, beta, gamma
-        value: angle in radians
+    :arg name: Either theta1, theta2, theta3 or phi1, phi, phi2 or alpha, beta, gamma
+    :type name: string
+    
+    :arg value: angle in radians
+    :type value: float
+    
+    **Example:** ::
+      
+      e = eulers(0.5, 1, 0.2)
+      e['theta2'] = 2.1
+      e == eulers(0.5, 2.1, 0.2) #Equivalent
     """
     
     if isinstance(key, str):
@@ -181,35 +156,44 @@ class eulers:
         self._theta3 = value
   
   def __str__(self):
+    """
+    Return a string representing the euler angles
+    
+    :rtype: string
+    """
+    
     return "(%f, %f, %f)" % (self._theta1, self._theta2, self._theta3)
   
   def toDeg(self):
     """
-      Return a tuple of the eulers in degrees
+    Return a tuple of the eulers in degrees
+    
+    :rtype: tuple
     """
     
     return degEulers(self._theta1, self._theta2, self._theta3)
   
   def toRad(self):
     """
-      Return a tuple of the eulers in radians
+    Return a tuple of the eulers in radians
+    
+    :rtype: tuple
     """
     
     return (self._theta1, self._theta2, self._theta3)
   
   def positive(self):
     """
-      Convert eulers from 
-        -pi < theta0 < pi
-        0 < theta1 < pi
-        -pi < theta2 < pi
-      to
-        0 < theta0 < 2pi
-        0 < theta1 < pi
-        0 < theta2 < 2pi
+    Convert eulers from 
+      * :math:`-pi < \\text{theta0} < pi`
+      * :math:`0 < \\text{theta1} < pi`
+      * :math:`-pi < \\text{theta2} < pi`
+    to
+      * :math:`0 < \\text{theta0} < 2pi`
+      * :math:`0 < \\text{theta1} < pi`
+      * :math:`0 < \\text{theta2} < 2pi`
       
-      Outputs:
-        an eulers
+    :rtype: :class:`eulers <EBSDTools.mathTools.eulers.eulers>`
     """
     
     theta1 = self._theta1; theta2 = self._theta2; theta3 = self._theta3
@@ -223,14 +207,16 @@ class eulers:
   
   def negative(self):
     """
-      Convert eulers from
-        0 < theta0 < 2pi
-        0 < theta1 < pi
-        0 < theta2 < 2pi
-      to
-        -pi < theta0 < pi
-        0 < theta1 < pi
-        -pi < theta2 < pi
+    Convert eulers from 
+      * :math:`0 < \\text{theta0} < 2pi`
+      * :math:`0 < \\text{theta1} < pi`
+      * :math:`0 < \\text{theta2} < 2pi`
+    to
+      * :math:`-pi < \\text{theta0} < pi`
+      * :math:`0 < \\text{theta1} < pi`
+      * :math:`-pi < \\text{theta2} < pi`
+        
+    :rtype: :class:`eulers <EBSDTools.mathTools.eulers.eulers>`
     """
     
     theta1 = self._theta1; theta2 = self._theta2; theta3 = self._theta3
@@ -242,6 +228,7 @@ class eulers:
     
     return eulers(theta1, theta2, theta3)
 
+#TODO: Eliminate useless functions
 def positiveEulers(*thetas):
   """
     Convert eulers from 

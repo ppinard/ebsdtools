@@ -7,12 +7,7 @@ Contents:
    :maxdepth: 2
    
    vectors.rst
-   
-Indices and tables
-==================
+   eulers.rst
+   quaternions.rst
+   matrices.rst
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-   

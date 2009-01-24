@@ -12,6 +12,13 @@ Contents:
    
    crystallography.rst
    mathTools.rst
+
+Installation:
+
+.. toctree::
+   :maxdepth: 2
+   
+   installation.rst
    
 Indices and tables
 ==================
