@@ -36,10 +36,11 @@ Back-conversion
 .. autoclass:: EBSDTools.mathTools.quaternions.quaternion
    :members: toAxisAngle, toMatrix, toEulerAngles
 
-Rotation with quaternion
-------------------------
+Operations with quaternions
+---------------------------
 .. currentmodule:: EBSDTools.mathTools.quaternions
 .. autofunction:: rotate
+.. autofunction:: misorientation
    
 Other
 -----

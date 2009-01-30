@@ -339,7 +339,7 @@ class TestQuaternions(unittest.TestCase):
     q2 = quaternions.axisAngleToQuaternion(35/180.0*pi, (0,0,1)) * quaternions.axisAngleToQuaternion(27/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(102/180.0*pi, (0,0,1))
     self.assertEqual(q1, q2)
     
-    for i in range(10):
+    for i in range(rep):
       e1 = random.random() * 360
       e2 = random.random() * 180
       e3 = random.random() * 360

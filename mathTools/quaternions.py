@@ -23,7 +23,7 @@ from math import sin, cos, pi, acos, atan2, sqrt, asin, atan
 import EBSDTools.mathTools.vectors as vectors
 import EBSDTools.mathTools.matrices as matrices
 import EBSDTools.mathTools.eulers as eulers
-from EBSDTools.mathTools.mathExtras import zeroPrecision
+from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
 
 def axisAngleToQuaternion(*data):
   """
@@ -745,6 +745,23 @@ def rotate(qIn, qRotations):
     qOut = qRotation * qOut * qRotation.conjugate()
   
   return qOut
+
+def misorientation(q1, q2):
+  """
+  Calculate the misorientation (in rad) between two quaternions.
+  
+  :arg q1, q2: the quaternions 
+  :type q1, q2: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
+  
+  **Equations:**
+    :math:`\\omega = 2\\arccos{\\left(\\quaternionL{A}\\cdot\\quaternionL{B}\\right)}`
+    
+  :rtype: float
+  """
+  
+  dotProduct = q1[0]*q2[0] + q1[1]*q2[1] + q1[2]*q2[2] + q1[3]*q2[3]
+  
+  return 2*_acos(dotProduct)
 
 def similar(q1, q2, angularPrecision):
   if abs(q1._a - q2._a) < cos(angularPrecision/2.0) and \
