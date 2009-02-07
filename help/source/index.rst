@@ -12,6 +12,7 @@ Contents:
    
    crystallography.rst
    mathTools.rst
+   indexation.rst
 
 Installation:
 

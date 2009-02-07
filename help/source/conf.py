@@ -15,8 +15,6 @@
 # serve to show the default.
 
 import sys, os
-#import EBSDTools
-#sys.path.append(EBSDTools.__path__[0])
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it

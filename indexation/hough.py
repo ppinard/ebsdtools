@@ -14,16 +14,18 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-import java.io
+import os
 from math import pi
+if os.name == 'java': import java.io
 
 # Third party modules.
-import rmlimage.io.IO as IO
-import rmlimage.kernel as kernel
-import rmlimage.macro.python.cui.EBSD as EBSD
-import rmlimage.macro.command.cui.Analysis as Analysis
-import rmlimage.macro.command.cui.MapMath as MapMath
-import rmlshared.math.Stats as Stats
+if os.name == 'java':
+  import rmlimage.io.IO as IO
+  import rmlimage.kernel as kernel
+  import rmlimage.macro.python.cui.EBSD as EBSD
+  import rmlimage.macro.command.cui.Analysis as Analysis
+  import rmlimage.macro.command.cui.MapMath as MapMath
+  import rmlshared.math.Stats as Stats
 
 # Local modules.
 
@@ -187,13 +189,13 @@ class Hough:
     """
     Return the peaks dictionary containing:
     
-    ==========   ================================================
+    ==========   ====================================================
     key          Description
-    ==========   ================================================
-    intensity    {'average': float, 'standard deviation': float}
+    ==========   ====================================================
+    intensity    ``{'average': float, 'standard deviation': float}``
     centroid     (:math:`\\rho`, :math:`\\theta`)
     area         in pixels
-    ==========   ================================================
+    ==========   ====================================================
     
     :rtype: dict
     """
@@ -255,7 +257,7 @@ class Hough:
     """
     Return the image quality and its error of the Hough Transform
     
-    .. seealso: :func:`calculateImageQuality <EBSDTools.indexation.hough.Hough.calculateImageQuality>`
+    .. seealso:: :func:`calculateImageQuality <EBSDTools.indexation.hough.Hough.calculateImageQuality>`
     
     :rtype: tuple
     :return: (value, error) of the image quality
@@ -273,8 +275,9 @@ if __name__ == '__main__':
   
   maskMap = createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
   
-  hough = Hough(r'F:\VanderVoort_cutting\HM Corrected\TiB_diamond-05Images\TiB_diamond-0500001.jpg')
+  hough = Hough('i:/Philippe Pinard/workspace/DeformationSamplePrep/si_pattern.bmp')
   print hough.calculateHough(maskMap=maskMap)
   print hough.getPeaks()
   print hough.getImageQuality()
+
   
