@@ -58,7 +58,13 @@ def createMaskDisc(width, height, centroid, radius):
 class Hough:
   def __init__(self, filepath):
     file = java.io.File(filepath)
-    self._map = IO.load(file)
+    map = IO.load(file)
+    if map.type == 'RGBMap':
+      self._map = kernel.Transform.getBlueLayer(map)
+    else:
+      self._map = map
+    
+    assert self._map.type == 'ByteMap'
     
     self.height = self._map.height
     self.width = self._map.width
@@ -79,6 +85,7 @@ class Hough:
     """
     
     if maskMap != None:
+      assert maskMap.type == 'BinMap'
       assert self._map.size == maskMap.size
       
       newMap = kernel.ByteMap(self._map.width, self._map.height)
@@ -150,6 +157,8 @@ class Hough:
       Wright2006
     """
     
+    if self._peaks == None: self.findPeaks()
+    
     IQ = 0
     IQerr = 0
     
@@ -157,8 +166,9 @@ class Hough:
       IQ += self._peaks[peakId]['intensity']['average']
       IQerr += self._peaks[peakId]['intensity']['standard deviation']
     
-    IQ /= len(self._peaks)
-    IQerr /= len(self._peaks)
+    if len(self._peaks) > 0:
+      IQ /= len(self._peaks)
+      IQerr /= len(self._peaks)
     
     self._IQ = (IQ, IQerr)
   
@@ -263,7 +273,7 @@ if __name__ == '__main__':
   
   maskMap = createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
   
-  hough = Hough('i:/Philippe Pinard/workspace/DeformationSamplePrep/si_pattern.bmp')
+  hough = Hough(r'F:\VanderVoort_cutting\HM Corrected\TiB_diamond-05Images\TiB_diamond-0500001.jpg')
   print hough.calculateHough(maskMap=maskMap)
   print hough.getPeaks()
   print hough.getImageQuality()
