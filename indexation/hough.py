@@ -21,9 +21,10 @@ from math import pi
 import rmlimage.io.IO as IO
 import rmlimage.kernel as kernel
 import rmlimage.macro.python.cui.EBSD as EBSD
-import rmlimage.macro.command.cui.Analysis as Analysis
-import rmlimage.macro.command.cui.MapMath as MapMath
+import rmlimage.macro.python.cui.Analysis as Analysis
+import rmlimage.macro.python.cui.MapMath as MapMath
 import rmlshared.math.Stats as Stats
+import RandomUtilities.sort.sortDict as sortDict
 
 # Local modules.
 
@@ -89,7 +90,7 @@ class Hough:
       assert self._map.size == maskMap.size
       
       newMap = kernel.ByteMap(self._map.width, self._map.height)
-      MapMath.and(self._map, maskMap, newMap)
+      MapMath.andOp(self._map, maskMap, newMap)
       
       self._houghMap = EBSD.houghTransform(newMap, angleIncrement*pi/180.0)
     else:
@@ -115,7 +116,7 @@ class Hough:
     for index in range(identMap.size):
       objectId = identMap.pixArray[index]
       if objectId > 0:
-        houghPixelValue = abs(self._houghMap.pixArray[index])
+        houghPixelValue = self._houghMap.getPixValue(index)
         intensities[objectId-1].append(houghPixelValue)
     
     #Get centroid of peaks
@@ -146,9 +147,12 @@ class Hough:
               , 'area': area}
       self._peaks[objectId] = peak
   
-  def calculateImageQuality(self):
+  def calculateImageQuality(self, numberPeaks=None):
     """
     Calculate the pattern quality.
+    
+    :arg numberPeaks: number of peaks to use in the calculation (``default=None``: use all)
+    :type numberPeaks: int or ``None``
     
     **Equations:**
       :math:`\\mathrm{IQ} = \\frac{1}{N} \\sum\\limits_{i=0}^{N}{H(\\rho_i, \\theta_i)}`
@@ -159,16 +163,23 @@ class Hough:
     
     if self._peaks == None: self.findPeaks()
     
+    peaks = []
+    for peakId in self._peaks.keys():
+      peaks.append(self._peaks[peakId]['intensity'])
+    
+    peaks =sortDict.sortListByKey(peaks, 'average', reverse=True)
+    if numberPeaks == None: numberPeaks = len(peaks)
+    
     IQ = 0
     IQerr = 0
     
-    for peakId in self._peaks.keys():
-      IQ += self._peaks[peakId]['intensity']['average']
-      IQerr += self._peaks[peakId]['intensity']['standard deviation']
+    for peakId in range(numberPeaks):
+      IQ += peaks[peakId]['average']
+      IQerr += peaks[peakId]['standard deviation']
     
     if len(self._peaks) > 0:
-      IQ /= len(self._peaks)
-      IQerr /= len(self._peaks)
+      IQ /= numberPeaks
+      IQerr /= numberPeaks
     
     self._IQ = (IQ, IQerr)
   
@@ -273,8 +284,9 @@ if __name__ == '__main__':
   
   maskMap = createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
   
-  hough = Hough(r'F:\VanderVoort_cutting\HM Corrected\TiB_diamond-05Images\TiB_diamond-0500001.jpg')
-  print hough.calculateHough(maskMap=maskMap)
-  print hough.getPeaks()
+  hough = Hough(r'i:\philippe pinard\workspace\DeformationSamplePrep\si_pattern.bmp')
+  print hough.calculateHough()
+  hough.findPeaks()
+  hough.calculateImageQuality()
   print hough.getImageQuality()
   
