@@ -168,7 +168,8 @@ class Hough:
       peaks.append(self._peaks[peakId]['intensity'])
     
     peaks =sortDict.sortListByKey(peaks, 'average', reverse=True)
-    if numberPeaks == None: numberPeaks = len(peaks)
+    if numberPeaks == None or numberPeaks > len(peaks): 
+      numberPeaks = len(peaks)
     
     IQ = 0
     IQerr = 0
