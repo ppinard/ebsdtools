@@ -23,6 +23,8 @@ import rmlimage.kernel as kernel
 import rmlimage.macro.python.cui.EBSD as EBSD
 import rmlimage.macro.python.cui.Analysis as Analysis
 import rmlimage.macro.python.cui.MapMath as MapMath
+import rmlimage.macro.command.cui.Filter as Filter
+import rmlimage.kernel.Contrast as Contrast
 import rmlshared.math.Stats as Stats
 import RandomUtilities.sort.sortDict as sortDict
 
@@ -89,12 +91,17 @@ class Hough:
       assert maskMap.type == 'BinMap'
       assert self._map.size == maskMap.size
       
-      newMap = kernel.ByteMap(self._map.width, self._map.height)
-      MapMath.andOp(self._map, maskMap, newMap)
-      
-      self._houghMap = EBSD.houghTransform(newMap, angleIncrement*pi/180.0)
+      map = kernel.ByteMap(self._map.width, self._map.height)
+      MapMath.andOp(self._map, maskMap, map)
     else:
-      self._houghMap = EBSD.houghTransform(self._map, angleIncrement*pi/180.0)
+      map = self._map
+    
+    MapMath.subtraction(map, 128, map)
+    Filter.median(map)
+    Contrast.expansion(map)
+    
+    self._houghMap = EBSD.houghTransform(map, angleIncrement*pi/180.0)
+    
   
   def findPeaks(self):
     """
@@ -138,12 +145,11 @@ class Hough:
     for objectId in range(0,identMap.getObjectCount()):
       averageIntensity = Stats.average(intensities[objectId])
       stdDevIntensity = Stats.standardDeviation(intensities[objectId])
-      centroidX = centroids[objectId]
-      centroidY = centroids[objectId]
+      centroid = centroids[objectId]
       area = areas[objectId]
       
       peak = {'intensity': {'average': averageIntensity, 'standard deviation': stdDevIntensity}
-              , 'centroid': (centroidX, centroidY)
+              , 'centroid': centroid
               , 'area': area}
       self._peaks[objectId] = peak
   
@@ -285,9 +291,13 @@ if __name__ == '__main__':
   
   maskMap = createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
   
-  hough = Hough(r'i:\philippe pinard\workspace\DeformationSamplePrep\si_pattern.bmp')
-  print hough.calculateHough()
+  maskMap.setFile(r'i:\philippe pinard\workspace\DeformationSamplePrep\maskk.bmp')
+  
+  IO.save(maskMap)
+  
+  hough = Hough(r'i:\philippe pinard\workspace\DeformationSamplePrep\data\patterns\TiB_diamond-05_1_000005.jpg')
+  print hough.calculateHough(maskMap=maskMap)
   hough.findPeaks()
-  hough.calculateImageQuality()
+  hough.calculateImageQuality(4)
   print hough.getImageQuality()
   
