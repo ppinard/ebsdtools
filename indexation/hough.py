@@ -23,9 +23,13 @@ if os.name == 'java':
   import rmlimage.io.IO as IO
   import rmlimage.kernel as kernel
   import rmlimage.macro.python.cui.EBSD as EBSD
-  import rmlimage.macro.command.cui.Analysis as Analysis
-  import rmlimage.macro.command.cui.MapMath as MapMath
+  import rmlimage.macro.python.cui.Analysis as Analysis
+  import rmlimage.macro.python.cui.MapMath as MapMath
+  import rmlimage.macro.command.cui.Filter as Filter
+  import rmlimage.kernel.Contrast as Contrast
   import rmlshared.math.Stats as Stats
+import RandomUtilities.sort.sortDict as sortDict
+
 
 # Local modules.
 
@@ -90,12 +94,17 @@ class Hough:
       assert maskMap.type == 'BinMap'
       assert self._map.size == maskMap.size
       
-      newMap = kernel.ByteMap(self._map.width, self._map.height)
-      MapMath.and(self._map, maskMap, newMap)
-      
-      self._houghMap = EBSD.houghTransform(newMap, angleIncrement*pi/180.0)
+      map = kernel.ByteMap(self._map.width, self._map.height)
+      MapMath.andOp(self._map, maskMap, map)
     else:
-      self._houghMap = EBSD.houghTransform(self._map, angleIncrement*pi/180.0)
+      map = self._map
+    
+    MapMath.subtraction(map, 128, map)
+    Filter.median(map)
+    Contrast.expansion(map)
+    
+    self._houghMap = EBSD.houghTransform(map, angleIncrement*pi/180.0)
+    
   
   def findPeaks(self):
     """
@@ -117,7 +126,7 @@ class Hough:
     for index in range(identMap.size):
       objectId = identMap.pixArray[index]
       if objectId > 0:
-        houghPixelValue = abs(self._houghMap.pixArray[index])
+        houghPixelValue = self._houghMap.getPixValue(index)
         intensities[objectId-1].append(houghPixelValue)
     
     #Get centroid of peaks
@@ -139,18 +148,20 @@ class Hough:
     for objectId in range(0,identMap.getObjectCount()):
       averageIntensity = Stats.average(intensities[objectId])
       stdDevIntensity = Stats.standardDeviation(intensities[objectId])
-      centroidX = centroids[objectId]
-      centroidY = centroids[objectId]
+      centroid = centroids[objectId]
       area = areas[objectId]
       
       peak = {'intensity': {'average': averageIntensity, 'standard deviation': stdDevIntensity}
-              , 'centroid': (centroidX, centroidY)
+              , 'centroid': centroid
               , 'area': area}
       self._peaks[objectId] = peak
   
-  def calculateImageQuality(self):
+  def calculateImageQuality(self, numberPeaks=None):
     """
     Calculate the pattern quality.
+    
+    :arg numberPeaks: number of peaks to use in the calculation (``default=None``: use all)
+    :type numberPeaks: int or ``None``
     
     **Equations:**
       :math:`\\mathrm{IQ} = \\frac{1}{N} \\sum\\limits_{i=0}^{N}{H(\\rho_i, \\theta_i)}`
@@ -161,16 +172,24 @@ class Hough:
     
     if self._peaks == None: self.findPeaks()
     
+    peaks = []
+    for peakId in self._peaks.keys():
+      peaks.append(self._peaks[peakId]['intensity'])
+    
+    peaks =sortDict.sortListByKey(peaks, 'average', reverse=True)
+    if numberPeaks == None or numberPeaks > len(peaks): 
+      numberPeaks = len(peaks)
+    
     IQ = 0
     IQerr = 0
     
-    for peakId in self._peaks.keys():
-      IQ += self._peaks[peakId]['intensity']['average']
-      IQerr += self._peaks[peakId]['intensity']['standard deviation']
+    for peakId in range(numberPeaks):
+      IQ += peaks[peakId]['average']
+      IQerr += peaks[peakId]['standard deviation']
     
     if len(self._peaks) > 0:
-      IQ /= len(self._peaks)
-      IQerr /= len(self._peaks)
+      IQ /= numberPeaks
+      IQerr /= numberPeaks
     
     self._IQ = (IQ, IQerr)
   
@@ -275,9 +294,15 @@ if __name__ == '__main__':
   
   maskMap = createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
   
-  hough = Hough('i:/Philippe Pinard/workspace/DeformationSamplePrep/si_pattern.bmp')
+  maskMap.setFile(r'i:\philippe pinard\workspace\DeformationSamplePrep\maskk.bmp')
+  
+  IO.save(maskMap)
+  
+  hough = Hough(r'i:\philippe pinard\workspace\DeformationSamplePrep\data\patterns\TiB_diamond-05_1_000005.jpg')
+
   print hough.calculateHough(maskMap=maskMap)
-  print hough.getPeaks()
+  hough.findPeaks()
+  hough.calculateImageQuality(4)
   print hough.getImageQuality()
 
   
