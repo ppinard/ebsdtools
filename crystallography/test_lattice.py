@@ -200,7 +200,7 @@ class TestLattice(unittest.TestCase):
     
     atomsPositions = L1.getAtomsPositions()
     for atomsPosition in atomsPositions:
-      self.assertTrue(atomsPosition in atoms.keys())
+      self.assert_(atomsPosition in atoms.keys())
   
 if __name__ == '__main__':
   logging.getLogger().setLevel(logging.DEBUG)

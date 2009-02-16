@@ -36,7 +36,7 @@ class TestEulers(unittest.TestCase):
     
   def testSkeleton(self):
     #self.fail("Test if the TestCase is working.")
-    self.assertTrue(True)
+    self.assert_(True)
   
   def testInit(self):
     e1 = eulers.eulers(0.1,0.2,0.3)

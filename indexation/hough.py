@@ -16,22 +16,20 @@ __svnId__ = ""
 # Standard library modules.
 import os
 from math import pi
-if os.name == 'java': import java.io
+import java.io
 
 # Third party modules.
-if os.name == 'java':
-  import rmlimage.io.IO as IO
-  import rmlimage.kernel as kernel
-  import rmlimage.macro.python.cui.EBSD as EBSD
-  import rmlimage.macro.python.cui.Analysis as Analysis
-  import rmlimage.macro.python.cui.MapMath as MapMath
-  import rmlimage.macro.command.cui.Filter as Filter
-  import rmlimage.kernel.Contrast as Contrast
-  import rmlshared.math.Stats as Stats
-import RandomUtilities.sort.sortDict as sortDict
-
+import rmlimage.io.IO as IO
+import rmlimage.kernel as kernel
+import rmlimage.macro.python.cui.EBSD as EBSD
+import rmlimage.macro.python.cui.Analysis as Analysis
+import rmlimage.macro.python.cui.MapMath as MapMath
+import rmlimage.macro.command.cui.Filter as Filter
+import rmlimage.kernel.Contrast as Contrast
+import rmlshared.math.Stats as Stats
 
 # Local modules.
+import RandomUtilities.sort.sortDict as sortDict
 
 def createMaskDisc(width, height, centroid, radius):
   """
@@ -79,9 +77,11 @@ class Hough:
     self._peaks = None
     self._IQ = None
   
-  def calculateHough(self, angleIncrement=0.5, maskMap = None):
+  def calculateHough(self, angleIncrement=0.5, maskMap=None):
     """
-    Calculate the Hough Transform
+    Calculate the Hough Transform. 
+    
+    A median and a contrast expansion is performed before doing the Hough transform.
     
     :arg angleIncrement: angle increment (in deg)
     :type angleIncrement: float

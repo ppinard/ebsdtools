@@ -32,7 +32,7 @@ class TestEulers(unittest.TestCase):
     
   def testSkeleton(self):
     #self.fail("Test if the TestCase is working.")
-    self.assertTrue(True)
+    self.assert_(True)
   
   def testConstants(self):
     self.assertAlmostEqual(mathExtras.h, 6.62606809633e-34)

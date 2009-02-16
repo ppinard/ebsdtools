@@ -42,7 +42,7 @@ class TestVectors(unittest.TestCase):
     
   def testSkeleton(self):
     #self.fail("Test if the TestCase is working.")
-    self.assertTrue(True)
+    self.assert_(True)
   
   def test__repr__(self):
     self.assertEqual(str(self.u), '[1, 2, 3]')
@@ -80,33 +80,33 @@ class TestVectors(unittest.TestCase):
     self.assertEqual(self.x, vectors.vector(1,0,-5,6))
   
   def test__lt__(self):
-    self.assertTrue(self.u < self.v)
-    self.assertTrue(self.u < self.x)
+    self.assert_(self.u < self.v)
+    self.assert_(self.u < self.x)
     self.assertFalse(self.u < self.w)
-    self.assertTrue(self.z < self.u)
+    self.assert_(self.z < self.u)
   
   def test__le__(self):
-    self.assertTrue(self.u <= self.u)
-    self.assertTrue(self.u <= self.v)
+    self.assert_(self.u <= self.u)
+    self.assert_(self.u <= self.v)
   
   def test__gt__(self):
-    self.assertTrue(self.x > self.u)
-    self.assertTrue(self.x > self.v)
+    self.assert_(self.x > self.u)
+    self.assert_(self.x > self.v)
     self.assertFalse(self.w > self.u)
   
   def test__ge__(self):
-    self.assertTrue(self.x >= self.x)
-    self.assertTrue(self.x >= self.u)
+    self.assert_(self.x >= self.x)
+    self.assert_(self.x >= self.u)
   
   def test__eq__(self):
-    self.assertTrue(self.u == self.u)
-    self.assertTrue(self.x == self.x)
+    self.assert_(self.u == self.u)
+    self.assert_(self.x == self.x)
     self.assertFalse(self.u == self.v)
   
   def test__ne__(self):
     self.assertFalse(self.u != self.u)
     self.assertFalse(self.x != self.x)
-    self.assertTrue(self.u != self.v)
+    self.assert_(self.u != self.v)
   
   def test__add__(self):
     self.assertEqual(self.u+self.w, vectors.vector(2,2,3))

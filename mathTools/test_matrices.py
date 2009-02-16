@@ -39,7 +39,7 @@ class TestMatrices(unittest.TestCase):
     
   def testSkeleton(self):
     #self.fail("Test if the TestCase is working.")
-    self.assertTrue(True)
+    self.assert_(True)
   
   def test__eq__(self):
     self.assertEqual(self.m1, self.m2)

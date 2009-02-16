@@ -79,14 +79,14 @@ class TestReciprocal(unittest.TestCase):
     planesBCC_ = [(0, 1, 1), (1, 1, 0), (1, 0, 1), (1, -1, 0), (1, 0, -1), (0, 1, -1)]
     
     for plane in planesBCC_:
-      self.assertTrue(plane in planesBCC)
+      self.assert_(plane in planesBCC)
       self.assertEqual((plane[0] + plane[1] + plane[2]) % 2, 0)
     
     planesBCC = self.Lbcc.getReflectors().getReflectorsList()
     planesBCC_ = [(1, 0, 1), (1, 1, 0), (1, 0, -1), (1, -1, 0), (0, 2, 0), (2, 0, 0), (0, 0, 2), (1, 1, 2), (1, 2, 1), (2, 1, 1), (1, -2, -1), (2, 1, -1), (2, -1, -1), (1, 1, -2), (1, -1, -2), (1, 2, -1), (2, -1, 1), (1, -2, 1), (1, -1, 2), (0, 2, 2), (2, 0, 2), (2, 2, 0), (2, -2, 0), (2, 0, -2), (0, 2, -2), (2, 2,2), (2, -2, -2), (2, -2, 2), (2, 2, -2)]
     
     for plane in planesBCC_:
-      self.assertTrue(plane in planesBCC)
+      self.assert_(plane in planesBCC)
       self.assertEqual((plane[0] + plane[1] + plane[2]) % 2, 0)
     
     #fcc
@@ -94,7 +94,7 @@ class TestReciprocal(unittest.TestCase):
     planesFCC_ = [(1, 1, 1), (1, -1, -1), (1, 1, -1), (1, -1, 1)]
     
     for plane in planesFCC_:
-      self.assertTrue(plane in planesFCC)
+      self.assert_(plane in planesFCC)
       if plane[0] % 2 == 0: 
         self.assertEqual(plane[1] % 2, 0)
         self.assertEqual(plane[2] % 2, 0)
@@ -106,7 +106,7 @@ class TestReciprocal(unittest.TestCase):
     planesFCC_ = [(1, 1, 1), (1, -1, -1), (1, 1, -1), (1, -1, 1), (0, 2, 0), (0, 0, 2), (2, 0, 0), (0, 2, 2), (2, 0, 2), (2, 2, 0), (0, 2, -2), (2, 0, -2), (2, -2, 0), (2, 2, 2), (2, -2, 2), (2, -2, -2), (2, 2, -2)]
     
     for plane in planesFCC_:
-      self.assertTrue(plane in planesFCC)
+      self.assert_(plane in planesFCC)
       if plane[0] % 2 == 0: 
         self.assertEqual(plane[1] % 2, 0)
         self.assertEqual(plane[2] % 2, 0)
