@@ -27,7 +27,7 @@ import RandomUtilities.testing.testImage as testImage
 
 # Globals and constants variables.
 
-class TestBragg(unittest.TestCase):
+class TestHough(unittest.TestCase):
 
   def setUp(self):
     unittest.TestCase.setUp(self)
