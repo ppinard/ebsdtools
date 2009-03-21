@@ -60,10 +60,7 @@ class Lattice:
     
     self.atoms = atoms
     
-    if atoms != None:
-      self.reflectors = reflectors.Reflectors(self, reflectorsMaxIndice)
-    else:
-      self.reflectors = None
+    self.reflectors = reflectors.Reflectors(self, reflectorsMaxIndice)
   
   def __calculateReciprocalAngle(self):
     self.alpha_ = _acos((cos(self.beta)*cos(self.gamma) - cos(self.alpha)) / (sin(self.beta)*sin(self.gamma)))
@@ -124,7 +121,10 @@ class Lattice:
     
     :rtype: list
     """
-    return self.atoms.keys()
+    if self.atoms != None:
+      return self.atoms.keys()
+    else:
+      return None
 
 if __name__ == '__main__':
   pass

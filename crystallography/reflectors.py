@@ -184,14 +184,20 @@ class Reflectors:
       
       self.reflectors[planeKey]['reflector'] = plane
       
+      #Plane spacing
       planeSpacing = self.__calculatePlaneSpacing(plane)
       if self.__isNewPlaneSpacing(planeSpacing, planeSpacings):
         planeSpacings.append(planeSpacing)
       self.reflectors[planeKey]['plane spacing'] = planeSpacing
       
-      intensity = self.__calculateIntensity(plane, planeSpacing)
-      intensities.append(intensity)
-      self.reflectors[planeKey]['intensity'] = intensity
+      #Intensity
+      if self.L.getAtomsPositions() != None:
+        intensity = self.__calculateIntensity(plane, planeSpacing)
+        intensities.append(intensity)
+        self.reflectors[planeKey]['intensity'] = intensity
+      else:
+        self.reflectors[planeKey]['intensity'] = 1.0
+        intensities.append(1.0)
     
     if len(planes) > 0:
       intensityMax = max(intensities)
@@ -236,6 +242,7 @@ class Reflectors:
     sum = 0
     
     atomPositions = self.L.getAtomsPositions()
+    if atomPositions == None: return True
     
     for atomPosition in atomPositions:
       n = 2*vectors.dot(plane, atomPosition)
