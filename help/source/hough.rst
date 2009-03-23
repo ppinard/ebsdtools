@@ -1,5 +1,5 @@
 :mod:`indexation.hough` --- Computation of the Hough Transform
-==============================================================
+===============================================================
 
 .. note:: Requires Jython and rmlimage
 

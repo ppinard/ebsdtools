@@ -16,17 +16,18 @@ __svnId__ = ""
 # Standard library modules.
 import os
 from math import pi
-import java.io
+if os.name == 'java': import java.io
 
 # Third party modules.
-import rmlimage.io.IO as IO
-import rmlimage.kernel as kernel
-import rmlimage.macro.python.cui.EBSD as EBSD
-import rmlimage.macro.python.cui.Analysis as Analysis
-import rmlimage.macro.python.cui.MapMath as MapMath
-import rmlimage.macro.command.cui.Filter as Filter
-import rmlimage.kernel.Contrast as Contrast
-import rmlshared.math.Stats as Stats
+if os.name == 'java': 
+  import rmlimage.io.IO as IO
+  import rmlimage.kernel as kernel
+  import rmlimage.macro.python.cui.EBSD as EBSD
+  import rmlimage.macro.python.cui.Analysis as Analysis
+  import rmlimage.macro.python.cui.MapMath as MapMath
+  import rmlimage.macro.command.cui.Filter as Filter
+  import rmlimage.kernel.Contrast as Contrast
+  import rmlshared.math.Stats as Stats
 
 # Local modules.
 import RandomUtilities.sort.sortDict as sortDict

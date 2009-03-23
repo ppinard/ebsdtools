@@ -16,13 +16,13 @@ __svnId__ = ""
 # Standard library modules.
 import Tkinter
 import tkFileDialog
-import Pmw
 from PIL import Image, ImageTk
 from math import pi
 
 # Third party modules.
 
 # Local modules.
+import RandomUtilities.Pmw.Pmw as Pmw
 import EBSDTools.patternSimulations.patternSimulations as patternSimulations
 import EBSDTools.crystallography.lattice as lattice
 import EBSDTools.mathTools.eulers as eulers
