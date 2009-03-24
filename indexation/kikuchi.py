@@ -14,11 +14,11 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-import os
+import platform
 from math import tan, sin, pi, asin, sqrt, atan2, atan, cos
 
 # Third party modules.
-if os.name == 'java': import rmlimage.plugin.ebsd.Drawing as Drawing
+if platform.system() == 'Java': import rmlimage.plugin.ebsd.Drawing as Drawing
 
 # Local modules.
 from EBSDTools.mathTools.mathExtras import zeroPrecision
@@ -59,7 +59,7 @@ def kikuchiLineToNormal(p1, p2, patternCenter, detectorDistance, patternSize):
   n = n.normalize()
   
   #Adjust that the normal always have a position z
-  if n[2] < 0: n = -n
+#  if n[2] < 0: n = -n
   
   return n
 

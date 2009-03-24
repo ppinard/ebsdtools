@@ -43,6 +43,7 @@ class App:
              (0,0.5,0.5): 14}
 #    atoms = {(0,0,0): 14,
 #             (0.5,0.5,0.5): 14}
+    atoms = {(0,0,0): 79}
     self.L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=4)
     
     #Image
@@ -313,7 +314,8 @@ class App:
     
     qTilt = quaternions.axisAngleToQuaternion(-tilt/180.0*pi, (1,0,0))
     
-    qDetectorOrientation = quaternions.axisAngleToQuaternion(pi, (0,0,1)) * quaternions.axisAngleToQuaternion(-90/180.0*pi, (1,0,0))
+#    qDetectorOrientation = quaternions.axisAngleToQuaternion(pi, (0,0,1)) * quaternions.axisAngleToQuaternion(-90/180.0*pi, (1,0,0))
+    qDetectorOrientation = quaternions.quaternion(1)
     qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
     
     qRotations = [qDetectorOrientation_ * qTilt * qCrystalRotation * qSpecimenRotation]

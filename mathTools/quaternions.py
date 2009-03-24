@@ -73,12 +73,13 @@ def matrixtoQuaternion(m):
     
   **Reference:**
     Martin Baker (2008) Euclidean Space, `<http://www.euclideansplace.com>`_
+    Wikipedia, Rotation representation (mathematics), `<http://en.wikipedia.org/wiki/Rotation_representation_(mathematics)>`_
     
   :rtype: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`
   """
   
   assert isinstance(m, matrices.matrix)
-  assert m.isSU3()
+  assert m.isSO3()
   
   A = []
   w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
@@ -100,30 +101,6 @@ def matrixtoQuaternion(m):
           A[i] *= m[i][i] / abs(m[i][i])
     
   return quaternion(w, A)
-
-#def matrixtoQuaternionBaker(m):
-#  w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
-#  
-#  if abs(w) > zeroPrecision:
-##    Martin Baker
-#    B = []
-#    B.append((m[2][1] - m[1][2]) / (4*w))
-#    B.append((m[0][2] - m[2][0]) / (4*w))
-#    B.append((m[1][0] - m[0][1]) / (4*w))
-#    
-#  return quaternion(w,B)
-#
-#def matrixtoQuaternionOrilib(m):
-#  w = 0.5 * sqrt(m[0][0] + m[1][1] + m[2][2] + 1)
-#  
-#  if abs(w) > zeroPrecision:
-#    #Morawiec & orilib
-#    A = []
-#    A.append((m[1][2] - m[2][1]) / (4*w))
-#    A.append((m[2][0] - m[0][2]) / (4*w))
-#    A.append((m[0][1] - m[1][0]) / (4*w))
-#  
-#  return quaternion(w,A)
 
 def eulerAnglesToQuaternion(angles):
   """
@@ -149,32 +126,13 @@ def eulerAnglesToQuaternion(angles):
   t2 = angles['theta2']
   t3 = angles['theta3']
   
-#  return axisAngleToQuaternion(a3, (0,0,1)) * axisAngleToQuaternion(a2, (1,0,0)) * axisAngleToQuaternion(a1, (0,0,1))
-#  
   a  =  cos(t2/2.0)*cos((t1 + t3)/2.0)
   A1 =  sin(t2/2.0)*cos((t1 - t3)/2.0)
   A2 =  sin(t2/2.0)*sin((t1 - t3)/2.0)
   A3 =  cos(t2/2.0)*sin((t1 + t3)/2.0)
   
-#  a  =  cos(t2/2.0)*cos((t1 + t3)/2.0)
-#  A1 =  -sin(t2/2.0)*cos((t1 - t3)/2.0)
-#  A2 =  -sin(t2/2.0)*sin((t1 - t3)/2.0)
-#  A3 =  cos(t2/2.0)*sin((t1 + t3)/2.0)
-  
   return quaternion(a, A1, A2, A3)
   
-#  c1 = cos(0.5*a1)
-#  c2 = cos(0.5*a2)
-#  c3 = cos(0.5*a3)
-#  s1 = sin(0.5*a1)
-#  s2 = sin(0.5*a2)
-#  s3 = sin(0.5*a3)
-#  
-#  return quaternion(c1*c2*c3 - s1*c2*s3,
-#                    c1*s2*c3 + s1*s2*s3,
-#                    c1*s2*s3 - s1*s2*c3,
-#                    c1*c2*s3 + s1*c2*c3)
-
 class quaternion:
   def __init__(self, *data):
     """
@@ -562,8 +520,6 @@ class quaternion:
         return
       elif qIndice > zeroPrecision:
         break
-    
-#    return self
   
   def vector(self):
     """
@@ -587,9 +543,17 @@ class quaternion:
     """
     Return the 4 coefficients of the quaternion as a tuple.
       
-    :rtype: typle
+    :rtype: tuple
     """
     return (self._a, self._A[0], self._A[1], self._A[2])
+  
+  def toList(self):
+    """
+    Return the 4 coefficients of the quaternion as a list.
+      
+    :rtype: list
+    """
+    return [self._a, self._A[0], self._A[1], self._A[2]]
   
   def toAxisAngle(self):
     """
@@ -640,7 +604,7 @@ class quaternion:
                          [2*(q1*q3 + q0*q2), 2*(q2*q3 - q0*q1), q0**2 - q1**2 - q2**2 + q3**2]])
     
     #Assert that the matrix is orthogonal
-    assert m.isSU3()
+    assert m.isSO3()
     
     return m
 

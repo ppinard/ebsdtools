@@ -87,7 +87,20 @@ class matrix:
         a matrix
     """
     
-    pass
+    m = matrix()
+    
+    if isinstance(self, matrix) and isinstance(other, matrix):
+      for i in range(3):
+        for j in range(3):
+          for k in range(3):
+            m[i][j] += self._m[i][k] * other._m[k][j]
+    elif isinstance(other, int) or isinstance(other, float):
+      for i in range(3):
+        for j in range(3):
+          m[i][j] = other*self._m[i][j]
+    
+    return m
+
   
   def __eq__(self, other):
     """
@@ -106,9 +119,9 @@ class matrix:
     
     return True
   
-  def isSU3(self):
+  def isSO3(self):
     """
-    Return is the matrix is a special orthogonal (SU3)
+    Return is the matrix is a special orthogonal (SO3)
     
     **Equations:**
       :math:`\\deter{\\matrixL{M}} = +1`
@@ -120,6 +133,14 @@ class matrix:
       return True
     else:
       return False
+  
+  def toList(self):
+    """
+    Return the matrix in a list form
+    
+    :rtype:list
+    """
+    return self._m
 
 def det(m):
   """
@@ -135,6 +156,22 @@ def det(m):
   b = m[0][0]*m[1][2]*m[2][1] + m[0][1]*m[2][2]*m[1][0] + m[0][2]*m[2][0]*m[1][1]
   
   return a - b
+
+def transpose(m):
+  """
+  Return the transpose of a 3x3 matrix: :math:`\\matrixL{M}^T`.
+  
+  :arg m: a matrix
+  :type m: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
+  
+  rtype: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
+  """
+  m_ = matrix()
+  for i in range(3):
+    for j in range(3):
+      m_[i][j] = m[j][i]
+  
+  return m_
 
 def trace(m):
   """

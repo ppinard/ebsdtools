@@ -49,23 +49,23 @@ class TestKikuchi(unittest.TestCase):
   def testHoughPeakKikuchiLine(self):
     #Vertical line centered
     line = kikuchi.houghPeakToKikuchiLine(0,0,(100,100))
-    testOthers.assertAlmostEqual(line[0], (50.0, 0.0))
-    testOthers.assertAlmostEqual(line[1], (50.0, 99.0))
+    self.assert_(testOthers.almostEqual(line[0], (50.0, 0.0)))
+    self.assert_(testOthers.almostEqual(line[1], (50.0, 99.0)))
     
     #Top left to bottom right line
     line = kikuchi.houghPeakToKikuchiLine(0,45/180.0*pi,(100,100))
-    testOthers.assertAlmostEqual(line[0], (1.0, 99.0))
-    testOthers.assertAlmostEqual(line[1], (99.0, 1.0))
+    self.assert_(testOthers.almostEqual(line[0], (1.0, 99.0)))
+    self.assert_(testOthers.almostEqual(line[1], (99.0, 1.0)))
     
     #Bottom left to top right line
     line = kikuchi.houghPeakToKikuchiLine(0,135/180.0*pi,(100,100))
-    testOthers.assertAlmostEqual(line[0], (0.0, 0.0))
-    testOthers.assertAlmostEqual(line[1], (99.0, 99.0))
+    self.assert_(testOthers.almostEqual(line[0], (0.0, 0.0)))
+    self.assert_(testOthers.almostEqual(line[1], (99.0, 99.0)))
     
     #Horizontal line centered
     line = kikuchi.houghPeakToKikuchiLine(0,90/180.0*pi,(100,100))
-    testOthers.assertAlmostEqual(line[0], (0.0, 50.0))
-    testOthers.assertAlmostEqual(line[1], (99.0, 50.0))
+    self.assert_(testOthers.almostEqual(line[0], (0.0, 50.0)))
+    self.assert_(testOthers.almostEqual(line[1], (99.0, 50.0)))
   
   def testKikuchiLineToNormal_Graph(self):
     parameters = {'angle': self._parameters['angle']
@@ -105,7 +105,7 @@ class TestKikuchi(unittest.TestCase):
       line_ = vectors.cross(v1, normal).normalize()
       slope_ = line_[2] / line_[0]
       
-      testOthers.assertAlmostEqual(slope, slope_)
+      self.assert_(testOthers.almostEqual(slope, slope_))
     
     """
     Value verification with the pattern center 
@@ -116,14 +116,14 @@ class TestKikuchi(unittest.TestCase):
     normal1 = kikuchi.kikuchiLineToNormal(line1[0], line1[1], (10,0), 10, self._patternSize)
     line2 = kikuchi.houghPeakToKikuchiLine(0, 0/180.0*pi,self._patternSize)
     normal2 = kikuchi.kikuchiLineToNormal(line2[0], line2[1], (0,0), 10, self._patternSize)
-    testOthers.assertAlmostEqual(normal1.toList(), normal2.toList())
+    self.assert_(testOthers.almostEqual(normal1.toList(), normal2.toList()))
     
     #{rho=20, pc=(10,0)} == {rho=10, pc=(0,0)}
     line1 = kikuchi.houghPeakToKikuchiLine(20, 0/180.0*pi,self._patternSize)
     normal1 = kikuchi.kikuchiLineToNormal(line1[0], line1[1], (10,0), 10, self._patternSize)
     line2 = kikuchi.houghPeakToKikuchiLine(10, 0/180.0*pi,self._patternSize)
     normal2 = kikuchi.kikuchiLineToNormal(line2[0], line2[1], (0,0), 10, self._patternSize)
-    testOthers.assertAlmostEqual(normal1.toList(), normal2.toList())
+    self.assert_(testOthers.almostEqual(normal1.toList(), normal2.toList()))
     
     #Vertical line
     #{rho=10, pc=(0,10)} == {rho=0, pc=(0,0)}
@@ -131,14 +131,14 @@ class TestKikuchi(unittest.TestCase):
     normal1 = kikuchi.kikuchiLineToNormal(line1[0], line1[1], (0,10), 10, self._patternSize)
     line2 = kikuchi.houghPeakToKikuchiLine(0, 90/180.0*pi,self._patternSize)
     normal2 = kikuchi.kikuchiLineToNormal(line2[0], line2[1], (0,0), 10, self._patternSize)
-    testOthers.assertAlmostEqual(normal1.toList(), normal2.toList())
+    self.assert_(testOthers.almostEqual(normal1.toList(), normal2.toList()))
     
     #{rho=20, pc=(0,10)} == {rho=10, pc=(0,0)}
     line1 = kikuchi.houghPeakToKikuchiLine(20, 90/180.0*pi,self._patternSize)
     normal1 = kikuchi.kikuchiLineToNormal(line1[0], line1[1], (0,10), 10, self._patternSize)
     line2 = kikuchi.houghPeakToKikuchiLine(10, 90/180.0*pi,self._patternSize)
     normal2 = kikuchi.kikuchiLineToNormal(line2[0], line2[1], (0,0), 10, self._patternSize)
-    testOthers.assertAlmostEqual(normal1.toList(), normal2.toList())
+    self.assert_(testOthers.almostEqual(normal1.toList(), normal2.toList()))
 
 
 if __name__ == '__main__':

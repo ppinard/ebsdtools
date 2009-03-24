@@ -128,12 +128,7 @@ def drawPattern(L
     if m == None and k == None:
       continue
     
-    try:
-      normal = orientation.kikuchiLineToNormal(m,k, patternCenter, detectorDistance)
-    except:
-      normal = []
-    
-#    print plane, m, k, normal.positive()
+    print plane, m, k
     
     if bandedges or bandfull:
       x0 = vectors.vector(0,0,0)
