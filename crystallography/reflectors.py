@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -14,12 +14,14 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import sin, cos, pi, acos, atan2, exp, sqrt
-import csv
-import os.path
+import os
+if not os.name == 'java': import csv
+if os.name == 'java': import java.io
 import warnings
+from math import sin, cos, pi, acos, atan2, exp, sqrt
 
 # Third party modules.
+if os.name == 'java': import au.com.bytecode.opencsv as opencsv
 
 # Local modules.
 import EBSDTools
@@ -48,13 +50,26 @@ class scatteringFactors:
     
     basedir = EBSDTools.__path__[0]
     
-    reader = csv.reader(open(os.path.join(basedir,filepath_0_2), 'r'))
-    rows = list(reader)
-    self.__read_0_2(rows[1:])
-    
-    reader = csv.reader(open(os.path.join(basedir,filepath_2_6), 'r'))
-    rows = list(reader)
-    self.__read_2_6(rows[1:])
+    if not os.name == 'java':
+      reader = csv.reader(open(os.path.join(basedir,filepath_0_2), 'r'))
+      rows02 = list(reader)
+      reader = csv.reader(open(os.path.join(basedir,filepath_2_6), 'r'))
+      rows26 = list(reader)
+    else:
+      reader = opencsv.CSVReader(java.io.FileReader(os.path.join(basedir,filepath_0_2)))
+      rows02 = []
+      for row in reader.readAll():
+        rows02.append(row)
+      reader.close()
+      
+      reader = opencsv.CSVReader(java.io.FileReader(os.path.join(basedir,filepath_2_6)))
+      rows26 = []
+      for row in reader.readAll():
+        rows26.append(row)
+      reader.close()
+      
+    self.__read_0_2(rows02[1:])
+    self.__read_2_6(rows26[1:])
     
   def __read_0_2(self, rows):
     self.parameters_0_2 = {}
@@ -108,28 +123,6 @@ class scatteringFactors:
     **References:**
       Prince2004
     """
-    
-    #Test with x-ray scattering factor
-#===============================================================================
-#    a = [6.292, 3.035, 1.989, 1.541]
-#    b = [2.439, 32.334, 0.678, 81.694]
-#    c = 1.141
-#    
-#    fx = 0.0
-#    
-#    x = s / (4*pi)
-#    
-#    for i in range(4):
-#      fx += a[i]*exp(-b[i]*x**2)
-#    
-#    fx += c
-#    
-#    fe = 0.023934 * (Z - fx) / x**2
-#    
-#    return fe
-#===============================================================================
-    
-    
     if s >= 0 and s < 2:
       a = [self.parameters_0_2[Z]['a1'], self.parameters_0_2[Z]['a2'], self.parameters_0_2[Z]['a3'], self.parameters_0_2[Z]['a4'], self.parameters_0_2[Z]['a5']]
       b = [self.parameters_0_2[Z]['b1'], self.parameters_0_2[Z]['b2'], self.parameters_0_2[Z]['b3'], self.parameters_0_2[Z]['b4'], self.parameters_0_2[Z]['b5']]
@@ -205,7 +198,8 @@ class Reflectors:
         for planeKey in self.reflectors.keys():
           self.reflectors[planeKey]['normalized intensity'] = self.reflectors[planeKey]['intensity'] / intensityMax
       
-      planeSpacings.sort(reverse=True)
+      planeSpacings.sort()
+      planeSpacings.reverse()
       for planeKey in self.reflectors.keys():
         family = self.__getPlaneSpacingIndex(self.reflectors[planeKey]['plane spacing'], planeSpacings)
         self.reflectors[planeKey]['family'] = family
@@ -242,7 +236,7 @@ class Reflectors:
     sum = 0
     
     atomPositions = self.L.getAtomsPositions()
-    if atomPositions == None: return True
+    if atomPositions == None: return False #Requires general atom positions to be defined
     
     for atomPosition in atomPositions:
       n = 2*vectors.dot(plane, atomPosition)

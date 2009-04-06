@@ -14,12 +14,12 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-import platform
+import os
 from math import pi
-if platform.system() == 'Java': import java.io
+if os.name == 'java': import java.io
 
 # Third party modules.
-if platform.system() == 'Java':
+if os.name == 'java':
   import rmlimage.io.IO as IO
   import rmlimage.kernel as kernel
   import rmlimage.macro.python.cui.EBSD as EBSD

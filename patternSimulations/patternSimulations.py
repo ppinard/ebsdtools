@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env jython
 """ """
 
 # Script information for the file.
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -14,6 +14,7 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
+import os
 from math import pi, cos, atan, sqrt, tan,sin
 
 # Third party modules.
@@ -21,28 +22,38 @@ from math import pi, cos, atan, sqrt, tan,sin
 # Local modules.
 import EBSDTools.mathTools.quaternions as quaternions
 import EBSDTools.mathTools.vectors as vectors
-from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
 import EBSDTools.crystallography.bragg as bragg
-import RandomUtilities.DrawingTools.drawing as drawing
 import RandomUtilities.DrawingTools.colors as colors
-import EBSDTools.dev.orientation as orientation
+from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
+import RandomUtilities.DrawingTools.drawing as drawing
 
-
+if os.name == 'java':
+  import rmlimage.kernel as kernel
+  
 def computePlaneEquationOnCamera(plane
-                                 , patternCenter=(0,0)
+                                 , patternCenterX=0.0
+                                 , patternCenterY=0.0
                                  , detectorDistance=1.0
                                  ):
   """
-    Return the slope and intercept of the projection of a plane (hkl) 
-      on a detector located at detectorDistance and patternCenter
+  Return the slope and intercept of the projection of a plane (hkl) on a detector located at *detectorDistance* and *patternCenter*
     
-    Inputs:
-      plane: a vector class of the diffracted plane
-      patternCenter: tuple of the location of the pattern center [default=(0,0)]
-      detectorDistance: distance between the sample and the detector window [default=1.0]
+  :arg plane: diffracted plane
+  :type plane: :class:`vector <EBSDTools.mathTools.vectors.vector>`
+  
+  :arg patternCenterX: location of the pattern center in the horizontal direction (``default=0.0``)
+  :type patternCenterX: float
+  
+  :arg patternCenterY: location of the pattern center in the vertical direction (``default=0.0``)
+  :type patternCenterY: float
+  
+  .. note:: A pattern center of ``(0.0, 0.0)`` is centered
+  
+  :arg detectorDistance: distance between the sample and the detector window [default=1.0]
+  :type detectorDistance: float
     
-    Outputs:
-      (m, b): a tuple with the slope m and y-intercept k
+  :return: :math:`(m, k)` the slope m and y-intercept k
+  :rtype: tuple
   """
   
   nx = plane[0]
@@ -65,70 +76,104 @@ def computePlaneEquationOnCamera(plane
   return m, k
 
 def drawPattern(L
-                , bandcenter=False
-                , bandedges=True
-                , bandfull=True
+                , bandcenter=True
+                , bandedges=False
+                , bandfull=False
                 , intensity=False
-                , patternCenter=(0.0,0.0)
+                , patternCenterX=0.0
+                , patternCenterY=0.0
                 , detectorDistance=0.3
                 , energy=20e3
                 , numberOfReflectors=32
                 , qRotations=quaternions.quaternion(1)
-                , patternSize=(2680,2040)
+                , patternWidth=2680
+                , patternHeight=2040
                 , patternCenterVisible=True
-                , colorMode=False
+                , colormode='grayscale'
                 , reflectorsInfo=[]):
   """
-    Draw a pattern based on the crystallography and detector parameters
+  Draw a pattern based on the crystallography and detector parameters
     
-    Inputs:
-      bandcenter: Draw the band center? (True or False)
-      bandedges: Draw the band edges? (True or False)
-      patternCenter: Coordonnates of the pattern center
-      detectorDistance: distance of the detector
-      energy: accelerating enerny (in eV)
-      patternSize: tuple of the dimensions of the pattern (in pixels)
-      patternCenterVisible: Draw the location of the pattern center? (True or False)
+  :arg bandcenter: Draw the band center? (``default=True``)
+  :type bandcenter: bool
+  
+  :arg bandedges: Draw the band edges? (``default=False``)
+  :arg bandedges: bool
+  
+  :arg bandfull: Draw filled bands (full bands)? (``default=False``)
+  :arg bandfull: bool
+  
+  :arg intensity: The color of the bands should reflect the intensity? (``default=False``)
+  :arg intensity: bool
+  
+  :arg patternCenterY: Coordinates of the pattern center in the horizontal direction (in fraction of the pattern's width) (``default=0.0``)
+  :type patternCenterY: float
+  
+  :arg patternCenterY: Coordinates of the pattern center in the vertical direction (in fraction of the pattern's  height) (``default=0.0``)
+  :type patternCenterY: float
+  
+  .. note:: A pattern center of ``(0.0, 0.0)`` is centered
+  
+  :arg detectorDistance: distance of the detector (in fraction of the pattern's width) (``default=0.3``)
+  :arg detectorDistance: float
+  
+  :arg energy: accelerating energy (in eV) (``default=20e3``)
+  :type energy: float
+  
+  :arg numberOfReflectors: number of reflectors drawn in the pattern (``default=32``)
+  :type numberOfReflectors: int
+  
+  :arg qRotations: quaternion representing the rotation of the pattern (``default=quaternions.quaternion(1)``, i.e. no rotation)
+  :type qRotations: :class:`quaternion <EBSDTools.mathTools.quaternions.quaternion>`  
+  
+  :arg patternSizeWidth: width of the pattern (in pixels) (``default=2680``)
+  :type patternSizeWidth: int
+  
+  :arg patternSizeHeight: height of the pattern (in pixels) (``default=2040``)
+  :type patternSizeHeight: int
+  
+  :arg patternCenterVisible: Draw the location of the pattern center? (``default=False``)
+  :type patternCenterVisible: bool
+  
+  :arg colormode: either `'grayscale'` or `'RGB'`
+  :type colormode: str
+  
+  :arg reflectorsInfo: list to return the info on the reflectors in the pattern. It should be pointing to an empty list.
+  :type reflectorsInfo: list
     
-    Output:
-      a ImageLine class (related to PIL.Image)
+  :rtype: :class:`ImageLine <RandomUtilities.DrawingTools.drawing.ImageLine>`
   """
   
-  im = drawing.ImageLine(patternSize, origin='center')
-  im.drawGrayBrackground(color=(1,1,1))
-  colorsList = colors.colorsList()
+  im = drawing.ImageLine(patternWidth, patternHeight, origin='center', colormode=colormode)
+  
+  #Add an uniform background
+  if colormode == 'grayscale':
+    im.drawGrayBrackground(color=1)
+  elif colormode == 'RGB':
+    im.drawGrayBrackground(color=(1,1,1))
+    colorsList = colors.colorsList()
   
   reflectors = L.getReflectors()
   
   planes = reflectors.getReflectorsList()[:numberOfReflectors]
   planes.reverse()
   
-#  planes = [(1,-1,-1), 
-#            (1,1,-1), 
-#            (1,1,1), 
-#            (1,-1,1), 
-#            (2,-2,0), 
-#            (2,0,-2), 
-#            (0,2,-2), 
-#            (2,2,0), 
-#            (0,2,2), 
-#            (2,0,2)]
-  
-  print '-'*40
+#  print '-'*40
   
   for index, plane in enumerate(planes):
-#    print plane, reflectors.getReflectorNormalizedIntensity(plane)
     qPlane = quaternions.quaternion(0, plane)
     planeRot = quaternions.rotate(qPlane, qRotations).vector()
     
     m, k = computePlaneEquationOnCamera(plane=planeRot
-                                        , patternCenter=patternCenter
+                                        , patternCenterX=patternCenterX
+                                        , patternCenterY=patternCenterY
                                         , detectorDistance=detectorDistance)
     
+    #Line parallel to the screen 
     if m == None and k == None:
       continue
     
-    print plane, m, k
+#    print plane, m, k
     
     if bandedges or bandfull:
       x0 = vectors.vector(0,0,0)
@@ -161,14 +206,17 @@ def drawPattern(L
       w = d * sin(theta) / cos(alpha-theta)
       w2 = d * sin(theta) / cos(alpha+theta)
     
-    if colorMode:
+    if colormode == 'RGB':
       baseColor = colorsList.getColorRGB(index)
-    else:
-      baseColor = (255,255,255)
+    elif colormode == 'grayscale':
+      baseColor = 255
     
     normalizedIntensity = reflectors.getReflectorNormalizedIntensity(plane)
     if intensity:
-      color = (baseColor[0]*normalizedIntensity, baseColor[1]*normalizedIntensity, baseColor[2]*normalizedIntensity)
+      if colormode == 'RGB':
+        color = (int(baseColor[0]*normalizedIntensity), int(baseColor[1]*normalizedIntensity), int(baseColor[2]*normalizedIntensity))
+      elif colormode == 'grayscale':
+        color = int(baseColor*normalizedIntensity)
     else:
       color = baseColor
     
@@ -176,9 +224,9 @@ def drawPattern(L
     
     #Translation due to the pattern center
     if m != None:
-      k += -m*patternCenter[0] + patternCenter[1]
+      k += -m*patternCenterX + patternCenterY
     else:
-      k += patternCenter[0]
+      k += patternCenterX
     
     if bandcenter:
       im.drawLinearFunction(m=m
@@ -205,14 +253,17 @@ def drawPattern(L
     if bandfull:
       im.drawLinearFunction(m=m
                             , k=k
-                            , width=2*w
+                            , thickness=int(2*w*patternWidth)
                             , color=color)
     
     if bandcenter or bandedges or bandfull:
       reflectorsInfo.append({'indices': plane, 'rgb': color, 'intensity': normalizedIntensity})
   #Mark the pattern center
   if patternCenterVisible:
-    im.drawCrossMarker(position=patternCenter, color=(255,255,255))
+    if colormode == 'RGB':
+      im.drawCrossMarker(positionX=patternCenterX, positionY=patternCenterY, color=(255,255,255))
+    elif colormode == 'grayscale':
+      im.drawCrossMarker(positionX=patternCenterX, positionY=patternCenterY, color=255)
   
   return im()
 
@@ -220,6 +271,7 @@ def main():
   import EBSDTools.crystallography.lattice as lattice
   import EBSDTools.mathTools.eulers as eulers
   import os.path
+  import rmlimage.io.IO as IO
   
 #  #FCC
   atoms = {(0,0,0): 14,
@@ -229,52 +281,39 @@ def main():
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
   L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=4)
-  #BCC
-#  atoms = {(0,0,0): 14,
-#           (0.5,0.5,0.5): 14}
-#  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=2)
-#  #HCP
-#  L = lattice.Lattice(a=2, b=2, c=4, alpha=pi/2, beta=pi/2, gamma=120.0/180*pi, atomPositions=[])
 
-#  for n in range(0,95, 5):
-  for n in [0]:
-#    angles = eulers.fromHKLeulers(-pi/2.0, theta/180.0*pi, pi/2.0) #y
-    angles = eulers.negativeEulers(n/180.0*pi, 0, 0) #z
-#    angles = eulers.negativeEulers(0, 0.0*n/180.0*pi, 0) #x
-    angles = eulers.negativeEulers(261.155/180.0*pi, 4.593/180.0*pi, 0.222/180.0*pi) 
-    print n
-    
-    qSpecimenRotation = quaternions.quaternion(1,0,0,0)
-    qCrystalRotation = quaternions.eulerAnglesToQuaternion(angles)
-    qTilt = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
-    qDetectorOrientation = quaternions.axisAngleToQuaternion(90/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(pi, (0,0,1))
-#    qDetectorOrientation = quaternions.quaternion(1,0,0,0)
-    qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
-    
-    qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
-#    print qRotations
-    
-    image = drawPattern(L
-                , bandcenter=False
-                , bandedges=False
-                , bandfull=True
-                , intensity=False
-                , patternCenter=(0.4,0.4)
-                , detectorDistance=0.4
-                , energy=15e3
-                , numberOfReflectors=25
-                , qRotations=qRotations
-                , patternSize=(335 ,255)
-                , patternCenterVisible=True
-                , colorMode=False)
-    
-    folder = 'c:/documents/workspace/EBSDTools/patternSimulations/rotation'
-#    folder = 'I:/Philippe Pinard/workspace/EBSDTools/patternSimulations/comparison'
-    imageName = '%s_%3i.bmp' % ('test_2', n)
-    imageName = imageName.replace(' ', '0')
-    image.save(os.path.join(folder, imageName))
+  angles = eulers.eulers(0/180.0*pi, 0, 0) #z
   
+  qSpecimenRotation = quaternions.quaternion(1,0,0,0)
+  qCrystalRotation = quaternions.eulerAnglesToQuaternion(angles)
+  qTilt = quaternions.axisAngleToQuaternion(-70/180.0*pi, (1,0,0))
+  qDetectorOrientation = quaternions.axisAngleToQuaternion(90/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(pi, (0,0,1))
+  qDetectorOrientation = quaternions.quaternion(1,0,0,0)
+  qDetectorOrientation_ = qTilt * qDetectorOrientation.conjugate() * qTilt.conjugate()
+  
+  qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
 
+  image = drawPattern(L
+              , bandcenter=False
+              , bandedges=False
+              , bandfull=True
+              , intensity=True
+              , patternCenterX=0.0
+              , patternCenterY=0.0
+              , detectorDistance=0.4
+              , energy=15e3
+              , numberOfReflectors=32
+              , qRotations=qRotations
+              , patternWidth=335 
+              , patternHeight=255
+              , patternCenterVisible=True
+              , colormode='grayscale')
+    
+#  image.show()
+  image.setFile(r'test.bmp')
+  
+  IO.save(image)
+  
 if __name__ == '__main__':
   main()
   

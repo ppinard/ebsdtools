@@ -22,6 +22,7 @@ import random
 
 # Local modules.
 import EBSDTools.mathTools.eulers as eulers
+from RandomUtilities.testing.testOthers import almostEqual
 
 # Globals and constants variables.
 rep = 100
@@ -59,12 +60,12 @@ class TestEulers(unittest.TestCase):
       
       e1 = eulers.degEulersToRadEulers(euler1,euler2,euler3)
       
-      self.assertAlmostEqual(e1.toDeg()[0], euler1, 4)
-      self.assertAlmostEqual(e1.toDeg()[1], euler2, 4)
-      self.assertAlmostEqual(e1.toDeg()[2], euler3, 4)
-      self.assertAlmostEqual(e1['theta1deg'], euler1, 4)
-      self.assertAlmostEqual(e1['theta2deg'], euler2, 4)
-      self.assertAlmostEqual(e1['theta3deg'], euler3, 4)
+      self.assert_(almostEqual(e1.toDeg()[0], euler1))
+      self.assert_(almostEqual(e1.toDeg()[1], euler2))
+      self.assert_(almostEqual(e1.toDeg()[2], euler3))
+      self.assert_(almostEqual(e1['theta1deg'], euler1))
+      self.assert_(almostEqual(e1['theta2deg'], euler2))
+      self.assert_(almostEqual(e1['theta3deg'], euler3))
   
   def testGetAttributes(self):
     for i in range(rep):
@@ -79,9 +80,9 @@ class TestEulers(unittest.TestCase):
       self.assertEqual(e1['theta1rad'], euler1)
       self.assertEqual(e1['theta2rad'], euler2)
       self.assertEqual(e1['theta3rad'], euler3)
-      self.assertAlmostEqual(e1['theta1deg'], euler1 * 180.0 /pi, 4)
-      self.assertAlmostEqual(e1['theta2Deg'], euler2 * 180.0 /pi, 4)
-      self.assertAlmostEqual(e1['theta3dEg'], euler3 * 180.0 /pi, 4)
+      self.assert_(almostEqual(e1['theta1deg'], euler1 * 180.0 /pi))
+      self.assert_(almostEqual(e1['theta2Deg'], euler2 * 180.0 /pi))
+      self.assert_(almostEqual(e1['theta3dEg'], euler3 * 180.0 /pi))
       
       self.assertEqual(e1[1], euler1)
       self.assertEqual(e1[2], euler2)
@@ -93,9 +94,9 @@ class TestEulers(unittest.TestCase):
       self.assertEqual(e1['phi1RAD'], euler1)
       self.assertEqual(e1['phiRAD'], euler2)
       self.assertEqual(e1['phi2RAD'], euler3)
-      self.assertAlmostEqual(e1['phi1deg'], euler1 * 180.0 /pi, 4)
-      self.assertAlmostEqual(e1['phideg'], euler2 * 180.0 /pi, 4)
-      self.assertAlmostEqual(e1['phi2deg'], euler3 * 180.0 /pi, 4)
+      self.assert_(almostEqual(e1['phi1deg'], euler1 * 180.0 /pi))
+      self.assert_(almostEqual(e1['phideg'], euler2 * 180.0 /pi))
+      self.assert_(almostEqual(e1['phi2deg'], euler3 * 180.0 /pi))
       
       self.assertEqual(e1['alpha'], euler1)
       self.assertEqual(e1['beta'], euler2)
@@ -115,36 +116,36 @@ class TestEulers(unittest.TestCase):
   
   def testPositive(self):
     e1 = eulers.eulers(0,0,0).positive().toRad()
-    self.assertAlmostEqual(e1[0], 0.0)
-    self.assertAlmostEqual(e1[1], 0.0)
-    self.assertAlmostEqual(e1[2], 0.0)
+    self.assert_(almostEqual(e1[0], 0.0))
+    self.assert_(almostEqual(e1[1], 0.0))
+    self.assert_(almostEqual(e1[2], 0.0))
     
     e1 = eulers.eulers(pi, 0, pi).positive().toRad()
-    self.assertAlmostEqual(e1[0], pi)
-    self.assertAlmostEqual(e1[1], 0.0)
-    self.assertAlmostEqual(e1[2], pi)
+    self.assert_(almostEqual(e1[0], pi))
+    self.assert_(almostEqual(e1[1], 0.0))
+    self.assert_(almostEqual(e1[2], pi))
     
     e1 = eulers.eulers(-pi/2.0, 0, -pi/3).positive().toRad()
-    self.assertAlmostEqual(e1[0], 3.0*pi/2.0)
-    self.assertAlmostEqual(e1[1], 0.0)
-    self.assertAlmostEqual(e1[2], 5.0*pi/3.0)
+    self.assert_(almostEqual(e1[0], 3.0*pi/2.0))
+    self.assert_(almostEqual(e1[1], 0.0))
+    self.assert_(almostEqual(e1[2], 5.0*pi/3.0))
     
   def testNegative(self):
     e1 = eulers.eulers(0,0,0).negative().toRad()
-    self.assertAlmostEqual(e1[0], 0.0)
-    self.assertAlmostEqual(e1[1], 0.0)
-    self.assertAlmostEqual(e1[2], 0.0)
+    self.assert_(almostEqual(e1[0], 0.0))
+    self.assert_(almostEqual(e1[1], 0.0))
+    self.assert_(almostEqual(e1[2], 0.0))
     
     
     e1 = eulers.eulers(pi, 0, pi).negative().toRad()
-    self.assertAlmostEqual(e1[0], pi)
-    self.assertAlmostEqual(e1[1], 0.0)
-    self.assertAlmostEqual(e1[2], pi)
+    self.assert_(almostEqual(e1[0], pi))
+    self.assert_(almostEqual(e1[1], 0.0))
+    self.assert_(almostEqual(e1[2], pi))
     
     e1 = eulers.eulers(3.0*pi/2.0, 0, 5*pi/3).negative().toRad()
-    self.assertAlmostEqual(e1[0], -pi/2.0)
-    self.assertAlmostEqual(e1[1], 0)
-    self.assertAlmostEqual(e1[2], -pi/3)
+    self.assert_(almostEqual(e1[0], -pi/2.0))
+    self.assert_(almostEqual(e1[1], 0))
+    self.assert_(almostEqual(e1[2], -pi/3))
   
 if __name__ == '__main__':
   unittest.main()

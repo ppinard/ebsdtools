@@ -19,7 +19,6 @@ import unittest
 from math import pi
 
 # Third party modules.
-import scitools.multipleloop as multipleloop
 
 # Local modules.
 import EBSDTools.indexation.kikuchi as kikuchi
@@ -27,6 +26,9 @@ import EBSDTools.mathTools.vectors as vectors
 import RandomUtilities.testing.testOthers as testOthers
 
 # Globals and constants variables.
+PARAM_ANGLE = 'angle'
+PARAM_RHO = 'rho'
+PARAM_DETECTORDISTANCE = 'detectorDistance'
 
 class TestKikuchi(unittest.TestCase):
 
@@ -92,20 +94,19 @@ class TestKikuchi(unittest.TestCase):
     """
     parameters = self._parameters.copy()
     parameters['angle'].remove(0) #Slope undefined at theta = 0
-    (allTests, names, varied) = multipleloop.combine(parameters)
     
-    for values in allTests:
-      test = dict(zip(names, values))
-      
-      line = kikuchi.houghPeakToKikuchiLine(test['rho'], test['angle']/180.0*pi,self._patternSize)
-      slope = (line[1][1] - line[0][1]) / (line[1][0] - line[0][0])
-      
-      normal = kikuchi.kikuchiLineToNormal(line[0], line[1], (10,10), test['detectorDistance'], self._patternSize)
-      v1 = vectors.vector(0,test['detectorDistance'],0)
-      line_ = vectors.cross(v1, normal).normalize()
-      slope_ = line_[2] / line_[0]
-      
-      self.assert_(testOthers.almostEqual(slope, slope_))
+    for angle in parameters[PARAM_ANGLE]:
+      for rho in parameters[PARAM_RHO]:
+        for detectorDistance in parameters[PARAM_DETECTORDISTANCE]:
+          line = kikuchi.houghPeakToKikuchiLine(rho, angle/180.0*pi,self._patternSize)
+          slope = (line[1][1] - line[0][1]) / (line[1][0] - line[0][0])
+          
+          normal = kikuchi.kikuchiLineToNormal(line[0], line[1], (10,10), detectorDistance, self._patternSize)
+          v1 = vectors.vector(0,detectorDistance,0)
+          line_ = vectors.cross(v1, normal).normalize()
+          slope_ = line_[2] / line_[0]
+          
+          self.assert_(testOthers.almostEqual(slope, slope_))
     
     """
     Value verification with the pattern center 

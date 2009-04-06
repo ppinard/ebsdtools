@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -22,6 +22,7 @@ from math import sqrt, asin
 from EBSDTools.mathTools.mathExtras import h, m_e, e, c
 
 def electronWavelength(energy):
+  "@sig"
   """
   Return the relativistic electron wavelength
     

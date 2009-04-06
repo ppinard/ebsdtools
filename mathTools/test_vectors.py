@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@gmail.com)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -21,6 +21,7 @@ from math import sqrt
 
 # Local modules.
 import EBSDTools.mathTools.vectors as vectors
+from RandomUtilities.testing.testOthers import almostEqual, equal
 
 # Globals and constants variables.
 
@@ -82,7 +83,7 @@ class TestVectors(unittest.TestCase):
   def test__lt__(self):
     self.assert_(self.u < self.v)
     self.assert_(self.u < self.x)
-    self.assertFalse(self.u < self.w)
+    self.assert_(not self.u < self.w)
     self.assert_(self.z < self.u)
   
   def test__le__(self):
@@ -92,7 +93,7 @@ class TestVectors(unittest.TestCase):
   def test__gt__(self):
     self.assert_(self.x > self.u)
     self.assert_(self.x > self.v)
-    self.assertFalse(self.w > self.u)
+    self.assert_(not self.w > self.u)
   
   def test__ge__(self):
     self.assert_(self.x >= self.x)
@@ -101,11 +102,11 @@ class TestVectors(unittest.TestCase):
   def test__eq__(self):
     self.assert_(self.u == self.u)
     self.assert_(self.x == self.x)
-    self.assertFalse(self.u == self.v)
+    self.assert_(not self.u == self.v)
   
   def test__ne__(self):
-    self.assertFalse(self.u != self.u)
-    self.assertFalse(self.x != self.x)
+    self.assert_(not self.u != self.u)
+    self.assert_(not self.x != self.x)
     self.assert_(self.u != self.v)
   
   def test__add__(self):
@@ -158,7 +159,7 @@ class TestVectors(unittest.TestCase):
   def testAngle(self):
     self.assertEqual(vectors.angle(self.u, self.u) , 0)
     self.assertEqual(vectors.angle(self.u, 2*self.u) , 0)
-    self.assertAlmostEqual(vectors.angle(self.u, self.v), 0.225726128553, 3)
+    self.assert_(almostEqual(vectors.angle(self.u, self.v), 0.225726128553))
     
   
 if __name__ == '__main__':

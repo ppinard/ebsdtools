@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@gmail.com)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -22,6 +22,8 @@ import random
 
 # Local modules.
 import EBSDTools.mathTools.quaternions as quaternions
+from RandomUtilities.testing.testOthers import almostEqual, equal
+
 # Globals and constants variables.
 rep = 1000
 
@@ -99,12 +101,12 @@ class TestQuaternions(unittest.TestCase):
     q[1] = q[2]
     q[2] = q[3]
     q[3] = 1
-    self.assertEqual(q, quaternions.quaternion(5, 3, 4, 1))
+    self.assert_(equal(q, quaternions.quaternion(5, 3, 4, 1)))
     
     #Test for item outside limits
     q = quaternions.quaternion(1,2,3,4)
     q[5] = 10
-    self.assertEqual(q, quaternions.quaternion(1,2,3,4))
+    self.assert_(equal(q, quaternions.quaternion(1,2,3,4)))
 
   def testRepr(self):
     pass
@@ -114,13 +116,13 @@ class TestQuaternions(unittest.TestCase):
     #http://reference.wolfram.com/mathematica/Quaternions/tutorial/Quaternions.html
     q1 = quaternions.quaternion(2,0,-6,3)
     q2 = quaternions.quaternion(1,3,-2,2)
-    self.assertEqual(q1*q2, quaternions.quaternion(-16,0,-1,25))
-    self.assertEqual(q2*q1, quaternions.quaternion(-16,12,-19,-11))
+    self.assert_(equal(q1*q2, quaternions.quaternion(-16,0,-1,25)))
+    self.assert_(equal(q2*q1, quaternions.quaternion(-16,12,-19,-11)))
     
     #http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm
     q1 = quaternions.quaternion(5,2,1,2)
     q2 = quaternions.quaternion(4,8,25,4)
-    self.assertEqual(q1*q2, quaternions.quaternion(-29,2,137,70))
+    self.assert_(equal(q1*q2, quaternions.quaternion(-29,2,137,70)))
     
     #Test scalar multiplication
     q = 2*quaternions.quaternion(5,2,1,2)
@@ -137,168 +139,153 @@ class TestQuaternions(unittest.TestCase):
     #http://reference.wolfram.com/mathematica/Quaternions/tutorial/Quaternions.html
     q1 = quaternions.quaternion(1,2,3,4)
     q2 = quaternions.quaternion(2,3,4,5)
-    self.assertEqual(q1+q2, quaternions.quaternion(3,5,7,9))
-    self.assertEqual(q2+q1, quaternions.quaternion(3,5,7,9))
+    self.assert_(equal(q1+q2, quaternions.quaternion(3,5,7,9)))
+    self.assert_(equal(q2+q1, quaternions.quaternion(3,5,7,9)))
     
     #http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm
     q1 = quaternions.quaternion(5,2,1,2)
     q2 = quaternions.quaternion(4,8,25,4)
-    self.assertEqual(q1+q2, quaternions.quaternion(9,10,26,6))
-    self.assertEqual(q2+q1, quaternions.quaternion(9,10,26,6))
+    self.assert_(equal(q1+q2, quaternions.quaternion(9,10,26,6)))
+    self.assert_(equal(q2+q1, quaternions.quaternion(9,10,26,6)))
   
   def testSub(self):
     #Test for validity
     #http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm
     q1 = quaternions.quaternion(5,2,1,2)
     q2 = quaternions.quaternion(4,8,25,4)
-    self.assertEqual(q1-q2, quaternions.quaternion(1,-6,-24,-2))
+    self.assert_(equal(q1-q2, quaternions.quaternion(1,-6,-24,-2)))
   
   def testAbs(self):
     #Test for validity
     #http://reference.wolfram.com/mathematica/Quaternions/tutorial/Quaternions.html
     q = quaternions.quaternion(4,3,-1,2)
-    self.assertEqual(abs(q), sqrt(30))
+    self.assert_(equal(abs(q), sqrt(30)))
     
   def testInvert(self):
     #Test for validity
     #http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm
     q = ~quaternions.quaternion(4,3,-1,2)
-    self.assertAlmostEqual(q[0], 0.7302967433402214)
-    self.assertAlmostEqual(q[1], -0.5477225575051661)
-    self.assertAlmostEqual(q[2], 0.18257418583505536)
-    self.assertAlmostEqual(q[3], -0.3651483716701107)
-  
-#  def testNeg(self):
-#    #Test formula
-#    q = -quaternions.quaternion(4,3,-1,2)
-#    self.assertAlmostEqual(q[0], 4)
-#    self.assertAlmostEqual(q[1], -3)
-#    self.assertAlmostEqual(q[2], 1)
-#    self.assertAlmostEqual(q[3], -2)
+    self.assert_(almostEqual(q[0], 0.7302967433402214))
+    self.assert_(almostEqual(q[1], -0.5477225575051661))
+    self.assert_(almostEqual(q[2], 0.18257418583505536))
+    self.assert_(almostEqual(q[3], -0.3651483716701107))
   
   def testEq(self):
     #Test equality
     q1 = quaternions.quaternion(4,3,2,5)
     q2 = quaternions.quaternion(4,3,2,5)
-    self.assertEqual(q1,q2)
-    self.assertEqual(q2,q1)
+    self.assert_(equal(q1,q2))
+    self.assert_(equal(q2,q1))
     
     q2 = quaternions.quaternion(4.0,3.0,2.0,5.0)
-    self.assertEqual(q1,q2)
-    self.assertEqual(q2,q1)
+    self.assert_(equal(q1,q2))
+    self.assert_(equal(q2,q1))
     
     q2 = quaternions.quaternion(4.00000005,3,2,5)
-    self.assertEqual(q1,q2)
-    self.assertEqual(q2,q1)
+    self.assert_(equal(q1,q2))
+    self.assert_(equal(q2,q1))
     
     q2 = quaternions.quaternion(-4,3,2,5)
-    self.assertNotEqual(q1,q2)
-    self.assertNotEqual(q2,q1)
+    self.assert_(not equal(q1,q2))
+    self.assert_(not equal(q2,q1))
     
     q2 = quaternions.quaternion(-4,3,2,5)
-    self.assertNotEqual(q1,q2)
-    self.assertNotEqual(q2,q1)
+    self.assert_(not equal(q1,q2))
+    self.assert_(not equal(q2,q1))
     
     q2 = quaternions.quaternion(-4,3,2,5)
-    self.assertNotEqual(q1,q2)
-    self.assertNotEqual(q2,q1)
+    self.assert_(not equal(q1,q2))
+    self.assert_(not equal(q2,q1))
     
     q2 = quaternions.quaternion(4,-2.9,2,5)
-    self.assertNotEqual(q1,q2)
-    self.assertNotEqual(q2,q1)
+    self.assert_(not equal(q1,q2))
+    self.assert_(not equal(q2,q1))
     
     q2 = quaternions.quaternion(4,3,-2,5)
-    self.assertNotEqual(q1,q2)
-    self.assertNotEqual(q2,q1)
+    self.assert_(not equal(q1,q2))
+    self.assert_(not equal(q2,q1))
     
     q2 = quaternions.quaternion(4,3,2,-5)
-    self.assertNotEqual(q1,q2)
-    self.assertNotEqual(q2,q1)
+    self.assert_(not equal(q1,q2))
+    self.assert_(not equal(q2,q1))
   
   def testConjugate(self):
     #Test for validity
     #http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm
     q = quaternions.quaternion(4,2,1,1).conjugate()
-    self.assertEqual(q, quaternions.quaternion(4,-2,-1,-1))
+    self.assert_(equal(q, quaternions.quaternion(4,-2,-1,-1)))
     
     q = quaternions.quaternion(0.21566554640687682,0.10783277320343841,0,0.9704949588309457).conjugate()
-    self.assertEqual(q, quaternions.quaternion(0.21566554640687682,-0.10783277320343841,0,-0.9704949588309457))
+    self.assert_(equal(q, quaternions.quaternion(0.21566554640687682,-0.10783277320343841,0,-0.9704949588309457)))
   
   def testIsNormalized(self):
     #Test for validity
     #http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm
     q = quaternions.quaternion(4,2,1,1)
-    self.assertEqual(q.isnormalized(), False)
+    self.assert_(equal(q.isnormalized(), False))
     
     q = quaternions.quaternion(0.21566554640687682,0.10783277320343841,0,0.9704949588309457).conjugate()
-    self.assertEqual(q.isnormalized(), True)
+    self.assert_(equal(q.isnormalized(), True))
   
   def testNormalize(self):
     #Test for validity
     #http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/arithmetic/index.htm
     q = quaternions.quaternion(4,2,-1,1)
-    self.assertEqual(q.normalize(), quaternions.quaternion(0.8528028654224417, 0.42640143271122083, -0.21320071635561041, 0.21320071635561041))
+    self.assert_(equal(q.normalize(), quaternions.quaternion(0.8528028654224417, 0.42640143271122083, -0.21320071635561041, 0.21320071635561041)))
   
   def testVector(self):
     import EBSDTools.mathTools.vectors as vectors
     
     q = quaternions.quaternion(4,2,-1,1)
-    self.assertEqual(q.vector(), vectors.vector([2,-1,1]))
+    self.assert_(equal(q.vector(), vectors.vector([2,-1,1])))
   
   def testScalar(self):
     q = quaternions.quaternion(4,2,-1,1)
-    self.assertEqual(q.scalar(), 4)
-  
-#  def testPositive(self):
-#    #TODO: Make positive test
-#    q = quaternions.quaternion(-1,1,2,3).positive()
-#    self.assertEqual(q, quaternions.quaternion(1,-1,-2,-3))
-#    
-#    q = quaternions.quaternion(0,-1,2,3).positive()
-#    self.assertEqual(q, quaternions.quaternion(0,1,-2,-3).positive())
+    self.assert_(equal(q.scalar(), 4))
   
   def testAxisAngleToQuaternion(self):
     #Verified with Martin Baker (2008) Quaternion to AxisAngle, \url{http://www.euclideansplace.com}
     
     #Test input data
-    self.assertEqual(quaternions.axisAngleToQuaternion(0,(1,0,0)), quaternions.quaternion(1,0,0,0))
-    self.assertEqual(quaternions.axisAngleToQuaternion(0,1,0,0), quaternions.quaternion(1,0,0,0))
+    self.assert_(equal(quaternions.axisAngleToQuaternion(0,(1,0,0)), quaternions.quaternion(1,0,0,0)))
+    self.assert_(equal(quaternions.axisAngleToQuaternion(0,1,0,0), quaternions.quaternion(1,0,0,0)))
 
     #Test calculation
-    self.assertEqual(quaternions.axisAngleToQuaternion(pi/2, (1,0,0)), quaternions.quaternion(sqrt(2)/2.0, sqrt(2)/2.0, 0, 0))
+    self.assert_(equal(quaternions.axisAngleToQuaternion(pi/2, (1,0,0)), quaternions.quaternion(sqrt(2)/2.0, sqrt(2)/2.0, 0, 0)))
     
     #Test back-conversion
     q1 = quaternions.axisAngleToQuaternion(pi/3, (1,1,1))
-    self.assertAlmostEqual(q1.toAxisAngle()[0], pi/3, 3)
+    self.assert_(almostEqual(q1.toAxisAngle()[0], pi/3))
     self.assertEqual(q1.toAxisAngle()[1][0], q1.toAxisAngle()[1][1], q1.toAxisAngle()[1][2])
   
 
-#  def testRotate(self):
-#    #Test of successive rotations
-#    q = quaternions.quaternion(0,1,0,0) #Vector (1,0,0)
-#    q1 = quaternions.axisAngleToQuaternion(pi/2.0, (0,0,1)) #90deg rotation along z-axis
-#    q2 = quaternions.axisAngleToQuaternion(pi/2.0, (1,0,0)) #90deg rotation along x-axis
-#    
-#    qq1 = quaternions.rotate(q, [q1])
-#    self.assertEqual(qq1, quaternions.quaternion(0,0,1,0)) #Vector (0,1,0)
-#    qq1q2 = quaternions.rotate(qq1, [q2])
-#    self.assertEqual(qq1q2, quaternions.quaternion(0,0,0,1)) #Vector (0,0,1)
-#    
-#    self.assertEqual(qq1q2, quaternions.rotate(q, [q1,q2])) #Order of rotation q1 then q2
-#    self.assertNotEqual(qq1q2, quaternions.rotate(q, [q2,q1]))
-#    
-#    #Test of successive rotations
-#    q = quaternions.quaternion(0,1,0,0) #Vector (1,0,0)
-#    q1 = quaternions.eulerAnglesToQuaternion(13, 0, 93)
-#    q2 = quaternions.eulerAnglesToQuaternion(60, 80, 152)
-#    q3 = quaternions.eulerAnglesToQuaternion(150,0,12)
-#    
-#    qq1 = quaternions.rotate(q, [q1])
-#    qq1q2 = quaternions.rotate(qq1, [q2])
-#    qq1q2q3 = quaternions.rotate(qq1q2, [q3])
-#    
-#    self.assertEqual(qq1q2q3, quaternions.rotate(q, [q1,q2,q3])) #Order of rotation q1, q2 then q3
-#    self.assertNotEqual(qq1q2q3, quaternions.rotate(q, [q3,q2,q1]))
+  def testRotate(self):
+    import EBSDTools.mathTools.eulers as eulers
+    #Test of successive rotations
+    q = quaternions.quaternion(0,1,0,0) #Vector (1,0,0)
+    q1 = quaternions.axisAngleToQuaternion(pi/2.0, (0,0,1)) #90deg rotation along z-axis
+    q2 = quaternions.axisAngleToQuaternion(pi/2.0, (1,0,0)) #90deg rotation along x-axis
+    
+    qq1 = quaternions.rotate(q, [q1])
+    self.assert_(equal(qq1, quaternions.quaternion(0,0,1,0))) #Vector (0,1,0)
+    qq1q2 = quaternions.rotate(qq1, [q2])
+    self.assert_(equal(qq1q2, quaternions.quaternion(0,0,0,1))) #Vector (0,0,1)
+    
+    self.assert_(equal(qq1q2, quaternions.rotate(q, [q1,q2]))) #Order of rotation q1 then q2
+    self.assert_(not equal(qq1q2, quaternions.rotate(q, [q2,q1])))
+    
+    #Test of successive rotations
+    q = quaternions.quaternion(0,1,0,0) #Vector (1,0,0)
+    q1 = quaternions.eulerAnglesToQuaternion(eulers.eulers(13, 0, 93))
+    q2 = quaternions.eulerAnglesToQuaternion(eulers.eulers(60, 80, 152))
+    q3 = quaternions.eulerAnglesToQuaternion(eulers.eulers(150,0,12))
+    
+    qq1 = quaternions.rotate(q, [q1])
+    qq1q2 = quaternions.rotate(qq1, [q2])
+    qq1q2q3 = quaternions.rotate(qq1q2, [q3])
+    
+    self.assert_(equal(qq1q2q3, quaternions.rotate(q, [q1,q2,q3]))) #Order of rotation q1, q2 then q3
+    self.assert_(not equal(qq1q2q3, quaternions.rotate(q, [q3,q2,q1])))
   
   def test__hash__(self):
     hashValues = []
@@ -306,22 +293,9 @@ class TestQuaternions(unittest.TestCase):
     for i in range(rep):
       q = quaternions.quaternion(random.random(), random.random(), random.random(), random.random())
       hashValue = q.__hash__()
-      self.assertFalse(hashValue in hashValues)
+      self.assert_(not hashValue in hashValues)
       
       hashValues.append(hashValue)
-  
-#  def testPositive(self):
-#    self.assertEqual(quaternions.quaternion(1,1,1,1).positive(), quaternions.quaternion(1,1,1,1))
-#    self.assertEqual(quaternions.quaternion(-1,1,1,1).positive(), quaternions.quaternion(1,-1,-1,-1))
-#    self.assertEqual(quaternions.quaternion(1,1,-1,1).positive(), quaternions.quaternion(1,1,-1,1))
-#    self.assertEqual(quaternions.quaternion(0,1,1,1).positive(), quaternions.quaternion(0,1,1,1))
-#    self.assertEqual(quaternions.quaternion(0,-1,1,1).positive(), quaternions.quaternion(0,1,-1,-1))
-#    self.assertEqual(quaternions.quaternion(0,0,1,-1).positive(), quaternions.quaternion(0,0,1,-1))
-#    self.assertEqual(quaternions.quaternion(0,0,-1,-1).positive(), quaternions.quaternion(0,0,1,1))
-#    self.assertEqual(quaternions.quaternion(0,0,0,1).positive(), quaternions.quaternion(0,0,0,1))
-#    self.assertEqual(quaternions.quaternion(0,0,0,-1).positive(), quaternions.quaternion(0,0,0,1))
-#    
-#  
   
   def testEulerAnglesToQuaternion(self):
     import EBSDTools.mathTools.eulers as eulers
@@ -329,15 +303,15 @@ class TestQuaternions(unittest.TestCase):
     
     #Test calculation
     e = eulers.eulers(0,0,0)
-    self.assertEqual(quaternions.eulerAnglesToQuaternion(e), quaternions.quaternion(1,0,0,0))
+    self.assert_(equal(quaternions.eulerAnglesToQuaternion(e), quaternions.quaternion(1,0,0,0)))
     
     e = eulers.eulers(0,pi/4,0)
-    self.assertEqual(quaternions.eulerAnglesToQuaternion(e), quaternions.quaternion(cos(0.5*pi/4),sin(0.5*pi/4),0,0))
+    self.assert_(equal(quaternions.eulerAnglesToQuaternion(e), quaternions.quaternion(cos(0.5*pi/4),sin(0.5*pi/4),0,0)))
     
     e = eulers.eulers(35/180.0*pi,27/180.0*pi,102/180.0*pi)
     q1 = quaternions.eulerAnglesToQuaternion(e)
     q2 = quaternions.axisAngleToQuaternion(35/180.0*pi, (0,0,1)) * quaternions.axisAngleToQuaternion(27/180.0*pi, (1,0,0)) * quaternions.axisAngleToQuaternion(102/180.0*pi, (0,0,1))
-    self.assertEqual(q1, q2)
+    self.assert_(equal(q1, q2))
     
     for i in range(rep):
       e1 = random.random() * 360
@@ -347,7 +321,7 @@ class TestQuaternions(unittest.TestCase):
       e = eulers.degEulersToRadEulers(e1, e2, e3)
       q1 = quaternions.eulerAnglesToQuaternion(e)
       q2 = quaternions.axisAngleToQuaternion(e[1], (0,0,1)) * quaternions.axisAngleToQuaternion(e[2], (1,0,0)) * quaternions.axisAngleToQuaternion(e[3], (0,0,1))
-      self.assertEqual(q1,q2)
+      self.assert_(equal(q1,q2))
   
   def testToEulerAngles(self):
     import EBSDTools.mathTools.eulers as eulers
@@ -361,12 +335,12 @@ class TestQuaternions(unittest.TestCase):
       e = eulers.degEulersToRadEulers(euler1, euler2, euler3)
       q = quaternions.eulerAnglesToQuaternion(e)
       q2 = quaternions.axisAngleToQuaternion(e[1], (0,0,1)) * quaternions.axisAngleToQuaternion(e[2], (1,0,0)) * quaternions.axisAngleToQuaternion(e[3], (0,0,1))
-      self.assertEqual(q, q2)
+      self.assert_(equal(q, q2))
       
       qAngles = q.toEulerAngles().toDeg()
-      self.assertAlmostEqual(euler2, qAngles[1], 4)
-      self.assertAlmostEqual(euler1, qAngles[0], 4)
-      self.assertAlmostEqual(euler3, qAngles[2], 4)
+      self.assert_(almostEqual(euler2, qAngles[1]))
+      self.assert_(almostEqual(euler1, qAngles[0]))
+      self.assert_(almostEqual(euler3, qAngles[2]))
     
     #Special case when theta2 = 0 
     for i in range(rep):
@@ -379,9 +353,9 @@ class TestQuaternions(unittest.TestCase):
       
       qAngles = q.toEulerAngles().toDeg()
       euler13 = euler1 + euler3
-      self.assertAlmostEqual(euler13, qAngles[0])
-      self.assertAlmostEqual(0.0, qAngles[1])
-      self.assertAlmostEqual(0.0, qAngles[2])
+      self.assert_(almostEqual(euler13, qAngles[0]))
+      self.assert_(almostEqual(0.0, qAngles[1]))
+      self.assert_(almostEqual(0.0, qAngles[2]))
       
       euler3 = random.random() * 360
       euler2 = 0.0
@@ -392,9 +366,9 @@ class TestQuaternions(unittest.TestCase):
       
       qAngles = q.toEulerAngles().toDeg()
       euler13 = euler1 + euler3
-      self.assertAlmostEqual(euler13, qAngles[0])
-      self.assertAlmostEqual(0.0, qAngles[1])
-      self.assertAlmostEqual(0.0, qAngles[2])
+      self.assert_(almostEqual(euler13, qAngles[0]))
+      self.assert_(almostEqual(0.0, qAngles[1]))
+      self.assert_(almostEqual(0.0, qAngles[2]))
     
     #Special case when theta2 = pi
     for i in range(rep):
@@ -408,9 +382,9 @@ class TestQuaternions(unittest.TestCase):
       qAngles = q.toEulerAngles().toDeg()
       euler13 = euler1 - euler3
       angles = eulers.degEulers(eulers.positiveEulers((euler13/180.0*pi, pi, 0.0)))
-      self.assertAlmostEqual(angles[0], qAngles[0])
-      self.assertAlmostEqual(angles[1], qAngles[1])
-      self.assertAlmostEqual(angles[2], qAngles[2])
+      self.assert_(almostEqual(angles[0], qAngles[0]))
+      self.assert_(almostEqual(angles[1], qAngles[1]))
+      self.assert_(almostEqual(angles[2], qAngles[2]))
       
       euler3 = random.random() * 360
       euler2 = 180
@@ -422,9 +396,9 @@ class TestQuaternions(unittest.TestCase):
       qAngles = q.toEulerAngles().toDeg()
       euler13 = euler1 - euler3
       angles = eulers.degEulers(eulers.positiveEulers((euler13/180.0*pi, pi, 0.0)))
-      self.assertAlmostEqual(angles[0], qAngles[0])
-      self.assertAlmostEqual(angles[1], qAngles[1])
-      self.assertAlmostEqual(angles[2], qAngles[2])
+      self.assert_(almostEqual(angles[0], qAngles[0]))
+      self.assert_(almostEqual(angles[1], qAngles[1]))
+      self.assert_(almostEqual(angles[2], qAngles[2]))
   
   def testMatrixToQuaternion(self):
     import EBSDTools.mathTools.vectors as vectors
@@ -433,14 +407,14 @@ class TestQuaternions(unittest.TestCase):
     
     #Test calculation
     m = matrices.matrix([[1,0,0], [0,0,-1], [0,1,0]])
-    self.assertEqual(quaternions.matrixtoQuaternion(m), quaternions.quaternion(sqrt(2)/2.0, -sqrt(2)/2.0, 0, 0))
+    self.assert_(equal(quaternions.matrixtoQuaternion(m), quaternions.quaternion(sqrt(2)/2.0, -sqrt(2)/2.0, 0, 0)))
     
     #Test back-conversion
     q1 = quaternions.matrixtoQuaternion(m)
     mQ = q1.toMatrix()
     for i in [0,1,2]:
       for j in [0,1,2]:
-        self.assertAlmostEqual(m[i][j], mQ[i][j], 4)
+        self.assert_(almostEqual(m[i][j], mQ[i][j]))
     
     #Random test
     for i in range(10):
@@ -465,11 +439,11 @@ class TestQuaternions(unittest.TestCase):
       
       for i in [0,1,2]:
         for j in [0,1,2]:
-          self.assertAlmostEqual(m[i][j], mQ[i][j], 4)
+          self.assert_(almostEqual(m[i][j], mQ[i][j]))
     
     #Special case when trace + 1 = 0
-    
-  
+#    
+#  
   
 if __name__ == '__main__':
   unittest.main()

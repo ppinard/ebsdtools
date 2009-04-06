@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@gmail.com)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -14,15 +14,17 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
+import os
 import unittest
-import numpy
-import scipy.linalg
 import random
+if not os.name == 'java':
+  import numpy
 
 # Third party modules.
 
 # Local modules.
 import EBSDTools.mathTools.matrices as matrices
+from RandomUtilities.testing.testOthers import almostEqual
 
 # Globals and constants variables.
 class TestMatrices(unittest.TestCase):
@@ -42,9 +44,11 @@ class TestMatrices(unittest.TestCase):
     self.assert_(True)
   
   def test__eq__(self):
-    self.assertEqual(self.m1, self.m2)
-    self.assertEqual(self.m2, self.m3)
-    self.assertEqual(self.m1, self.m3)
+    for i in range(3):
+      for j in range(3):
+        self.assert_(almostEqual(self.m1[i][j], self.m1[i][j]))
+        self.assert_(almostEqual(self.m2[i][j], self.m2[i][j]))
+        self.assert_(almostEqual(self.m3[i][j], self.m3[i][j]))
   
   def test__getitem__(self):
     for i in range(3):
@@ -60,49 +64,54 @@ class TestMatrices(unittest.TestCase):
     self.m1[1][1] = 9
     self.m1[2][2] = 9
     
-    self.assertEqual(self.m1, m)
+    for i in range(3):
+      for j in range(3):
+        self.assert_(almostEqual(self.m1[i][j], m[i][j]))
   
   def test__mul__(self):
-    m1_ = numpy.array(self.m1.toList())
-    m2_ = numpy.array(self.m2.toList())
+    if not os.name == 'java':
+      m1_ = numpy.array(self.m1.toList())
+      m2_ = numpy.array(self.m2.toList())
     
-    #Matrix multiplication
-    mm = self.m1 * self.m2
-    mm_ = numpy.dot(m1_, m2_)
-    
-    for i in range(3):
-      for j in range(3):
-        self.assertAlmostEqual(mm[i][j], mm_[i][j])
-    
-    #Scalar multiplication
-    mm = self.m1 * 4
-    mm_ = m1_ * 4
-    
-    for i in range(3):
-      for j in range(3):
-        self.assertAlmostEqual(mm[i][j], mm_[i][j])
+      #Matrix multiplication
+      mm = self.m1 * self.m2
+      mm_ = numpy.dot(m1_, m2_)
+      
+      for i in range(3):
+        for j in range(3):
+          self.assert_(almostEqual(mm[i][j], mm_[i][j]))
+      
+      #Scalar multiplication
+      mm = self.m1 * 4
+      mm_ = m1_ * 4
+      
+      for i in range(3):
+        for j in range(3):
+          self.assert_(almostEqual(mm[i][j], mm_[i][j]))
   
   def testDet(self):
-    for k in range(100):
-      m = []
-      for i in range(3):
-        r = []
-        for j in range(3):
-          r.append(random.random())
-        m.append(r)
-      
-      m_ = numpy.array(m)
-      
-      self.assertAlmostEqual(scipy.linalg.det(m_), matrices.det(m_), 4)
+    if not os.name == 'java':
+      for k in range(100):
+        m = []
+        for i in range(3):
+          r = []
+          for j in range(3):
+            r.append(random.random())
+          m.append(r)
+        
+        m_ = numpy.array(m)
+        
+        self.assert_(almostEqual(numpy.linalg.det(m_), matrices.det(m_)))
   
   def testTranspose(self):
-    m1_ = numpy.array(self.m1.toList())
-    m1t = matrices.transpose(self.m1)
-    m1_t = m1_.T
-    
-    for i in range(3):
-      for j in range(3):
-        self.assertAlmostEqual(m1t[i][j], m1_t[i][j], 4)
+    if not os.name == 'java':
+      m1_ = numpy.array(self.m1.toList())
+      m1t = matrices.transpose(self.m1)
+      m1_t = m1_.T
+      
+      for i in range(3):
+        for j in range(3):
+          self.assert_(almostEqual(m1t[i][j], m1_t[i][j]))
     
 if __name__ == '__main__':
   unittest.main()

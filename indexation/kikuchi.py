@@ -14,11 +14,11 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-import platform
+import os
 from math import tan, sin, pi, asin, sqrt, atan2, atan, cos
 
 # Third party modules.
-if platform.system() == 'Java': import rmlimage.plugin.ebsd.Drawing as Drawing
+if os.name == 'java': import rmlimage.plugin.ebsd.Drawing as Drawing
 
 # Local modules.
 from EBSDTools.mathTools.mathExtras import zeroPrecision
