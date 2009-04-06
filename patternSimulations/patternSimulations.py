@@ -27,9 +27,6 @@ import RandomUtilities.DrawingTools.colors as colors
 from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
 import RandomUtilities.DrawingTools.drawing as drawing
 
-if os.name == 'java':
-  import rmlimage.kernel as kernel
-  
 def computePlaneEquationOnCamera(plane
                                  , patternCenterX=0.0
                                  , patternCenterY=0.0
@@ -89,7 +86,7 @@ def drawPattern(L
                 , patternWidth=2680
                 , patternHeight=2040
                 , patternCenterVisible=True
-                , colormode='grayscale'
+                , colormode=drawing.COLORMODE_GRAYSCALE
                 , reflectorsInfo=[]):
   """
   Draw a pattern based on the crystallography and detector parameters
@@ -135,7 +132,7 @@ def drawPattern(L
   :arg patternCenterVisible: Draw the location of the pattern center? (``default=False``)
   :type patternCenterVisible: bool
   
-  :arg colormode: either `'grayscale'` or `'RGB'`
+  :arg colormode: either drawing.COLORMODE_GRAYSCALE or drawing.COLORMODE_RGB
   :type colormode: str
   
   :arg reflectorsInfo: list to return the info on the reflectors in the pattern. It should be pointing to an empty list.
@@ -144,12 +141,12 @@ def drawPattern(L
   :rtype: :class:`ImageLine <RandomUtilities.DrawingTools.drawing.ImageLine>`
   """
   
-  im = drawing.ImageLine(patternWidth, patternHeight, origin='center', colormode=colormode)
+  im = drawing.ImageLine(patternWidth, patternHeight, origin=drawing.ORIGIN_CENTER, colormode=colormode)
   
   #Add an uniform background
-  if colormode == 'grayscale':
+  if colormode == drawing.COLORMODE_GRAYSCALE:
     im.drawGrayBrackground(color=1)
-  elif colormode == 'RGB':
+  elif colormode == drawing.COLORMODE_RGB:
     im.drawGrayBrackground(color=(1,1,1))
     colorsList = colors.colorsList()
   
@@ -206,16 +203,16 @@ def drawPattern(L
       w = d * sin(theta) / cos(alpha-theta)
       w2 = d * sin(theta) / cos(alpha+theta)
     
-    if colormode == 'RGB':
+    if colormode == drawing.COLORMODE_RGB:
       baseColor = colorsList.getColorRGB(index)
-    elif colormode == 'grayscale':
+    elif colormode == drawing.COLORMODE_GRAYSCALE:
       baseColor = 255
     
     normalizedIntensity = reflectors.getReflectorNormalizedIntensity(plane)
     if intensity:
-      if colormode == 'RGB':
+      if colormode == drawing.COLORMODE_RGB:
         color = (int(baseColor[0]*normalizedIntensity), int(baseColor[1]*normalizedIntensity), int(baseColor[2]*normalizedIntensity))
-      elif colormode == 'grayscale':
+      elif colormode == drawing.COLORMODE_GRAYSCALE:
         color = int(baseColor*normalizedIntensity)
     else:
       color = baseColor
@@ -260,9 +257,9 @@ def drawPattern(L
       reflectorsInfo.append({'indices': plane, 'rgb': color, 'intensity': normalizedIntensity})
   #Mark the pattern center
   if patternCenterVisible:
-    if colormode == 'RGB':
+    if colormode == drawing.COLORMODE_RGB:
       im.drawCrossMarker(positionX=patternCenterX, positionY=patternCenterY, color=(255,255,255))
-    elif colormode == 'grayscale':
+    elif colormode == drawing.COLORMODE_GRAYSCALE:
       im.drawCrossMarker(positionX=patternCenterX, positionY=patternCenterY, color=255)
   
   return im()
@@ -271,7 +268,7 @@ def main():
   import EBSDTools.crystallography.lattice as lattice
   import EBSDTools.mathTools.eulers as eulers
   import os.path
-  import rmlimage.io.IO as IO
+#  import rmlimage.io.IO as IO
   
 #  #FCC
   atoms = {(0,0,0): 14,
@@ -297,7 +294,7 @@ def main():
               , bandcenter=False
               , bandedges=False
               , bandfull=True
-              , intensity=True
+              , intensity=False
               , patternCenterX=0.0
               , patternCenterY=0.0
               , detectorDistance=0.4
@@ -307,12 +304,12 @@ def main():
               , patternWidth=335 
               , patternHeight=255
               , patternCenterVisible=True
-              , colormode='grayscale')
+              , colormode=drawing.COLORMODE_RGB)
     
-#  image.show()
-  image.setFile(r'test.bmp')
-  
-  IO.save(image)
+  image.show()
+#  image.setFile(r'test.bmp')
+#  
+#  IO.save(image)
   
 if __name__ == '__main__':
   main()

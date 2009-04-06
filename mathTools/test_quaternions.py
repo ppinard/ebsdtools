@@ -381,7 +381,7 @@ class TestQuaternions(unittest.TestCase):
       
       qAngles = q.toEulerAngles().toDeg()
       euler13 = euler1 - euler3
-      angles = eulers.degEulers(eulers.positiveEulers((euler13/180.0*pi, pi, 0.0)))
+      angles = eulers.eulers(euler13/180.0*pi, pi, 0.0).positive().toDeg()
       self.assert_(almostEqual(angles[0], qAngles[0]))
       self.assert_(almostEqual(angles[1], qAngles[1]))
       self.assert_(almostEqual(angles[2], qAngles[2]))
@@ -395,7 +395,7 @@ class TestQuaternions(unittest.TestCase):
       
       qAngles = q.toEulerAngles().toDeg()
       euler13 = euler1 - euler3
-      angles = eulers.degEulers(eulers.positiveEulers((euler13/180.0*pi, pi, 0.0)))
+      angles = eulers.eulers(euler13/180.0*pi, pi, 0.0).positive().toDeg()
       self.assert_(almostEqual(angles[0], qAngles[0]))
       self.assert_(almostEqual(angles[1], qAngles[1]))
       self.assert_(almostEqual(angles[2], qAngles[2]))

@@ -15,21 +15,19 @@ __svnId__ = ""
 
 # Standard library modules.
 import os
-if not os.name == 'java': import csv
-if os.name == 'java': import java.io
 import warnings
 from math import sin, cos, pi, acos, atan2, exp, sqrt
 
 # Third party modules.
-if os.name == 'java': import au.com.bytecode.opencsv as opencsv
 
 # Local modules.
 import EBSDTools
 import EBSDTools.mathTools.vectors as vectors
 import EBSDTools.crystallography.reciprocal as reciprocal
 import EBSDTools.crystallography.bragg as bragg
-import RandomUtilities.sort.sortDict as sortDict
 from EBSDTools.mathTools.mathExtras import zeroPrecision
+import RandomUtilities.sort.sortDict as sortDict
+import RandomUtilities.csvTools.mycsv as mycsv
 
 class scatteringFactors:
   def __init__(self
@@ -50,24 +48,11 @@ class scatteringFactors:
     
     basedir = EBSDTools.__path__[0]
     
-    if not os.name == 'java':
-      reader = csv.reader(open(os.path.join(basedir,filepath_0_2), 'r'))
-      rows02 = list(reader)
-      reader = csv.reader(open(os.path.join(basedir,filepath_2_6), 'r'))
-      rows26 = list(reader)
-    else:
-      reader = opencsv.CSVReader(java.io.FileReader(os.path.join(basedir,filepath_0_2)))
-      rows02 = []
-      for row in reader.readAll():
-        rows02.append(row)
-      reader.close()
-      
-      reader = opencsv.CSVReader(java.io.FileReader(os.path.join(basedir,filepath_2_6)))
-      rows26 = []
-      for row in reader.readAll():
-        rows26.append(row)
-      reader.close()
-      
+    reader = mycsv.Reader(os.path.join(basedir,filepath_0_2))
+    rows02 = list(reader)
+    reader = mycsv.Reader(os.path.join(basedir,filepath_2_6))
+    rows26 = list(reader)
+    
     self.__read_0_2(rows02[1:])
     self.__read_2_6(rows26[1:])
     

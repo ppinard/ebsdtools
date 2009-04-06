@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 """
-A list based vector class that supports elementwise mathematical operations
-
-In this version, the vector call inherits from list; this 
-requires Python 2.2 or later.
 """
 
 # Script information for the file.
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
-__reference__ = "A. Pletzer (http://code.activestate.com/recipes/52272/)"
 
 # Subversion informations for the file.
 __svnRevision__ = ""
@@ -20,7 +15,7 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-import math
+from math import sqrt
 
 # Third party modules.
 
@@ -316,7 +311,7 @@ class vector:
     :rtype: float
     """
     
-    return math.sqrt(dot(self, self))
+    return sqrt(dot(self, self))
 
   def normalize(self):
     """

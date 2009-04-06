@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@gmail.com)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -25,7 +25,7 @@ import EBSDTools.mathTools.eulers as eulers
 from RandomUtilities.testing.testOthers import almostEqual
 
 # Globals and constants variables.
-rep = 100
+rep = 1000
 
 class TestEulers(unittest.TestCase):
 

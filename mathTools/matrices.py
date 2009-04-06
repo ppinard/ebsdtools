@@ -5,9 +5,8 @@
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
-__reference__ = "Altmann (1986) Rotation, Quaternions and Double Groups"
 
 # Subversion informations for the file.
 __svnRevision__ = ""
@@ -80,11 +79,10 @@ class matrix:
   
   def __mul__(self, other):
     """
-      Multiply two matrices or one matrix and a scalar
-      Multiplication of matrices is not commutative (AB \neq BA)
+    Multiply two matrices or one matrix and a scalar.
+    Multiplication of matrices is not commutative (:math:`\\matrixL{A}\\matrixL{B} \neq \\matrixL{B}\\matrixL{A}`)
       
-      Outputs:
-        a matrix
+    :rtype: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
     """
     
     m = matrix()
@@ -129,7 +127,7 @@ class matrix:
     :rtype: bool
     """
     
-    if abs(det(self._m) - 1.0) < zeroPrecision: # and trace(self._m) > zeroPrecision:
+    if abs(self.det() - 1.0) < zeroPrecision: # and trace(self._m) > zeroPrecision:
       return True
     else:
       return False
@@ -142,45 +140,36 @@ class matrix:
     """
     return self._m
 
-def det(m):
-  """
-  Return the determinant of a 3x3 matrix: :math:`\\deter{\\matrixL{M}}`.
-  
-  :arg m: a matrix
-  :type m: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
-  
-  rtype: float
-  """
-  
-  a = m[0][0]*m[1][1]*m[2][2] + m[0][1]*m[1][2]*m[2][0] + m[0][2]*m[2][1]*m[1][0]
-  b = m[0][0]*m[1][2]*m[2][1] + m[0][1]*m[2][2]*m[1][0] + m[0][2]*m[2][0]*m[1][1]
-  
-  return a - b
+  def det(self):
+    """
+    Return the determinant of the matrix: :math:`\\deter{\\matrixL{M}}`.
+    
+    rtype: float
+    """
+    
+    a = self._m[0][0]*self._m[1][1]*self._m[2][2] + self._m[0][1]*self._m[1][2]*self._m[2][0] + self._m[0][2]*self._m[2][1]*self._m[1][0]
+    b = self._m[0][0]*self._m[1][2]*self._m[2][1] + self._m[0][1]*self._m[2][2]*self._m[1][0] + self._m[0][2]*self._m[2][0]*self._m[1][1]
+    
+    return a - b
 
-def transpose(m):
-  """
-  Return the transpose of a 3x3 matrix: :math:`\\matrixL{M}^T`.
-  
-  :arg m: a matrix
-  :type m: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
-  
-  rtype: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
-  """
-  m_ = matrix()
-  for i in range(3):
-    for j in range(3):
-      m_[i][j] = m[j][i]
-  
-  return m_
+  def transpose(self):
+    """
+    Return the transpose of the matrix: :math:`\\matrixL{M}^T`.
+    
+    rtype: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
+    """
+    m_ = matrix()
+    for i in range(3):
+      for j in range(3):
+        m_[i][j] = self._m[j][i]
+    
+    return m_
 
-def trace(m):
-  """
-  Return the trace of a 3x3 matrix: :math:`\\trace{\\matrixL{M}}`.
-  
-  :arg m: a matrix
-  :type m: :class:`matrix <EBSDTools.mathTools.matrices.matrix>`
-  
-  rtype: float
-  """
-  
-  return m[0][0] + m[1][1] + m[2][2]
+  def trace(self):
+    """
+    Return the trace of the matrix: :math:`\\trace{\\matrixL{M}}`.
+    
+    rtype: float
+    """
+    
+    return self._m[0][0] + self._m[1][1] + self._m[2][2]

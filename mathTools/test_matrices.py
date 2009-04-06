@@ -27,6 +27,8 @@ import EBSDTools.mathTools.matrices as matrices
 from RandomUtilities.testing.testOthers import almostEqual
 
 # Globals and constants variables.
+rep = 100
+
 class TestMatrices(unittest.TestCase):
 
   def setUp(self):
@@ -91,7 +93,7 @@ class TestMatrices(unittest.TestCase):
   
   def testDet(self):
     if not os.name == 'java':
-      for k in range(100):
+      for k in range(rep):
         m = []
         for i in range(3):
           r = []
@@ -101,12 +103,12 @@ class TestMatrices(unittest.TestCase):
         
         m_ = numpy.array(m)
         
-        self.assert_(almostEqual(numpy.linalg.det(m_), matrices.det(m_)))
+        self.assert_(almostEqual(numpy.linalg.det(m_), matrices.matrix(m).det()))
   
   def testTranspose(self):
     if not os.name == 'java':
       m1_ = numpy.array(self.m1.toList())
-      m1t = matrices.transpose(self.m1)
+      m1t = self.m1.transpose()
       m1_t = m1_.T
       
       for i in range(3):

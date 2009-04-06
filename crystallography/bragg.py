@@ -22,14 +22,13 @@ from math import sqrt, asin
 from EBSDTools.mathTools.mathExtras import h, m_e, e, c
 
 def electronWavelength(energy):
-  "@sig"
   """
   Return the relativistic electron wavelength
     
-  :arg energy: Energy in eV
+  :arg energy: Energy in :math:`eV`
   :type energy: float
   
-  :return: wavelength in angstroms
+  :return: wavelength in :math:`\\angstrom`
   :rtype: float
   """
   a = h / sqrt(2*m_e*e)

@@ -35,9 +35,9 @@ class TestKikuchi(unittest.TestCase):
   def setUp(self):
     unittest.TestCase.setUp(self)
     
-    self._parameters = {'angle': range(0,180,5)
-                        , 'rho': [-49] + range(-40,50,10) + [49]
-                        , 'detectorDistance': range(1,10,1)
+    self._parameters = {PARAM_ANGLE: range(0,180,5)
+                        , PARAM_RHO: [-49] + range(-40,50,10) + [49]
+                        , PARAM_DETECTORDISTANCE: range(1,10,1)
                         }
     self._patternSize = (100,100)
     
@@ -70,13 +70,13 @@ class TestKikuchi(unittest.TestCase):
     self.assert_(testOthers.almostEqual(line[1], (99.0, 50.0)))
   
   def testKikuchiLineToNormal_Graph(self):
-    parameters = {'angle': self._parameters['angle']
-                  , 'rho': self._parameters['rho']}
+    parameters = {PARAM_ANGLE: self._parameters['angle']
+                  , PARAM_RHO: self._parameters['rho']}
     
     resultsFile = open('test_kikuchi.csv','w')
     
-    for angle in parameters['angle']:
-      for rho in parameters['rho']:
+    for angle in parameters[PARAM_ANGLE]:
+      for rho in parameters[PARAM_RHO]:
         line = kikuchi.houghPeakToKikuchiLine(rho,angle/180.0*pi,self._patternSize)
         normal = kikuchi.kikuchiLineToNormal(line[0], line[1], (0,0), 10, self._patternSize)
       
@@ -93,7 +93,7 @@ class TestKikuchi(unittest.TestCase):
     Back calculation of the line slope from the normal: line -> normal -> line (slope)
     """
     parameters = self._parameters.copy()
-    parameters['angle'].remove(0) #Slope undefined at theta = 0
+    parameters[PARAM_ANGLE].remove(0) #Slope undefined at theta = 0
     
     for angle in parameters[PARAM_ANGLE]:
       for rho in parameters[PARAM_RHO]:

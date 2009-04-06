@@ -15,13 +15,11 @@ __svnId__ = ""
 
 # Standard library modules.
 import os
-from math import tan, sin, pi, asin, sqrt, atan2, atan, cos
 
 # Third party modules.
 if os.name == 'java': import rmlimage.plugin.ebsd.Drawing as Drawing
 
 # Local modules.
-from EBSDTools.mathTools.mathExtras import zeroPrecision
 import EBSDTools.mathTools.vectors as vectors
 
 def kikuchiLineToNormal(p1, p2, patternCenter, detectorDistance, patternSize):
@@ -65,6 +63,8 @@ def kikuchiLineToNormal(p1, p2, patternCenter, detectorDistance, patternSize):
 
 def houghPeakToKikuchiLine(rho, theta, patternSize):
   """
+  .. note:: Only works with Jython / RML-Image
+  
   Return the Kikuchi line from a Hough peak.
   :return: (x1,y1), (x2,y2)
   :rtype: list

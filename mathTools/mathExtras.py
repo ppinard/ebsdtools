@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -21,8 +21,15 @@ from math import pi, acos
 # Local modules.
 
 def _acos(angle):
+  """
+  Prevent rounding error when using ``acos(angle)``. 
+    * If *angle* is greater or equal to 1.0, ``acos(angle)=0``
+    * If *angle* is less or equal to 1.0, ``acos(angle)=pi``
+  
+  :rtype: float
+  """
   if angle >= 1.0:
-    return 0
+    return 0.0
   elif angle <= -1.0:
     return pi
   else:
@@ -30,7 +37,7 @@ def _acos(angle):
 
 def smallAngle(angle):
   """
-    Return an angle between 0 and pi/2.0
+  Return an angle between 0 and :math:`\\frac{\\pi}{2}`
   """
   if angle >= 0 and angle <= pi:
     if angle > pi/2.0:
@@ -39,8 +46,10 @@ def smallAngle(angle):
   return angle
 
 """
-  Physics constants
-  References: Wikipedia
+Physics constants
+
+**References**
+  Wikipedia
 """
 h = 6.62606809633e-34
 m_e = 9.1093818e-31
@@ -48,9 +57,9 @@ e = 1.60217646e-19
 c = 2.99792458e8
 
 """
-  Other constants
+Other constants
 """
 zeroPrecision = 1e-5
 
 if __name__ == '__main__':
-  print h
+  pass

@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -19,16 +19,19 @@ from math import pi
 # Third party modules.
 
 # Local modules.
-from EBSDTools.mathTools.mathExtras import zeroPrecision
 
 def degEulersToRadEulers(*data):
   """
   Return a eulers from a set of 3 euler angles (in degrees)
-    
+  
   **Parameters:**
-    * ``len(data) == 0``: zero eulers (0,0,0)
-    * ``len(data) == 1``: List of 3 angles (theta1, theta2, theta3)
-    * ``len(data) == 3``: 3 angles theta1, theta2, theta3 
+      =============   =========================================
+      ``len(data)``   Description
+      =============   =========================================
+      0               Zero eulers (0,0,0)
+      1               List of 3 angles (theta1, theta2, theta3)
+      3               3 angles theta1, theta2, theta3 
+      =============   =========================================
   
   :rtype: :class:`eulers <EBSDTools.mathTools.eulers.eulers>`
   """
@@ -46,7 +49,11 @@ def degEulersToRadEulers(*data):
     theta2 = data[1]
     theta3 = data[2]
   
-  return eulers(radEulers(theta1, theta2, theta3))
+  theta1 = theta1 / 180.0 * pi
+  theta2 = theta2 / 180.0 * pi
+  theta3 = theta3 / 180.0 * pi
+  
+  return eulers(theta1, theta2, theta3)
 
 class eulers:
   def __init__(self, *data):
@@ -54,9 +61,13 @@ class eulers:
     Define a set of 3 euler angles (in radians) as defined by the Bunge convention
       
     **Parameters:**
-      * ``len(data) == 0``: zero eulers (0,0,0)
-      * ``len(data) == 1``: List of 3 angles (theta1, theta2, theta3)
-      * ``len(data) == 3``: 3 angles theta1, theta2, theta3 
+      =============   =========================================
+      ``len(data)``   Description
+      =============   =========================================
+      0               Zero eulers (0,0,0)
+      1               List of 3 angles (theta1, theta2, theta3)
+      3               3 angles theta1, theta2, theta3 
+      =============   =========================================
     """
     
     if len(data) == 0:
@@ -120,8 +131,6 @@ class eulers:
         return self._theta2
       elif key == 3:
         return self._theta3
-        
-    
   
   def __setitem__(self, key, value):
     """
@@ -171,8 +180,12 @@ class eulers:
     :rtype: tuple
     """
     
-    return degEulers(self._theta1, self._theta2, self._theta3)
-  
+    theta0 = self._theta1 * 180.0 / pi
+    theta1 = self._theta2 * 180.0 / pi
+    theta2 = self._theta3 * 180.0 / pi
+    
+    return (theta0, theta1, theta2)
+    
   def toRad(self):
     """
     Return a tuple of the eulers in radians
@@ -184,6 +197,8 @@ class eulers:
   
   def positive(self):
     """
+    Return positive eulers
+    
     Convert eulers from 
       * :math:`-pi < \\text{theta0} < pi`
       * :math:`0 < \\text{theta1} < pi`
@@ -207,6 +222,8 @@ class eulers:
   
   def negative(self):
     """
+    Return negative eulers
+    
     Convert eulers from 
       * :math:`0 < \\text{theta0} < 2pi`
       * :math:`0 < \\text{theta1} < pi`
@@ -228,86 +245,4 @@ class eulers:
     
     return eulers(theta1, theta2, theta3)
 
-#TODO: Eliminate useless functions
-def positiveEulers(*thetas):
-  """
-    Convert eulers from 
-      -pi < theta0 < pi
-      0 < theta1 < pi
-      -pi < theta2 < pi
-    to
-      0 < theta0 < 2pi
-      0 < theta1 < pi
-      0 < theta2 < 2pi
-  """
-  if len(thetas) == 1:
-    theta0 = thetas[0][0]
-    theta1 = thetas[0][1]
-    theta2 = thetas[0][2]
-  elif len(thetas) == 3:
-    theta0 = thetas[0]
-    theta1 = thetas[1]
-    theta2 = thetas[2]
-  
-  if theta0 < 0:
-    theta0 += 2*pi
-  if theta2 < 0:
-    theta2 += 2*pi
-  
-  return theta0, theta1, theta2
 
-def negativeEulers(theta0, theta1, theta2):
-  """
-    Convert eulers from
-      0 < theta0 < 2pi
-      0 < theta1 < pi
-      0 < theta2 < 2pi
-    to
-      -pi < theta0 < pi
-      0 < theta1 < pi
-      -pi < theta2 < pi
-  """
-  if theta0 > pi:
-    theta0 -= 2*pi
-  if theta2 > pi:
-    theta2 -= 2*pi
-  
-  return theta0, theta1, theta2
-
-def degEulers(*thetas):
-  """
-    Convert from rad to deg
-  """
-  if len(thetas) == 1:
-    theta0 = thetas[0][0]
-    theta1 = thetas[0][1]
-    theta2 = thetas[0][2]
-  elif len(thetas) == 3:
-    theta0 = thetas[0]
-    theta1 = thetas[1]
-    theta2 = thetas[2]
-    
-  theta0 *= 180.0 / pi
-  theta1 *= 180.0 / pi
-  theta2 *= 180.0 / pi
-  
-  return theta0, theta1, theta2
-
-def radEulers(*thetas):
-  """
-    Convert from deg to rad
-  """
-  if len(thetas) == 1:
-    theta0 = thetas[0][0]
-    theta1 = thetas[0][1]
-    theta2 = thetas[0][2]
-  elif len(thetas) == 3:
-    theta0 = thetas[0]
-    theta1 = thetas[1]
-    theta2 = thetas[2]
-    
-  theta0 *= pi / 180.0
-  theta1 *= pi / 180.0
-  theta2 *= pi / 180.0
-  
-  return theta0, theta1, theta2

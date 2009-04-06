@@ -5,9 +5,8 @@
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
-__reference__ = "Altmann (1986) Rotation, Quaternions and Double Groups"
 
 # Subversion informations for the file.
 __svnRevision__ = ""
@@ -15,7 +14,7 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import sin, cos, pi, acos, atan2, sqrt, asin, atan
+from math import sin, cos, pi, acos, atan2, sqrt
 
 # Third party modules.
 
@@ -23,7 +22,7 @@ from math import sin, cos, pi, acos, atan2, sqrt, asin, atan
 import EBSDTools.mathTools.vectors as vectors
 import EBSDTools.mathTools.matrices as matrices
 import EBSDTools.mathTools.eulers as eulers
-from EBSDTools.mathTools.mathExtras import zeroPrecision, _acos
+from EBSDTools.mathTools.mathExtras import zeroPrecision
 
 def axisAngleToQuaternion(*data):
   """
@@ -318,8 +317,13 @@ class quaternion:
       return self*(~other)
   
   def __rdiv__(self, other):
-    pass
-  #TODO: Fix __rdiv__
+    """
+    .. seealso:: :func:`__div__ <EBSDTools.mathTools.quaternions.quaternion.__div__>`
+    """
+    if isinstance(other, float) or isinstance(other, int): #inverse scalar product
+      return (1/other)*self
+    elif isinstance(other, quaternion):
+      return other*(~self)
   
   def __add__(self, other):
     """
@@ -399,13 +403,6 @@ class quaternion:
     else:
       return self.conjugate() / abs(self)
   
-#  def __neg__(self):
-#    """
-#      Return the negative of the quaternion
-#    """
-#    
-#    return quaternion(-self._a, -self._A[0], -self._A[1], -self._A[2])
-  
   def __eq__(self, other):
     """
     .. note:: When ``q1 == q2`` is called.
@@ -478,8 +475,6 @@ class quaternion:
       return True
     else:
       return False
-  
-  
   
   def normalize(self):
     """
@@ -607,43 +602,6 @@ class quaternion:
     assert m.isSO3()
     
     return m
-
-#  def toMatrixBaker(self):
-#    qCalc = self.normalize()
-#    assert qCalc.isnormalized()
-#    
-#    q0 = qCalc._a
-#    q1 = qCalc._A[0]
-#    q2 = qCalc._A[1]
-#    q3 = qCalc._A[2]
-#    
-#    #Morawiec & Martin Baker
-#    m1 = matrices.matrix([[q0**2 + q1**2 - q2**2 - q3**2, 2*(q1*q2 - q0*q3), 2*(q1*q3 + q0*q2)],
-#                         [2*(q1*q2 + q0*q3), q0**2 - q1**2 + q2**2 - q3**2, 2*(q2*q3 - q0*q1)],
-#                         [2*(q1*q3 - q0*q2), 2*(q2*q3 + q0*q1), q0**2 - q1**2 - q2**2 + q3**2]])
-#    
-#    #Assert that the matrix is orthogonal
-#    assert m1.isSU3()
-#    
-#    return m1
-#  
-#  def toMatrixOrilib(self):
-#    qCalc = self.normalize()
-#    assert qCalc.isnormalized()
-#    
-#    q0 = qCalc._a
-#    q1 = qCalc._A[0]
-#    q2 = qCalc._A[1]
-#    q3 = qCalc._A[2]
-#    #Orilib
-#    m2 = matrices.matrix([[q0**2 + q1**2 - q2**2 - q3**2, 2*(q1*q2 + q0*q3), 2*(q1*q3 - q0*q2)],
-#                         [2*(q1*q2 - q0*q3), q0**2 - q1**2 + q2**2 - q3**2, 2*(q2*q3 + q0*q1)],
-#                         [2*(q1*q3 + q0*q2), 2*(q2*q3 - q0*q1), q0**2 - q1**2 - q2**2 + q3**2]])
-#    
-#    #Assert that the matrix is orthogonal
-#    assert m2.isSU3()
-#    
-#    return m2
   
   def toEulerAngles(self):
     """
@@ -685,8 +643,6 @@ class quaternion:
     e1 = eulers.eulers(theta1, theta2, theta3)
     return e1.positive()
   
-  
-  
 def rotate(qIn, qRotations):
   """
   Return the input quaternion (*qIn*) by all the rotation quaternion in *qRotations*.
@@ -725,7 +681,7 @@ def misorientation(q1, q2):
   
   dotProduct = q1[0]*q2[0] + q1[1]*q2[1] + q1[2]*q2[2] + q1[3]*q2[3]
   
-  return 2*_acos(dotProduct)
+  return 2*acos(dotProduct)
 
 def similar(q1, q2, angularPrecision):
   if abs(q1._a - q2._a) < cos(angularPrecision/2.0) and \

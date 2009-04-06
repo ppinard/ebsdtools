@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -14,7 +14,7 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import sin, cos, pi, acos, atan2, exp, sqrt
+from math import cos, sqrt
 
 # Third party modules.
 
@@ -146,12 +146,3 @@ def BravaisMillerToMiller(plane):
 
 if __name__ == '__main__':
   pass
-#  h = 1
-#  k = 0
-#  l = 0
-#  
-#  L = lattice(a=1, b=1, c=2, alpha=pi/2, beta=pi/2, gamma=120/180.0*pi)
-#  
-#  print planeSpacing([h,k,l], L)
-#  print interplanarAngle([h,k,l], [1,1,0], L) / pi * 180
-#  

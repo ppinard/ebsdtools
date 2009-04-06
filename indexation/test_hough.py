@@ -99,9 +99,11 @@ class TestHough(unittest.TestCase):
     del hh
   
   def testFindPeaks(self):
+#TODO: testFindPeaks in test_hough.py
     pass
   
   def testCalculateImageQuality(self):
+#TODO: testCalculateImageQuality in test_hough.py
     pass
   
 def cleanup():

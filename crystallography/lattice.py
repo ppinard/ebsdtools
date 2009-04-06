@@ -5,7 +5,7 @@
 __author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
 __version__ = ""
 __date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
+__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
 __license__ = ""
 
 # Subversion informations for the file.
@@ -14,12 +14,12 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import sin, cos, pi
+from math import sin, cos
 
 # Third party modules.
 
 # Local modules.
-from EBSDTools.mathTools.mathExtras import _acos, h
+from EBSDTools.mathTools.mathExtras import _acos
 import EBSDTools.crystallography.reflectors as reflectors
 
 class Lattice:
@@ -27,7 +27,7 @@ class Lattice:
     """
     Initiate the :class:`Lattice`.
     The reciprocal basis and volume are automatically calculated.
-    A :class:`Reflectors <EBSDTools.crystallography.reflectors.Reflectors>` is initiated if the atoms positions are given
+    A :class:`Reflectors <EBSDTools.crystallography.reflectors.Reflectors>` is initiated based on the atoms positions
     
     :arg a, b, c: lattice parameter in :math:`\\text{angstroms}`
     :type a, b, c: float
