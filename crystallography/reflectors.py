@@ -15,7 +15,7 @@ __svnId__ = ""
 
 # Standard library modules.
 import os
-import warnings
+#import warnings
 from math import sin, cos, pi, acos, atan2, exp, sqrt
 
 # Third party modules.
@@ -31,8 +31,9 @@ import RandomUtilities.csvTools.mycsv as mycsv
 
 class scatteringFactors:
   def __init__(self
-               , filepath_0_2='data/elastic_atomic_scattering_factors_0_2.csv'
-               , filepath_2_6='data/elastic_atomic_scattering_factors_2_6.csv'):
+               , filepath_0_2=None
+               , filepath_2_6=None
+               ):
     """
     Return the elastic atomic scattering factors as given by the Crystallography Tables.
     The data is a exponential fit of the scattering factors.
@@ -46,11 +47,14 @@ class scatteringFactors:
     :type filepath_2_6: string
     """
     
-    basedir = EBSDTools.__path__[0]
+    if filepath_0_2 == None:
+      filepath_0_2 = os.path.join(EBSDTools.__path__[0],'data/elastic_atomic_scattering_factors_0_2.csv')
+    if filepath_2_6 == None:
+      filepath_2_6 = os.path.join(EBSDTools.__path__[0],'data/elastic_atomic_scattering_factors_2_6.csv')
     
-    reader = mycsv.Reader(os.path.join(basedir,filepath_0_2))
+    reader = mycsv.Reader(filepath_0_2)
     rows02 = list(reader)
-    reader = mycsv.Reader(os.path.join(basedir,filepath_2_6))
+    reader = mycsv.Reader(filepath_2_6)
     rows26 = list(reader)
     
     self.__read_0_2(rows02[1:])
@@ -116,7 +120,7 @@ class scatteringFactors:
       a = [self.parameters_2_6[Z]['a1'], self.parameters_2_6[Z]['a2'], self.parameters_2_6[Z]['a3'], self.parameters_2_6[Z]['a4'], self.parameters_2_6[Z]['a5']]
       b = [self.parameters_2_6[Z]['b1'], self.parameters_2_6[Z]['b2'], self.parameters_2_6[Z]['b3'], self.parameters_2_6[Z]['b4'], self.parameters_2_6[Z]['b5']]
     else:
-      warnings.warn("Outside table range of s (%e) < 6\AA" % s)
+#      warnings.warn("Outside table range of s (%e) < 6\AA" % s)
       a = [self.parameters_2_6[Z]['a1'], self.parameters_2_6[Z]['a2'], self.parameters_2_6[Z]['a3'], self.parameters_2_6[Z]['a4'], self.parameters_2_6[Z]['a5']]
       b = [self.parameters_2_6[Z]['b1'], self.parameters_2_6[Z]['b2'], self.parameters_2_6[Z]['b3'], self.parameters_2_6[Z]['b4'], self.parameters_2_6[Z]['b5']]
       
@@ -128,7 +132,7 @@ class scatteringFactors:
     return f
 
 class Reflectors:
-  def __init__(self, L, maxIndice=4):
+  def __init__(self, L, maxIndice=4, filepath_0_2=None, filepath_2_6=None):
     """
     .. note:: In most cases, this class should only be called by :class:`Lattice <EBSDTools.crystallography.lattice.Lattice>`. 
               To access the functions of :class:`Reflectors <EBSDTools.crystallography.reflectors.Reflectors>`, use :func:`getReflectors() <EBSDTools.crystallography.lattice.Lattice.getReflectors>`.
@@ -145,7 +149,7 @@ class Reflectors:
     
     self.L = L
     
-    self.scatteringFactors = scatteringFactors()
+    self.scatteringFactors = scatteringFactors(filepath_0_2, filepath_2_6)
     
     self._calculateReflectors(maxIndice)
     

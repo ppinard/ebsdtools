@@ -25,6 +25,7 @@ from math import pi
 import RandomUtilities.Pmw.Pmw as Pmw
 import EBSDTools.patternSimulations.patternSimulations as patternSimulations
 import EBSDTools.crystallography.lattice as lattice
+import EBSDTools.crystallography.reflectors as reflectors
 import EBSDTools.mathTools.eulers as eulers
 import EBSDTools.mathTools.quaternions as quaternions
 import EBSDTools.patternSimulations.GUI.reflectorsListBox as reflectorsListBox
@@ -44,7 +45,8 @@ class App:
 #    atoms = {(0,0,0): 14,
 #             (0.5,0.5,0.5): 14}
     atoms = {(0,0,0): 79}
-    self.L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=4)
+    self.L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms)
+    self.reflectors = reflectors.Reflectors(self.L, maxIndice=4)
     
     #Image
     frmImage = Tkinter.Frame(root, bg='blue')
@@ -323,19 +325,26 @@ class App:
     
     reflectorsInfo = []
     
-    image = patternSimulations.drawPattern(self.L
+    if blackwhite:
+      colormode = patternSimulations.drawing.COLORMODE_GRAYSCALE
+    else:
+      colormode = patternSimulations.drawing.COLORMODE_RGB
+      
+    image = patternSimulations.drawPattern(self.reflectors
                 , bandcenter=bandcenter
                 , bandedges=bandedges
                 , bandfull=bandfull
                 , intensity=intensity
-                , patternCenter=(pcx,pcz)
+                , patternCenterX=pcx
+                , patternCenterY=pcz
                 , detectorDistance=dd
                 , energy=energy
                 , numberOfReflectors=reflectors
                 , qRotations=qRotations
-                , patternSize=self.patternSize
+                , patternWidth=self.patternSize[0]
+                , patternHeight=self.patternSize[1]
                 , patternCenterVisible=patternCenter
-                , colorMode=not blackwhite
+                , colormode=colormode
                 , reflectorsInfo=reflectorsInfo)
     
     self.objectImage.paste(image)

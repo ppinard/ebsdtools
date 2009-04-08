@@ -15,7 +15,7 @@ __svnId__ = ""
 
 # Standard library modules.
 import os
-from math import pi, cos, atan, sqrt, tan,sin
+from math import pi, cos, atan, sqrt, tan, sin
 
 # Third party modules.
 
@@ -72,7 +72,7 @@ def computePlaneEquationOnCamera(plane
 
   return m, k
 
-def drawPattern(L
+def drawPattern(reflectors
                 , bandcenter=True
                 , bandedges=False
                 , bandfull=False
@@ -150,8 +150,6 @@ def drawPattern(L
     im.drawGrayBrackground(color=(1,1,1))
     colorsList = colors.colorsList()
   
-  reflectors = L.getReflectors()
-  
   planes = reflectors.getReflectorsList()[:numberOfReflectors]
   planes.reverse()
   
@@ -205,17 +203,22 @@ def drawPattern(L
     
     if colormode == drawing.COLORMODE_RGB:
       baseColor = colorsList.getColorRGB(index)
+      baseColorInfo = baseColor
     elif colormode == drawing.COLORMODE_GRAYSCALE:
       baseColor = 255
+      baseColorInfo = (255,255,255)
     
     normalizedIntensity = reflectors.getReflectorNormalizedIntensity(plane)
     if intensity:
       if colormode == drawing.COLORMODE_RGB:
         color = (int(baseColor[0]*normalizedIntensity), int(baseColor[1]*normalizedIntensity), int(baseColor[2]*normalizedIntensity))
+        colorInfo = color
       elif colormode == drawing.COLORMODE_GRAYSCALE:
         color = int(baseColor*normalizedIntensity)
+        colorInfo = (color, color, color)
     else:
       color = baseColor
+      colorInfo = baseColorInfo
     
 #    print plane, 'm', m, 'k', k#, 'd', d, 'theta', theta, 'w', w, 'alpha', cosalpha, 'g', grayLevel
     
@@ -250,11 +253,11 @@ def drawPattern(L
     if bandfull:
       im.drawLinearFunction(m=m
                             , k=k
-                            , thickness=int(2*w*patternWidth)
+                            , thickness=int(2*w*patternWidth)+1
                             , color=color)
     
     if bandcenter or bandedges or bandfull:
-      reflectorsInfo.append({'indices': plane, 'rgb': color, 'intensity': normalizedIntensity})
+      reflectorsInfo.append({'indices': plane, 'rgb': colorInfo, 'intensity': normalizedIntensity})
   #Mark the pattern center
   if patternCenterVisible:
     if colormode == drawing.COLORMODE_RGB:

@@ -23,7 +23,8 @@ from EBSDTools.mathTools.mathExtras import _acos
 import EBSDTools.crystallography.reflectors as reflectors
 
 class Lattice:
-  def __init__(self, a, b, c, alpha, beta, gamma, atoms=None, reflectorsMaxIndice=4):
+  def __init__(self, a, b, c, alpha, beta, gamma, atoms=None):
+    "@sig public Lattice(double a, double b, double c, double alpha, double beta, double gamma)"
     """
     Initiate the :class:`Lattice`.
     The reciprocal basis and volume are automatically calculated.
@@ -59,8 +60,6 @@ class Lattice:
     self.__calculateReciprocalVolume()
     
     self.atoms = atoms
-    
-    self.reflectors = reflectors.Reflectors(self, reflectorsMaxIndice)
   
   def __calculateReciprocalAngle(self):
     self.alpha_ = _acos((cos(self.beta)*cos(self.gamma) - cos(self.alpha)) / (sin(self.beta)*sin(self.gamma)))
@@ -107,13 +106,6 @@ class Lattice:
             , 'V': self.volume
             , 'V*': self.volume_
             }
-  def getReflectors(self):
-    """
-    Return the :class:`Reflectors <EBSDTools.crystallography.reflectors.Reflectors>`. ``None`` is return if the atom positions were not set.
-    
-    :rtype: :class:`Reflectors <EBSDTools.crystallography.reflectors.Reflectors>`
-    """
-    return self.reflectors
   
   def getAtomsPositions(self):
     """
