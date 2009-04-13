@@ -29,21 +29,21 @@ import EBSDTools.mathTools.quaternions as quaternions
 import EBSDTools.mathTools.eulers as eulers
 import EBSDTools.crystallography.lattice as lattice
 
-class PatternSimulations(java.lang.Object):
+class jPatternSimulations(java.lang.Object):
   """
   Test Bean Shell Script
   elastic_atomic_scattering_factors_0_2.csv and elastic_atomic_scattering_factors_2_6.csv should be in the class folder of RML-Image
   
   import rmlimage.plugin.ebsd.python.jPatternSimulations;
 
-  jPatternSimulations.PatternSimulations patt = new jPatternSimulations.PatternSimulations(335, 255, false, 0.0, 0.0, 0.3, 20000.0, 32, 70.0);
+  jPatternSimulations patt = new jPatternSimulations(335, 255, false, 0.0, 0.0, 0.3, 20000.0, 32, 70.0);
   ByteMap sim = patt.patternFCC(0.0, 0.0, 0.0);
   
   RMLImage.add(sim);
   
   """
   def __init__(self, patternWidth=2680, patternHeight=2040, intensity=False, patternCenterX=0.0, patternCenterY=0.0, detectorDistance=0.3, energy=20e3, numberOfReflectors=32, tilt=70.0):
-    "@sig public PatternSimulations(int patternWidth, int patternHeight, boolean intensity, double patternCenterX, double patternCenterY, double detectorDistance, double energy, int numberOfReflectors, double tilt)"
+    "@sig public jPatternSimulations(int patternWidth, int patternHeight, boolean intensity, double patternCenterX, double patternCenterY, double detectorDistance, double energy, int numberOfReflectors, double tilt)"
     """
     :arg patternWidth: width of the pattern (in pixels) (``default=2680``)
     :type patternWidth: int
@@ -111,8 +111,8 @@ class PatternSimulations(java.lang.Object):
     
     ref = reflectors.Reflectors(L
                                 , maxIndice=4
-                                , filepath_0_2=FileUtil.getFile('elastic_atomic_scattering_factors_0_2.csv')
-                                , filepath_2_6=FileUtil.getFile('elastic_atomic_scattering_factors_2_6.csv'))
+                                , filepath_0_2=FileUtil.getFile('rmlimage/plugin/ebsd/python/data/elastic_atomic_scattering_factors_0_2.csv')
+                                , filepath_2_6=FileUtil.getFile('rmlimage/plugin/ebsd/python/data/elastic_atomic_scattering_factors_2_6.csv'))
     
     angles = eulers.eulers(euler1/180.0*pi, euler2/180.0*pi, euler3/180.0*pi) 
     qSpecimenRotation = quaternions.quaternion(1,0,0,0)
@@ -125,24 +125,24 @@ class PatternSimulations(java.lang.Object):
     qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
     
     patt = patternSimulations.drawPattern(reflectors=ref
-                                   , bandcenter=False
-                                   , bandedges=False
-                                   , bandfull=True
-                                   , intensity=self.intensity
-                                   , patternCenterX=self.patternCenterX
-                                   , patternCenterY=self.patternCenterY
-                                   , detectorDistance=self.detectorDistance
-                                   , energy=self.energy
-                                   , numberOfReflectors=self.numberOfReflectors
-                                   , qRotations=qRotations
-                                   , patternWidth=self.patternWidth
-                                   , patternHeight=self.patternHeight
-                                   , patternCenterVisible=False
-                                   , colormode=patternSimulations.drawing.COLORMODE_GRAYSCALE
-                                     )
+                                          , bandcenter=False
+                                          , bandedges=False
+                                          , bandfull=True
+                                          , intensity=self.intensity
+                                          , patternCenterX=self.patternCenterX
+                                          , patternCenterY=self.patternCenterY
+                                          , detectorDistance=self.detectorDistance
+                                          , energy=self.energy
+                                          , numberOfReflectors=self.numberOfReflectors
+                                          , qRotations=qRotations
+                                          , patternWidth=self.patternWidth
+                                          , patternHeight=self.patternHeight
+                                          , patternCenterVisible=False
+                                          , colormode=patternSimulations.drawing.COLORMODE_GRAYSCALE
+                                          )
     return patt
   
 if __name__ == '__main__':
-  patt = PatternSimulations(335, 255, False, 0.0, 0.0, 0.3, 20e3, 32, 70.0)
+  patt = jPatternSimulations(335, 255, False, 0.0, 0.0, 0.3, 20e3, 32, 70.0)
   print patt.patternFCC(0.0, 0.0, 0.0)
   

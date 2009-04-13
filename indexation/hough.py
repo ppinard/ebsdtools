@@ -95,16 +95,16 @@ class Hough:
       assert maskMap.type == 'BinMap'
       assert self._map.size == maskMap.size
       
-      map = kernel.ByteMap(self._map.width, self._map.height)
-      MapMath.andOp(self._map, maskMap, map)
+      self._maskMap = kernel.ByteMap(self._map.width, self._map.height)
+      MapMath.andOp(self._map, maskMap, self._maskMap)
     else:
-      map = self._map
+      self._maskMap = self._map
     
-    MapMath.subtraction(map, 128, map)
-    Filter.median(map)
-    Contrast.expansion(map)
+#    MapMath.subtraction(self._maskMap, 128, self._maskMap)
+    Filter.median(self._maskMap)
+    Contrast.expansion(self._maskMap)
     
-    self._houghMap = EBSD.houghTransform(map, angleIncrement*pi/180.0)
+    self._houghMap = EBSD.houghTransform(self._maskMap, angleIncrement*pi/180.0)
     
   
   def findPeaks(self):
@@ -132,6 +132,7 @@ class Hough:
     
     #Get centroid of peaks
     centroids = []
+    centroidsXY = []
     
     xS, yS = Analysis.measureCentroid(identMap)
     for i in range(len(xS)):
@@ -140,6 +141,7 @@ class Hough:
       theta = self._houghMap.getTheta(x, y)
       
       centroids.append((r,theta))
+      centroidsXY.append((x,y))
     
     #Get area of peaks
     areas = Analysis.measureArea(identMap)
@@ -150,10 +152,12 @@ class Hough:
       averageIntensity = Stats.average(intensities[objectId])
       stdDevIntensity = Stats.standardDeviation(intensities[objectId])
       centroid = centroids[objectId]
+      centroidXY = centroidsXY[objectId]
       area = areas[objectId]
       
       peak = {'intensity': {'average': averageIntensity, 'standard deviation': stdDevIntensity}
               , 'centroid': centroid
+              , 'centroidXY': centroidXY
               , 'area': area}
       self._peaks[objectId] = peak
   
