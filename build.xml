@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="EBSDTools" basedir="." default="help">
+
+<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+<property name="ebsdtools.dir" location="."/>
+<echo message="ebsdtools.dir = ${ebsdtools.dir}"/>
+
+<property name="tmp.dir" location="${java.io.tmpdir}"/>
+<echo message="tmp.dir = ${tmp.dir}"/>
+
+  <!-- Read the local properties -->
+<!-- <fail message="property.file not defined" unless="property.file"/> -->
+<property file="${property.file}"/>
+
+<fail message="class.dir not defined" unless="class.dir"/>
+<echo message="class.dir = ${class.dir}"/>
+
+<!-- This property should be set on the command line to point to
+     the jar file holding all the rml-image classes.
+     If it is not set on the command line, then it defaults to nothing
+     meaning there is not rml-image jar file and all the classes are
+     in class.dir -->
+<property name="rmlimage.jar" value=""/>
+
+
+
+
+
+<target name="clean" description="Deletes the build dir" unless="noclean">
+  <delete dir="${class.dir}/rmlimage/plugin/ebsd/python"/>
+  <delete dir="${tmp.dir}/jpywork"/>
+</target>
+
+
+
+
+<target name="compile" unless="nocompile" 
+        description="Compiles the python code">
+  <fail message="jython.dir not defined." unless="jython.dir"/>
+  <fail message="jython not defined." unless="jython"/>
+  <fail message="opencsv not defined." unless="opencsv"/>
+
+  <runtarget target="clean"/>
+  
+    <!-- Compile the python classes to java -->
+  <pathconvert property="python.file.list" pathsep=" ">
+    <fileset dir="${ebsdtools.dir}/jython">
+      <include name="j*.py"/>
+    </fileset>
+  </pathconvert>
+  <java classname="org.python.util.jython" failonerror="true" fork="true">
+    <classpath>
+      <pathelement location="${jython}"/>
+      <pathelement path="${class.dir}"/>
+      <pathelement path="${rmlimage.jar}"/>
+      <pathelement location="${opencsv}"/>
+    </classpath>
+    <arg value="-Dpython.home=${jython.dir}"/>
+    <arg value="${jython.dir}/Tools/jythonc/jythonc.py"/>
+    <arg value="--deep"/>
+    <arg line="--workdir ${tmp.dir}/jpywork"/>
+    <arg line="--package rmlimage.plugin.ebsd.python"/>
+    <arg line="${python.file.list}"/>
+  </java>
+
+    <!-- Copy the compiled python classes to the class directory -->
+  <copy todir="${class.dir}">
+    <fileset dir="${tmp.dir}/jpywork">
+      <include name="**/*.class"/>
+    </fileset>
+  </copy>  
+  <!--<delete dir="${tmp.dir}/jpywork"/> -->       <!-- Clean up -->
+
+    <!-- Copy the support files -->
+  <copy todir="${class.dir}/rmlimage/plugin/ebsd/python/data">
+    <fileset dir="${ebsdtools.dir}/data">
+      <include name="*.csv"/>
+    </fileset>
+  </copy>
+</target>
+    
+
+
+
+
+
+<target name="help" description="Shows a help screen">
+  <echo>Build script for the core distro.
+The code is compiled to class.dir (${class.dir}).
+The distro is built in build.dir (${build.dir}).
+To avoid the recompiling, set the property "nocompile".
+Use ant -p to get a listing of all the available targets.</echo>
+</target>
+
+
+
+
+<target name="test" depends="compile" unless="notest" 
+        description="Run the unit tests">
+  <ant antfile="${ebsdtools.dir}/testing/build.xml" target="test"/>
+</target>
+
+</project>
+
