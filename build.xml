@@ -71,7 +71,7 @@
       <include name="**/*.class"/>
     </fileset>
   </copy>  
-  <!--<delete dir="${tmp.dir}/jpywork"/> -->       <!-- Clean up -->
+  <delete dir="${tmp.dir}/jpywork"/>       <!-- Clean up -->
 
     <!-- Copy the support files -->
   <copy todir="${class.dir}/rmlimage/plugin/ebsd/python/data">
