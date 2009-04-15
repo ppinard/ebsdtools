@@ -4,7 +4,7 @@
 
 <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
 
-<property name="ebsdtools.dir" location="."/>
+<property name="ebsdtools.dir" location="${basedir}/../.."/>
 <echo message="ebsdtools.dir = ${ebsdtools.dir}"/>
 
 <property name="tmp.dir" location="${java.io.tmpdir}"/>
@@ -99,7 +99,7 @@ Use ant -p to get a listing of all the available targets.</echo>
 
 <target name="test" depends="compile" unless="notest" 
         description="Run the unit tests">
-  <ant antfile="${ebsdtools.dir}/testing/build.xml" target="test"/>
+  <ant antfile="${ebsdtools.dir}/jython/testing/build.xml" target="test"/>
 </target>
 
 </project>

@@ -4,7 +4,7 @@
 <project name="EBSDTools Unit Tests" basedir="." default="help">
 
 
-<property name="ebsdtools.dir" location="${basedir}/.."/>
+<property name="ebsdtools.dir" location="${basedir}/../.."/>
 
 <property name="tmp.dir" location="${java.io.tmpdir}"/>
 <echo message="tmp.dir = ${tmp.dir}"/>
@@ -34,7 +34,7 @@
      
     <!-- Compile the source code -->
   <mkdir dir="${class.dir}"/>  
-  <javac srcdir="${ebsdtools.dir}/testing" destdir="${class.dir}" source="1.5" 
+  <javac srcdir="${ebsdtools.dir}/jython/testing" destdir="${class.dir}" source="1.5" 
          failonerror="true" debug="true">
     <classpath path="${junit}"/>
     <classpath path="${rmlimage.jar}"/>
@@ -46,7 +46,7 @@
 
 <target name="copy-support-files" description="Copies the support files">
   <copy todir="${class.dir}/rmlimage/plugin/ebsd/python">
-    <fileset dir="${ebsdtools.dir}/testing">
+    <fileset dir="${ebsdtools.dir}/jython/testing">
       <exclude name="**/*.java"/>
       <exclude name="**/*.py"/>
     </fileset>
