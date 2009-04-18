@@ -24,8 +24,8 @@ import EBSDTools
 command = 'sphinx-build -b html'
 command += r' -D pngmath="c:\program files\miktex 2.7\miktex\bin\latex.exe"'
 command += r' -D pngmath_latex_preamble="\usepackage{math}"'
-command += ' ' + os.path.join(EBSDTools.__path__[0], 'help/source')
-command += ' ' + os.path.join(EBSDTools.__path__[0], 'help/build/html') 
+command += ' ' + os.path.join(EBSDTools.__path__[0], '_help/source')
+command += ' ' + os.path.join(EBSDTools.__path__[0], '_help/build/html') 
 
 print command
 

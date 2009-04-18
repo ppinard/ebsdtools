@@ -23,6 +23,7 @@ from math import pi, sqrt, sin
 # Local modules.
 import EBSDTools.crystallography.lattice as lattice
 from RandomUtilities.testing.testOthers import almostEqual
+import EBSDTools.crystallography.cif as cif
 
 # Globals and constants variables.
 
@@ -185,9 +186,82 @@ class TestLattice(unittest.TestCase):
     self.assert_(almostEqual(self.Ltriclinic.volume, 2.518735744968272))
     self.assert_(almostEqual(self.Ltriclinic.volume_, 0.3970245794929935))
 
-  def testGetReflectors(self):
-    #Reflectors tested in test_reflectors.py
-    pass
+  def testLatticeFromCif(self):
+    #Aluminium
+    cifAl = cif.cifreader('testData/aluminum.cif')
+    Lal = lattice.latticeFromCif(cifAl)
+    self.assert_(almostEqual(Lal.a, 4.04958))
+    self.assert_(almostEqual(Lal.b, 4.04958))
+    self.assert_(almostEqual(Lal.c, 4.04958))
+    self.assert_(almostEqual(Lal.a_, 0.24693918))
+    self.assert_(almostEqual(Lal.b_, 0.24693918))
+    self.assert_(almostEqual(Lal.c_, 0.24693918))
+    self.assert_(almostEqual(Lal.alpha, pi/2))
+    self.assert_(almostEqual(Lal.beta, pi/2))
+    self.assert_(almostEqual(Lal.gamma, pi/2))
+    self.assert_(almostEqual(Lal.alpha_, pi/2))
+    self.assert_(almostEqual(Lal.beta_, pi/2))
+    self.assert_(almostEqual(Lal.gamma_, pi/2))
+    self.assert_(almostEqual(Lal.volume, 66.4094599))
+    self.assert_(almostEqual(Lal.volume_, 0.0150580))
+    self.assertEqual(len(Lal.atoms), 4)
+    
+    #Iron
+    cifFe = cif.cifreader('testData/iron.cif')
+    Lfe = lattice.latticeFromCif(cifFe)
+    self.assert_(almostEqual(Lfe.a, 2.866))
+    self.assert_(almostEqual(Lfe.b, 2.866))
+    self.assert_(almostEqual(Lfe.c, 2.866))
+    self.assert_(almostEqual(Lfe.a_, 0.3489183))
+    self.assert_(almostEqual(Lfe.b_, 0.3489183))
+    self.assert_(almostEqual(Lfe.c_, 0.3489183))
+    self.assert_(almostEqual(Lfe.alpha, pi/2))
+    self.assert_(almostEqual(Lfe.beta, pi/2))
+    self.assert_(almostEqual(Lfe.gamma, pi/2))
+    self.assert_(almostEqual(Lfe.alpha_, pi/2))
+    self.assert_(almostEqual(Lfe.beta_, pi/2))
+    self.assert_(almostEqual(Lfe.gamma_, pi/2))
+    self.assert_(almostEqual(Lfe.volume, 23.541197))
+    self.assert_(almostEqual(Lfe.volume_, 0.04247872))
+    self.assertEqual(len(Lfe.atoms), 2)
+    
+    #Zirconium
+    cifZr = cif.cifreader('testData/zirconium.cif')
+    Lzr = lattice.latticeFromCif(cifZr)
+    self.assert_(almostEqual(Lzr.a, 3.2320))
+    self.assert_(almostEqual(Lzr.b, 3.2320))
+    self.assert_(almostEqual(Lzr.c, 5.1470))
+    self.assert_(almostEqual(Lzr.a_, 0.3572712))
+    self.assert_(almostEqual(Lzr.b_, 0.3572712))
+    self.assert_(almostEqual(Lzr.c_, 0.1942879))
+    self.assert_(almostEqual(Lzr.alpha, pi/2))
+    self.assert_(almostEqual(Lzr.beta, pi/2))
+    self.assert_(almostEqual(Lzr.gamma, 2*pi/3))
+    self.assert_(almostEqual(Lzr.alpha_, pi/2))
+    self.assert_(almostEqual(Lzr.beta_, pi/2))
+    self.assert_(almostEqual(Lzr.gamma_, pi/3))
+    self.assert_(almostEqual(Lzr.volume, 46.561558))
+    self.assert_(almostEqual(Lzr.volume_, 0.02147694))
+    self.assertEqual(len(Lzr.atoms), 8)
+    
+    #Ru Dimer
+    cifRuDimer = cif.cifreader('testData/rudimer.cif')
+    Lrudimer = lattice.latticeFromCif(cifRuDimer)
+    self.assert_(almostEqual(Lrudimer.a, 11.181))
+    self.assert_(almostEqual(Lrudimer.b, 14.102))
+    self.assert_(almostEqual(Lrudimer.c, 14.18))
+    self.assert_(almostEqual(Lrudimer.a_, 0.0988911))
+    self.assert_(almostEqual(Lrudimer.b_, 0.0750106))
+    self.assert_(almostEqual(Lrudimer.c_, 0.0776311))
+    self.assert_(almostEqual(Lrudimer.alpha, 100.15*pi/180.0))
+    self.assert_(almostEqual(Lrudimer.beta, 109.66*pi/180.0))
+    self.assert_(almostEqual(Lrudimer.gamma, 101.48*pi/180.0))
+    self.assert_(almostEqual(Lrudimer.alpha_, 1.3041359))
+    self.assert_(almostEqual(Lrudimer.beta_, 1.1754554))
+    self.assert_(almostEqual(Lrudimer.gamma_, 1.2883909))
+    self.assert_(almostEqual(Lrudimer.volume, 1990.439113))
+    self.assert_(almostEqual(Lrudimer.volume_, 0.000502401))
+    self.assertEqual(len(Lrudimer.atoms), 204)
     
   def testGetAtomsPositions(self):
     atoms = {(0,0,0): 14,

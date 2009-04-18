@@ -14,17 +14,93 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-from math import sin, cos
+from math import sin, cos, pi
+import warnings
 
 # Third party modules.
 
 # Local modules.
 from EBSDTools.mathTools.mathExtras import _acos
 import EBSDTools.crystallography.reflectors as reflectors
+import EBSDTools.crystallography.cif as cif
+try:
+  import DatabasesTools.ElementProperties as ElementProperties
+except:
+  import EBSDTools.extras.ElementProperties as ElementProperties
+
+warnings.filterwarnings(action='ignore', category=RuntimeWarning)
+
+def latticeFromCif(cifreader):
+  """
+  Create a :class:`Lattice <EBSDTools.crystallography.lattice.Lattice>` class from a cif 
+  
+  :arg cifreader: a cifreader class
+  :type cifreader: :class:`cifreader <EBSDTools.crystallography.cif.cifreader>`
+  
+  :rtype: :class:`Lattice <EBSDTools.crystallography.lattice.Lattice>`
+  """
+  a = cifreader.getValue(cif.CELL_LENGTH_A)[0]
+  b = cifreader.getValue(cif.CELL_LENGTH_B)[0]
+  c = cifreader.getValue(cif.CELL_LENGTH_C)[0]
+  alpha = cifreader.getValue(cif.CELL_ANGLE_ALPHA)[0] * pi / 180.0
+  beta = cifreader.getValue(cif.CELL_ANGLE_BETA)[0] * pi / 180.0
+  gamma = cifreader.getValue(cif.CELL_ANGLE_GAMMA)[0] * pi / 180.0
+  
+  atoms = _applySymmetryToAtomSite(cifreader.getValue(cif.SYMMETRY_EQUIV_POS_AS_XYZ)
+                                   , cifreader.getValue(cif.ATOM_SITE_LABEL)
+                                   , cifreader.getValue(cif.ATOM_SITE_FRACT_X)
+                                   , cifreader.getValue(cif.ATOM_SITE_FRACT_Y)
+                                   , cifreader.getValue(cif.ATOM_SITE_FRACT_Z))
+  
+  return Lattice(a, b, c, alpha, beta, gamma, atoms)
+
+def _applySymmetryToAtomSite(symmetry_equiv_pos_as_xyz
+                            , atom_site_labels
+                            , atom_site_fract_xs
+                            , atom_site_fract_ys
+                            , atom_site_fract_zs):
+  
+  atomSites = {}
+  for i, atom_site_label in enumerate(atom_site_labels):
+    #Remove digits after the chemical symbol
+    if len(atom_site_label) > 1 and atom_site_label[1].isdigit():
+      symbol = atom_site_label[0]
+    else:
+      symbol = atom_site_label[:2]
+    
+    atomicnumber = ElementProperties.getAtomicNumberBySymbol(symbol)
+    
+    atomSites.setdefault((atom_site_fract_xs[i][0], atom_site_fract_ys[i][0], atom_site_fract_zs[i][0]), atomicnumber)
+  
+  for atomSite in atomSites.keys():
+    x, y, z = atomSite
+    atomicnumber = atomSites[atomSite]
+    
+    for equivPos in symmetry_equiv_pos_as_xyz:
+      equivX, equivY, equivZ = equivPos
+      
+      #Allow float division
+      equivX = equivX.replace('1/', '1.0/').replace('2/', '2.0/').replace('3/', '3.0/').replace('4/', '4.0/').replace('6/', '6.0/')
+      equivY = equivY.replace('1/', '1.0/').replace('2/', '2.0/').replace('3/', '3.0/').replace('4/', '4.0/').replace('6/', '6.0/')
+      equivZ = equivZ.replace('1/', '1.0/').replace('2/', '2.0/').replace('3/', '3.0/').replace('4/', '4.0/').replace('6/', '6.0/')
+      
+      #Replace x, y, z by the value
+      newX = eval(equivX.replace('x', str(x)).replace('y', str(y)).replace('z', str(z)))
+      newY = eval(equivY.replace('x', str(x)).replace('y', str(y)).replace('z', str(z)))
+      newZ = eval(equivZ.replace('x', str(x)).replace('y', str(y)).replace('z', str(z)))
+      
+      if newX < 0: newX += 1
+      if newY < 0: newY += 1
+      if newZ < 0: newZ += 1
+      
+      #Add if new position
+      if not (newX, newY, newZ) in atomSites.keys():
+        atomSites.setdefault((newX, newY, newZ), atomicnumber)
+    
+  return atomSites
 
 class Lattice:
   def __init__(self, a, b, c, alpha, beta, gamma, atoms=None):
-    "@sig public Lattice(double a, double b, double c, double alpha, double beta, double gamma)"
     """
     Initiate the :class:`Lattice`.
     The reciprocal basis and volume are automatically calculated.

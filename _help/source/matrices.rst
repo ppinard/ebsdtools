@@ -28,5 +28,5 @@ Arithmatic operations
 .. autofunction:: trace
 
 .. autoclass:: EBSDTools.mathTools.matrices.matrix
-   :members: isSU3
+   :members: isSO3
    

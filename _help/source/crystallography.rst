@@ -10,4 +10,5 @@ Contents:
    lattice.rst
    reciprocal.rst
    reflectors.rst
+   cif.rst
 
