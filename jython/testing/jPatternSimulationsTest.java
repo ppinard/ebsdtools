@@ -14,7 +14,7 @@ public class jPatternSimulationsTest
   @Test
   public void patternFCC()
   {  
-    jPatternSimulations patt = new jPatternSimulations(335, 255, false, 0.0, 
+    jPatternSimulations patt = new jPatternSimulations(335, 255, 128, 255, 128, true, 0.0, 
                                                        0.0, 0.3, 20000.0, 32, 
                                                        70.0);
     ByteMap sim = patt.patternFCC(0.0, 0.0, 0.0);

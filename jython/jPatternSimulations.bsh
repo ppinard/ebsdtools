@@ -1,6 +1,6 @@
 import rmlimage.plugin.ebsd.python.jPatternSimulations;
 
-jPatternSimulations patt = new jPatternSimulations(335, 255, true, 0.0, 0.0, 0.3, 20000.0, 32, 70.0);
+jPatternSimulations patt = new jPatternSimulations(335, 255, 128, 255, 128, true, 0.0, 0.0, 0.3, 20000.0, 32, 70.0);
 ByteMap sim = patt.patternFCC(0.0, 0.0, 0.0);
 
 RMLImage.add(sim);

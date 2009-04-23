@@ -139,13 +139,25 @@ def drawPattern(reflectors
   :type bandcenter: bool
   
   :arg bandedges: Draw the band edges? (``default=False``)
-  :arg bandedges: bool
+  :type bandedges: bool
   
   :arg bandfull: Draw filled bands (full bands)? (``default=False``)
-  :arg bandfull: bool
+  :type bandfull: bool
   
-  :arg intensity: The color of the bands should reflect the intensity? (``default=False``)
-  :arg intensity: bool
+  :arg intensityMin: the minimum intensity of the bands (value between 0 and 255)
+  :type intensityMin: int
+  
+  :arg intensityMax: the maximum intensity of the bands (value between 0 and 255)
+  :type intensityMax: int
+  
+  :arg intensityBackground: the background intensity (value between 0 and 255)
+  :type intensityBackground: int
+  
+  :arg intensityFunction: the function to calculate the intensity of the bands from the reflectors' intensity (``default=bandColorIntensity``)
+  :type intensityFunction: func
+  
+  :arg gaussianStdDevFunction: the function to calculate the standard deviation for the gaussian distribution of the line intensity. If ``None`` the line has no distribution (``default=None``)
+  :type gaussianStdDevFunction: func
   
   :arg patternCenterY: Coordinates of the pattern center in the horizontal direction (in fraction of the pattern's width) (``default=0.0``)
   :type patternCenterY: float

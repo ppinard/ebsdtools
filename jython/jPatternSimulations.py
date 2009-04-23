@@ -42,8 +42,20 @@ class jPatternSimulations(java.lang.Object):
   RMLImage.add(sim);
   
   """
-  def __init__(self, patternWidth=2680, patternHeight=2040, intensity=False, patternCenterX=0.0, patternCenterY=0.0, detectorDistance=0.3, energy=20e3, numberOfReflectors=32, tilt=70.0):
-    "@sig public jPatternSimulations(int patternWidth, int patternHeight, boolean intensity, double patternCenterX, double patternCenterY, double detectorDistance, double energy, int numberOfReflectors, double tilt)"
+  def __init__(self
+               , patternWidth=2680
+               , patternHeight=2040
+               , intensityMin=1
+               , intensityMax=255
+               , intensityBackground=1
+               , gaussianDistribution=False
+               , patternCenterX=0.0
+               , patternCenterY=0.0
+               , detectorDistance=0.3
+               , energy=20e3
+               , numberOfReflectors=32
+               , tilt=70.0):
+    "@sig public jPatternSimulations(int patternWidth, int patternHeight, int intensityMin, int intensityMax, int intensityBackground, boolean gaussianDistribution, double patternCenterX, double patternCenterY, double detectorDistance, double energy, int numberOfReflectors, double tilt)"
     """
     :arg patternWidth: width of the pattern (in pixels) (``default=2680``)
     :type patternWidth: int
@@ -51,8 +63,17 @@ class jPatternSimulations(java.lang.Object):
     :arg patternHeight: height of the pattern (in pixels) (``default=2040``)
     :type patternHeight: int
     
-    :arg intensity: The color of the bands should reflect the intensity? (``default=False``)
-    :arg intensity: bool
+    :arg intensityMin: the minimum intensity of the bands (value between 0 and 255)
+    :type intensityMin: int
+    
+    :arg intensityMax: the maximum intensity of the bands (value between 0 and 255)
+    :type intensityMax: int
+    
+    :arg intensityBackground: the background intensity (value between 0 and 255)
+    :type intensityBackground: int
+    
+    :arg gaussianDistribution: use a gaussian distribution for the color of the lines (``default=False``)
+    :type gaussianDistribution: bool
     
     :arg patternCenterY: Coordinates of the pattern center in the horizontal direction (in fraction of the pattern's width) (``default=0.0``)
     :type patternCenterY: float
@@ -76,7 +97,10 @@ class jPatternSimulations(java.lang.Object):
     """
     self.patternWidth = patternWidth
     self.patternHeight = patternHeight
-    self.intensity = intensity
+    self.intensityMin = intensityMin
+    self.intensityMax = intensityMax
+    self.intensityBackground = intensityBackground
+    self.gaussianDistribution = gaussianDistribution
     self.patternCenterX = patternCenterX
     self.patternCenterY = patternCenterY
     self.detectorDistance = detectorDistance
@@ -124,11 +148,19 @@ class jPatternSimulations(java.lang.Object):
     
     qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
     
+    if self.gaussianDistribution:
+      gaussianStdDevFunction = patternSimulations.bandGaussianStdDev
+    else:
+      gaussianStdDevFunction = None
+    
     patt = patternSimulations.drawPattern(reflectors=ref
                                           , bandcenter=False
                                           , bandedges=False
                                           , bandfull=True
-                                          , intensity=self.intensity
+                                          , intensityMin=self.intensityMin
+                                          , intensityMax=self.intensityMax
+                                          , intensityBackground=self.intensityBackground
+                                          , gaussianStdDevFunction=gaussianStdDevFunction
                                           , patternCenterX=self.patternCenterX
                                           , patternCenterY=self.patternCenterY
                                           , detectorDistance=self.detectorDistance
@@ -143,6 +175,9 @@ class jPatternSimulations(java.lang.Object):
     return patt
   
 if __name__ == '__main__':
-  patt = jPatternSimulations(335, 255, False, 0.0, 0.0, 0.3, 20e3, 32, 70.0)
-  print patt.patternFCC(0.0, 0.0, 0.0)
+  import rmlimage.io.IO as IO
+  patt = jPatternSimulations(335, 255, 128, 255, 128, True, 0.0, 0.0, 0.3, 20000.0, 32, 70.0)
+  pattern = patt.patternFCC(0.0, 0.0, 0.0)
+  pattern.setFile('test.bmp')
+  IO.save(pattern)
   

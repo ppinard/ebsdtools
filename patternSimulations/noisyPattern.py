@@ -25,6 +25,7 @@ import rmlimage.kernel as kernel
 import rmlimage.kernel.Convolution as Convolution
 import rmlimage.kernel.Kernel as Kernel
 import rmlimage.kernel.Transform as Transform
+import rmlimage.kernel.MathMorph as MathMorph
 import rmlimage.utility
 
 # Local modules.
@@ -79,18 +80,24 @@ def noisy1():
                       , patternCenterVisible=False
                       , colormode=drawing.COLORMODE_GRAYSCALE)
   
+  image.setFile('noisy1before.bmp')
+  IO.save(image)
+  
   #Apply smooth filter
+  kernelsize = 11
+  kernel = Kernel([1]*kernelsize**2, kernelsize, kernelsize, kernelsize**2)
+  Convolution.convolve(image, kernel)
   
   #Binning
   image = Transform.binning(image, 8, 8)
   
   #Noise
-#  for i in range(4):
-#    noise = rmlimage.utility.Noise()
-#    noise.gaussian(image, 25.0)
-  
-  image.setFile('noisy1.bmp')
-  IO.save(image)
+  for i in range(4):
+    noise = rmlimage.utility.Noise()
+    noise.gaussian(image, 25.0)
+    
+    image.setFile('noisy1_gn%i.bmp' % (i+1))
+    IO.save(image)
 
 if __name__ == '__main__':
   noisy1()
