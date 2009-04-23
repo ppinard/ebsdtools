@@ -15,7 +15,7 @@ __svnId__ = ""
 
 # Standard library modules.
 import os
-from math import pi, cos, atan, sqrt, tan, sin
+from math import pi, cos, atan, sqrt, tan, sin, log
 
 # Third party modules.
 
@@ -72,11 +72,55 @@ def computePlaneEquationOnCamera(plane
 
   return m, k
 
+"""
+Band Color Intensity Function
+
+:arg normalizedIntensity: normalized intensity between 0.0 and 1.0
+:type normalizedIntensity: float
+
+:arg intensityMin: minimum intensity
+:type intensityMin: int
+
+:arg intensityMax: maximum intensity
+:type intensityMax: int
+
+:return: a value between 0.0 and 1.0
+:rtype: int
+"""
+def bandColorIntensityLog(normalizedIntensity, intensityMin, intensityMax):
+  return int(log(normalizedIntensity+1)*((intensityMax-intensityMin)/log(2))+intensityMin)/255.0
+
+def bandColorIntensityLog10(normalizedIntensity, intensityMin, intensityMax):
+  return int(log10(normalizedIntensity+1)*((intensityMax-intensityMin)/log10(2))+intensityMin)/255.0
+
+def bandColorIntensity(normalizedIntensity, intensityMin, intensityMax):
+  return int(normalizedIntensity*((intensityMax-intensityMin))+intensityMin)/255.0
+
+"""
+Band Gaussian Distribution Functions
+
+:arg thickness: thickness of the band
+:type thickness: int
+
+:arg normalizedIntensity: normalized intensity between 0.0 and 1.0
+:type normalizedIntensity: float
+
+:return: the standard deviation of the Gaussian distribution
+:rtype: float
+"""
+def bandGaussianStdDev(thickness, normalizedIntensity):
+  return thickness/10.0
+
 def drawPattern(reflectors
                 , bandcenter=True
                 , bandedges=False
                 , bandfull=False
-                , intensity=False
+                , intensityFunction=bandColorIntensity
+                , intensityMin=0
+                , intensityMax=255
+                , intensityBackground=128
+#                , gaussianStdDevFunction=lambda thickness, normalizedIntensity: 3.0
+                , gaussianStdDevFunction=None
                 , patternCenterX=0.0
                 , patternCenterY=0.0
                 , detectorDistance=0.3
@@ -145,9 +189,9 @@ def drawPattern(reflectors
   
   #Add an uniform background
   if colormode == drawing.COLORMODE_GRAYSCALE:
-    im.drawGrayBrackground(color=1)
+    im.drawGrayBrackground(color=intensityBackground)
   elif colormode == drawing.COLORMODE_RGB:
-    im.drawGrayBrackground(color=(1,1,1))
+    im.drawGrayBrackground(color=(intensityBackground,intensityBackground,intensityBackground))
     colorsList = colors.colorsList()
   
   planes = reflectors.getReflectorsList()[:numberOfReflectors]
@@ -201,24 +245,16 @@ def drawPattern(reflectors
       w = d * sin(theta) / cos(alpha-theta)
       w2 = d * sin(theta) / cos(alpha+theta)
     
+    #Color according to intensity
+    normalizedIntensity = reflectors.getReflectorNormalizedIntensity(plane)
+    intensityBand = intensityFunction(normalizedIntensity, intensityMin, intensityMax)
     if colormode == drawing.COLORMODE_RGB:
       baseColor = colorsList.getColorRGB(index)
-      baseColorInfo = baseColor
+      color = (int(baseColor[0]*intensityBand), int(baseColor[1]*intensityBand), int(baseColor[2]*intensityBand))
+      colorInfo = color
     elif colormode == drawing.COLORMODE_GRAYSCALE:
-      baseColor = 255
-      baseColorInfo = (255,255,255)
-    
-    normalizedIntensity = reflectors.getReflectorNormalizedIntensity(plane)
-    if intensity:
-      if colormode == drawing.COLORMODE_RGB:
-        color = (int(baseColor[0]*normalizedIntensity), int(baseColor[1]*normalizedIntensity), int(baseColor[2]*normalizedIntensity))
-        colorInfo = color
-      elif colormode == drawing.COLORMODE_GRAYSCALE:
-        color = int(baseColor*normalizedIntensity)
-        colorInfo = (color, color, color)
-    else:
-      color = baseColor
-      colorInfo = baseColorInfo
+      color = int(intensityBand*255)
+      colorInfo = (color, color, color)
     
 #    print plane, 'm', m, 'k', k#, 'd', d, 'theta', theta, 'w', w, 'alpha', cosalpha, 'g', grayLevel
     
@@ -251,10 +287,19 @@ def drawPattern(reflectors
                             , color=color)
     
     if bandfull:
-      im.drawLinearFunction(m=m
-                            , k=k
-                            , thickness=int(2*w*patternWidth)+1
-                            , color=color)
+      thickness = int(2*w*patternWidth)+1 #The +1 prevents lien with 0 thickness
+      if gaussianStdDevFunction == None:
+        im.drawLinearFunction(m=m
+                              , k=k
+                              , thickness=thickness
+                              , color=color)
+      else:
+        stddev = gaussianStdDevFunction(thickness, normalizedIntensity)
+        im.drawLinearFunctionGaussianDistribution(m=m
+                                                  , k=k
+                                                  , thickness=thickness
+                                                  , color=color
+                                                  , stddev=stddev)
     
     if bandcenter or bandedges or bandfull:
       reflectorsInfo.append({'indices': plane, 'rgb': colorInfo, 'intensity': normalizedIntensity})
@@ -269,9 +314,11 @@ def drawPattern(reflectors
 
 def main():
   import EBSDTools.crystallography.lattice as lattice
+  import EBSDTools.crystallography.reflectors as reflectors
   import EBSDTools.mathTools.eulers as eulers
   import os.path
-#  import rmlimage.io.IO as IO
+  if os.name == 'java':
+    import rmlimage.io.IO as IO
   
 #  #FCC
   atoms = {(0,0,0): 14,
@@ -280,7 +327,9 @@ def main():
            (0,0.5,0.5): 14}
 #  atoms = {(0,0,0): 14,
 #           (0.5,0.5,0.5): 14}
-  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms, reflectorsMaxIndice=4)
+  L = lattice.Lattice(a=5.43, b=5.43, c=5.43, alpha=pi/2, beta=pi/2, gamma=pi/2, atoms=atoms)
+  R = reflectors.Reflectors(L, maxIndice=4)
+#  print len(R.getReflectorsList())
 
   angles = eulers.eulers(0/180.0*pi, 0, 0) #z
   
@@ -293,27 +342,31 @@ def main():
   
   qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
 
-  image = drawPattern(L
+  image = drawPattern(R
               , bandcenter=False
               , bandedges=False
               , bandfull=True
-              , intensity=False
+              , intensityMin=120
+              , intensityMax=255
+              , gaussianStdDev=2.0
+              , intensityBackground=128
               , patternCenterX=0.0
               , patternCenterY=0.0
               , detectorDistance=0.4
               , energy=15e3
-              , numberOfReflectors=32
+              , numberOfReflectors=100
               , qRotations=qRotations
               , patternWidth=335 
               , patternHeight=255
-              , patternCenterVisible=True
-              , colormode=drawing.COLORMODE_RGB)
-    
-  image.show()
-#  image.setFile(r'test.bmp')
-#  
-#  IO.save(image)
+              , patternCenterVisible=False
+              , colormode=drawing.COLORMODE_GRAYSCALE)
   
+  if os.name == 'java':
+    image.setFile(r'test.bmp')
+    IO.save(image)
+  else:
+    image.show()
+
 if __name__ == '__main__':
   main()
   

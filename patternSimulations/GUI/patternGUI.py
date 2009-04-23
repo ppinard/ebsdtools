@@ -329,12 +329,19 @@ class App:
       colormode = patternSimulations.drawing.COLORMODE_GRAYSCALE
     else:
       colormode = patternSimulations.drawing.COLORMODE_RGB
-      
+    
+    if intensity:
+      intensityMin = 1
+    else:
+      intensityMin = 255
+    
     image = patternSimulations.drawPattern(self.reflectors
                 , bandcenter=bandcenter
                 , bandedges=bandedges
                 , bandfull=bandfull
-                , intensity=intensity
+                , intensityMin=intensityMin
+                , intensityMax=255
+                , intensityBackground=1
                 , patternCenterX=pcx
                 , patternCenterY=pcz
                 , detectorDistance=dd
