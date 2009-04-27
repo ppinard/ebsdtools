@@ -36,8 +36,21 @@ import EBSDTools.mathTools.quaternions as quaternions
 import EBSDTools.patternSimulations.patternSimulations as patternSimulations
 import RandomUtilities.DrawingTools.drawing as drawing
 
-def gaussianStdDev(thickness, normalizedIntensity):
-  return thickness / 5.0 / normalizedIntensity
+scos = lambda p, x: p[0] * cos(2*pi*p[1]*(x-p[2])) + p[3]
+
+def stddev(thickness, normalizedIntensity):
+  amplitude = (2*thickness-(thickness/5.0))/2.0
+  p = [-amplitude, 0.5, 0.0, amplitude+thickness/5.0]
+  x = 1.0/(normalizedIntensity*255+1.0)
+  return scos(p, x)
+
+def colorMin():
+  pass
+
+def gaussianDistribution(thickness, normalizedIntensity, intensityBackground):
+  stddev = thickness / 5.0 / normalizedIntensity
+  colorMin = intensityBackground - 100
+  return stddev, colorMin
 
 def noisy1():
 #  #FCC
@@ -67,7 +80,7 @@ def noisy1():
                       , intensityMin=128
                       , intensityMax=255
                       , intensityFunction=patternSimulations.bandColorIntensityLog
-                      , gaussianStdDevFunction=gaussianStdDev
+                      , gaussianFunction=gaussianDistribution
                       , intensityBackground=128
                       , patternCenterX=0.0
                       , patternCenterY=0.0

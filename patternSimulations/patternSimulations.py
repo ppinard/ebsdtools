@@ -105,11 +105,11 @@ Band Gaussian Distribution Functions
 :arg normalizedIntensity: normalized intensity between 0.0 and 1.0
 :type normalizedIntensity: float
 
-:return: the standard deviation of the Gaussian distribution
-:rtype: float
+:return: the standard deviation and minimum color of the Gaussian distribution
+:rtype: tuple
 """
-def bandGaussianStdDev(thickness, normalizedIntensity):
-  return thickness/10.0
+def bandGaussian(thickness, normalizedIntensity):
+  return thickness/10.0, 0.0
 
 def drawPattern(reflectors
                 , bandcenter=True
@@ -119,8 +119,8 @@ def drawPattern(reflectors
                 , intensityMin=0
                 , intensityMax=255
                 , intensityBackground=128
-#                , gaussianStdDevFunction=lambda thickness, normalizedIntensity: 3.0
-                , gaussianStdDevFunction=None
+#                , gaussianFunction=lambda thickness, normalizedIntensity: 3.0
+                , gaussianFunction=None
                 , patternCenterX=0.0
                 , patternCenterY=0.0
                 , detectorDistance=0.3
@@ -156,8 +156,8 @@ def drawPattern(reflectors
   :arg intensityFunction: the function to calculate the intensity of the bands from the reflectors' intensity (``default=bandColorIntensity``)
   :type intensityFunction: func
   
-  :arg gaussianStdDevFunction: the function to calculate the standard deviation for the gaussian distribution of the line intensity. If ``None`` the line has no distribution (``default=None``)
-  :type gaussianStdDevFunction: func
+  :arg gaussianFunction: the function to calculate the parameters for the gaussian distribution of the line intensity. If ``None`` the line has no distribution (``default=None``)
+  :type gaussianFunction: func
   
   :arg patternCenterY: Coordinates of the pattern center in the horizontal direction (in fraction of the pattern's width) (``default=0.0``)
   :type patternCenterY: float
@@ -300,17 +300,18 @@ def drawPattern(reflectors
     
     if bandfull:
       thickness = int(2*w*patternWidth)+1 #The +1 prevents lien with 0 thickness
-      if gaussianStdDevFunction == None:
+      if gaussianFunction == None:
         im.drawLinearFunction(m=m
                               , k=k
                               , thickness=thickness
                               , color=color)
       else:
-        stddev = gaussianStdDevFunction(thickness, normalizedIntensity)
+        stddev, colorMin  = gaussianFunction(thickness, normalizedIntensity, intensityBackground)
         im.drawLinearFunctionGaussianDistribution(m=m
                                                   , k=k
                                                   , thickness=thickness
-                                                  , color=color
+                                                  , colorMax=color
+                                                  , colorMin=colorMin
                                                   , stddev=stddev)
     
     if bandcenter or bandedges or bandfull:
