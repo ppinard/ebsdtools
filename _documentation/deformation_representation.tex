@@ -1,0 +1,302 @@
+\documentclass[letterpaper]{article}
+%------------------------------------------------------------------------------------------
+\title{Different Methods to Represent Deformation}
+\author{Philippe Pinard}
+\date{\today}
+%------------------------------------------------------------------------------------------
+\usepackage[letterpaper,top=2.5cm,bottom=2.5cm,right=2.5cm,left=2.5cm]{geometry}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+%------------------------------------------------------------------------------------------
+%\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{sistyle}
+\usepackage[nothing]{todo}
+\usepackage[version=3]{mhchem}
+\usepackage{fancyhdr}
+\usepackage{paralist}
+\usepackage{math}
+
+%------------------------------------------------------------------------------------------
+\usepackage[
+	pdftitle={Different Methods to Represent Deformation},
+	pdfsubject={Litterature Review},
+	pdfkeywords ={Image Quality, EBSD, Band Contrast, Deformation, Misorientation},
+	pdfauthor={Philippe Pinard},
+	colorlinks=true,
+	linkcolor=blue,
+	pdfborder=0 0 0,
+	pdfhighlight=/I,
+	pdfpagelabels]{hyperref}
+%------------------------------------------------------------------------------------------
+
+\begin{document}
+%------------------------------------------------------------------------------------------
+	\pagestyle{fancy}
+	\fancyhf{}
+	\setlength{\headheight}{15pt}
+	\setlength{\headsep}{10pt}
+	\lhead{Different Methods to Represent Deformation}
+	\rhead{\today}
+	\lfoot{\emph{Prepared by Philippe Pinard}}
+	\rfoot{\thepage}
+%------------------------------------------------------------------------------------------
+	
+	\section{Mean, standard deviation, entropy maps of the patterns}
+		\subsection{Definitions}
+			\begin{itemize}
+				\item $IQ_M = \frac{1}{W\cdot H} \sum\limits_{i=1}^{W}{\sum\limits_{j=1}^{H}{I_{ij}}}$
+					\begin{itemize}
+						\item $W$: Pattern width
+						\item $H$: Pattern height
+						\item $I_{ij}$: Intensity (0-255) of the pixel at row $i$ and column $j$
+					\end{itemize}
+				\item $IQ_\sigma = \sqrt{\frac{\sum\limits_{i=1}^{W}{\sum\limits_{j=1}^{H}{I_{ij} - \bar{I}}}}{W\cdot H - 1}}$
+					\begin{itemize}
+						\item $W$: Pattern width
+						\item $H$: Pattern height
+						\item $I_{ij}$: Intensity (0-255) of the pixel at row $i$ and column $j$
+						\item $\bar{I}$: Average intensity (i.e. $IQ_M$)
+					\end{itemize}
+				\item $IQ_E = - \sum\limits_{i=0}^{255}{P_i\ln{P_i}}$
+					\begin{itemize}
+						\item $P_i$: Probability of gray level $i$
+					\end{itemize}
+			\end{itemize}
+		
+		\subsection{Advantages}
+			\begin{itemize}
+				\item Less noise than IQ \cite{Tao2005}
+				\item Show micro-twins and scratches \cite{Tao2005}
+				\item Show small topography changes \cite{Tao2005}
+				\item Show strain levels \cite{Tao2005}
+				\item Don't rely on the detection of Kikuchi bands \cite{Tao2005}
+				\item Entropy maps have similar results than IQ \cite{Tao2005}
+				\item More related to surface topography \cite{Wright2006}
+				\item $IQ_M$ very similar to FSD images (but with inverted contrast \cite{Wright2006}
+				\item $IQ_M$ is mostly a measured of the overall backscatter yield (good for phase differentiation) \cite{Wright2006}
+			\end{itemize}
+		
+		\subsection{Disadvantages}
+			\begin{itemize}
+				\item Deteriorate with time due to contamination \cite{Tao2005}
+				\item Affected by gain and contrast settings of the EBSD detector unit as well as the SEM \cite{Wright2006}
+				\item Normalization is done using the hypothesis that the sum of all pixels in one row is constant \cite{Tao2005}
+			\end{itemize}
+		
+		\subsection{Representation}
+			\begin{itemize}
+				\item Black is assigned to all values less than $3\sigma$ and white to all values greater than $3\sigma$ \cite{Wright2006}
+			\end{itemize}
+
+\newpage
+	\section{Image Quality}
+		\subsection{Definitions}
+			\begin{itemize}
+				\item $IQ_{HT} = \frac{1}{N} \sum\limits_{i=1}^N {H(\rho_i, \theta_i)}$
+					\begin{itemize}
+						\item $N$: number of peaks detected by the Hough transform (user defined value)
+						\item $H(\rho_i, \theta_i)$: Height of the $i$th peak
+						\item $IQ_{HT}$ will be dependent on the user's selection. Because the peaks are found in decreasing order of intensity, if fewer peaks are allowed, $IQ_{HT}$ will be large.
+					\end{itemize}
+				\item Normalization
+					\begin{itemize}
+						\item $IQ_{\text{normalized}} = \frac{IQ_{\text{initial}}}{IQ_{\text{standard}}}$
+							\begin{itemize}
+								\item $IQ_{\text{standard}}$: Average IQ value of a standard sample (no deformation)
+							\end{itemize}
+						\item $IQ_{\text{normalized}} = \frac{IQ_{\text{initial}} - IQ_{\text{min}}}{IQ_{\text{max}} - IQ_{\text{min}}}$
+							\begin{itemize}
+								\item $IQ_{\text{min}}$: Minimum IQ value of a set
+								\item $IQ_{\text{max}}$: Maximum IQ value of a set
+							\end{itemize}
+					\end{itemize}
+			\end{itemize}
+		
+		\subsection{Factors}
+			\begin{itemize}
+				\item Elastic strain \cite{Wright2006} 
+					\begin{itemize}
+						\item ``Bend'' strain $\rightarrow$ More diffuse bands
+						\item ``Stretch'' strain $\rightarrow$ Wider bands
+					\end{itemize}
+				\item Plastic strain \cite{Wright2006}
+					\begin{itemize}
+						\item Superposition of individual patterns $\rightarrow$ More diffuse patterns
+					\end{itemize}
+				\item Composition \cite{Wright2006}
+					\begin{itemize}
+						\item Heavier atoms have higher atomic scattering factors (brighter patterns)
+					\end{itemize}
+				\item Surface topology \cite{Wright2006}
+			\end{itemize}
+		
+		\subsection{Advantages}
+			\begin{itemize}
+				\item Similar to confidence index \cite{Tao2005}
+				\item Metric describing the quality of a diffraction pattern \cite{Wright2006}
+				\item Doesn't show charge buildup (horizontal artifacts) like the mean, standard dev. and entropy does \cite{Wright2006}
+				\item Show boundaries (grain and phase) \cite{Wright2006}
+				\item Best map to differentiate between phases, grain boundaries and strain \cite{Wright2006}
+				\item Best contrast between strain and unstrained regions \cite{Wright2006}
+				\item IQ differences arising from orientation differences are generally mush smaller than those due to phase, grain boundaries or strain \cite{Wright2006}
+				\item Normalization minimized the effect of image processing on the IQ values \cite{Wu2005}
+			\end{itemize}
+			
+		\subsection{Disadvantages}
+			\begin{itemize}
+				\item Rely on the detection of Kikuchi bands (influence by false peaks) \cite{Tao2005}
+				\item Affected by various operator-defined parameters used in the calculation of the Hough transform \cite{Wright2006}
+				\item No distinction between high and low angles grain boundaries \cite{Wright2006}
+				\item IQ values are not corrected for the grain boundary contribution \cite{Wu2005}
+					\begin{itemize}
+						\item Pixels around grain boundary should be removed from the IQ value
+					\end{itemize}
+			\end{itemize}
+
+\newpage
+	\section{Multi-peaks Model}
+		\subsection{Definitions}
+			\begin{itemize}
+				\item $N = \sum\limits_{i=1}^k {n_i}$
+				\item $IQ \approx \sum\limits_{i=1}^k {ND(n_i, \mu_i, \sigma_i)}$
+					\begin{itemize}
+						\item $N$: Number of the total scan points in a file
+						\item $k$: Number of normal distributions in the simulation
+						\item $ND$: Normal distribution
+					\end{itemize}
+				\item Conditions
+					\begin{enumerate}
+						\item $Min(k)$
+						\item $\left\| IQ - \sum\limits_{i=1}^k {ND(n_i, \mu_i, \sigma_i)} \right\| \leq \epsilon$
+							\begin{itemize}
+								\item $\epsilon$: Minimum acceptable error
+							\end{itemize}
+					\end{enumerate}
+			\end{itemize}
+		
+		\subsection{Advantages}
+			\begin{itemize}
+				\item Study of multi-component microstructures \cite{Wu2005}
+			\end{itemize}
+	
+\newpage
+	\section{Fourier Transform}
+		\subsection{Definitions}
+			\begin{itemize}
+				\item Contrast \cite{Wilkinson1991}
+					\begin{itemize}
+						\item Root mean square intensity of averaged band profiles
+						\item One dimension profiles were taken normal to the band at 1 pixel intervals along the length and superimposed, resulting in a projection of the average profile of the band
+						\item Bands nearly parallel to the selected band do contribute peaks in the profile, which are broadened by the misalignment with the projection direction
+						\item These features can be removed from the projected intensity profile by using a suitable window or weighting function
+						\item Hanning function was used: $H(x) = \frac{1}{2}\cos{\left(2\pi x / X\right)}$
+							\begin{itemize}
+								\item $x$: Sample number
+								\item $X$: Total number of samples in the profile
+							\end{itemize}
+						\item The central peak is emphasizes, while the outer regions regions of the profile are continuously attenuated
+					\end{itemize}
+				\item Sharpness/Diffuseness \cite{Wilkinson1991}
+					\begin{itemize}
+						\item In a good quality pattern, the edges involve rapid changes in intensity (high frequency are present)
+						\item In a degraded pattern, the gray level changes at the edges occur more graduaylly (high frequency attenuated)
+						\item The attenuation of high frequency components of Fourier transform of the enhanced images and of the averaged band profiles
+						\item Two methods
+							\begin{enumerate}
+								\item Spectral first peak area (SFPA)
+									\begin{itemize}
+										\item Calculate the area under the first peak in the power spectrum obtained from the projected average intensity profile
+										\item Apply the Hanning function to the profile prior to transformation in order to emphasize the central Kikuchi band and to reduce leakage encountered in the use of discrete Fourier analysis.
+										\item Take the fraction between the area under the first peak and the total area of the spectrum (independent of pattern quality)
+									\end{itemize}
+								\item Power spectra first moment (PSFM)
+									\begin{itemize}
+											\item Use to generate a single value quantifying the quality of Kikuchi band profiles
+											\item As the method is highly sensitive to the position at which any one single profile is taken, the use of 2D Fourier analysis reduces this dependence on positions
+											\item Integration of the 2D spectrum around circular paths at each radii allows average coefficients at each frequency to be determined
+											\item Hanning function is used
+											\item Take the fraction between the first moment by the area under the spectrum (independent of pattern contrast)
+										\end{itemize}
+							\end{enumerate}
+					\end{itemize}
+			\end{itemize}
+		
+		\subsection{Factors}
+			\begin{itemize}
+				\item Strain
+					\begin{itemize}
+						\item Steady decrease in the high frequency Fourier components as strain increases
+						\item Diffuseness of EBSP patterns is observed to increase with plastic strain
+					\end{itemize}
+			\end{itemize}
+		
+		\subsection{Advantages}
+			\begin{itemize}
+				\item Cold work reduces both contrast and sharpness \cite{Wilkinson1991}
+				\item Tilt effect contrast, but not sharpness \cite{Wilkinson1991}
+			\end{itemize}
+		
+		\subsection{Disadvantages}
+			\begin{itemize}
+				\item Measurements are dependent on the contamination \cite{Wilkinson1991}
+				\item Sampling of several grains is essential to build a calibration curve \cite{Wilkinson1991}
+			\end{itemize}
+
+\newpage
+	\section{Band Contrast}
+		\subsection{Definitions}
+			\begin{itemize}
+				\item Jump in contrast between the edge of the band and the adjacent background \cite{Brewer2006}
+			\end{itemize}
+		
+		\subsection{Disadvantages}
+			\begin{itemize}
+				\item Not sufficient to reliably capture the deformation gradients \cite{Brewer2006}
+			\end{itemize}
+
+\newpage
+	\section{Misorientation Mapping}
+		\subsection{Definitions}
+			\begin{itemize}
+				\item Method \cite{Brewer2006}
+					\begin{enumerate}
+						\item Establish grains in microstructure
+						\item Determine the reference pixel for every individual grain
+							\begin{itemize}
+								\item Calculate the mis-orientation for all nine-pixels clusters within a given grain, disregarding boundary pixels
+								\item Choose the cluster with least mis-orientation as reference (minimum distortion)
+							\end{itemize}
+						\item Calculate and map the mis-orientation
+							\begin{itemize}
+								\item For a given grain, calculate the mis-orientation between each pixel and the reference pixel
+								\item Map this mis-orientation for each pixel using a color table
+							\end{itemize}
+					\end{enumerate}
+			\end{itemize}
+	
+		\subsection{Advantages}
+			\begin{itemize}
+				\item Small mis-orientations represent small amount of intra-grain mis-orientation / lattice rotation and therefore large deformations \cite{Brewer2006}
+				\item Scratches are visible \cite{Brewer2006}
+				\item Show extent of deformation zone \cite{Brewer2006}
+				\item Sensitive to deformation on a grain-by-grain basis \cite{Brewer2006}
+			\end{itemize}
+		
+		\subsection{Disadvantages}
+			\begin{itemize}
+				\item Lack of connection to more quantitative measures of deformation such as strain, strain gradient or dislocation density \cite{Brewer2006}
+				\item The choice of the reference mis-orientation can substantially affect the resulting map \cite{Brewer2006}
+				\item Not accurate enough to measure elastic strain \cite{Brewer2006}
+			\end{itemize}
+	
+%------------------------------------------------------------------------------------------
+\newpage
+	\bibliographystyle{plain}
+	\bibliography{deformation_representation}
+
+\end{document}

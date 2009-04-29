@@ -21,62 +21,46 @@ from math import log
 #import PIL
 
 # Local modules.
+import java.io
+import EBSDTools.indexation.hough as hough
+import rmlimage.io.IO as IO
+import rmlimage.kernel.Convolution as Convolution
+import rmlimage.kernel.Kernel as Kernel
+import rmlimage.kernel.Transform as Transform
 
-def houghMap():
-  import EBSDTools.indexation.hough as hough
-  import rmlimage.io.IO as IO
-  
-  mask = hough.createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
-  
-  H = hough.Hough('c:/documents/workspace/EBSDTools/indexation/testData/pattern1.bmp')
-  H.calculateHough(angleIncrement=0.5, maskMap=mask)
-  
-  H._houghMap.setFile('c:/documents/workspace/EBSDTools/dev/hough1.bmp')
-  IO.save(H._houghMap)
-  
+mask = hough.createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
 
-def butterfly():
-  import numpy
-  from PIL import Image
-  
-  mhough = numpy.asarray(Image.open('c:/documents/workspace/EBSDTools/dev/Lena256x256.bmp'))
-#  mhough = numpy.fft.fftshift(mhough)
-  
-  mkernel = numpy.asarray(Image.open('c:/documents/workspace/EBSDTools/dev/5x5.bmp'))
-#  mkernel = numpy.fft.fftshift(mkernel)
-  
-  fftHough = numpy.fft.fft2(mhough)
-  fftKernel = numpy.fft.fft2(mkernel)
-  
-  print fftHough.shape, fftKernel.shape
-  
-  fftConvol = fftHough * fftKernel
-  
-#  sfftConvol = numpy.fft.ifftshift(fftConvol)
-  convol = numpy.fft.ifft2(fftConvol)
-  convol = 255 / (1+numpy.max(convol)) * convol
-  
-  
-  sfftHough = numpy.fft.ifftshift(fftHough)
-  sfftKernel = numpy.fft.ifftshift(fftKernel)
-  
-  
-  m = numpy.sqrt(convol * numpy.conj(convol))
-  m2 = 255 / (log(1+numpy.max(m))) * numpy.log(m+1)
-  
-  
-  
-  Image.fromarray(numpy.uint8(convol)).show()
+H = hough.Hough('c:/documents/workspace/EBSDTools/indexation/testData/pattern1.bmp')
+H.calculateHough(angleIncrement=0.5, maskMap=mask)
 
-def butterfly2():
-  from PIL import Image, ImageFilter
-  
-  im = Image.open('c:/documents/workspace/EBSDTools/dev/hough1.bmp')
-  print im.mode
-  f = ImageFilter.Kernel(size=(3,3), kernel=[0,-2,0,1,2,1,0,-2,0])
-  im1 = im.filter(f)
-  im1.show()
-  
-  
-if __name__ == '__main__':
-  butterfly2()
+H._houghMap.setFile('c:/documents/workspace/EBSDTools/dev/hough1.bmp')
+IO.save(H._houghMap)
+
+#file = java.io.File('c:/documents/workspace/EBSDTools/dev/hough1(Red).bmp')
+#houghMap = IO.load(file)
+
+houghMap = H._houghMap
+
+k = [[0,-2,0], [1,3,1], [0,-2,0]]
+k = [[-10, -15, -22, -22, -22, -22, -22, -15, -10],
+     [ -1,  -6, -13, -22, -22, -22, -13,  -6,  -1],
+     [  3,   6,   4,  -3, -22,  -3,   4,   6,   3],
+     [  3,  11,  19,  28,  42,  28,  19,  11,   3],
+     [  3,  11,  27,  42,  42,  42,  27,  11,   3],
+     [  3,  11,  19,  28,  42,  28,  19,  11,   3],
+     [  3,   6,   4,  -3, -22,  -3,   4,   6,   3],
+     [ -1,  -6, -13, -22, -22, -22, -13,  -6,  -1],
+     [-10, -15, -22, -22, -22, -22, -22, -15, -10]]
+
+answer = 0
+for line in k:
+  answer += sum(line)
+print answer
+
+kernel = Kernel(k, 1)
+Convolution.convolve(houghMap, kernel)
+
+print houghMap
+
+houghMap.setFile('c:/documents/workspace/EBSDTools/dev/hough1_b.bmp')
+IO.save(houghMap)

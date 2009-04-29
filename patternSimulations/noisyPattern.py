@@ -34,23 +34,28 @@ import EBSDTools.crystallography.reflectors as reflectors
 import EBSDTools.mathTools.eulers as eulers
 import EBSDTools.mathTools.quaternions as quaternions
 import EBSDTools.patternSimulations.patternSimulations as patternSimulations
+import EBSDTools.mathTools.errorFunction as errorFunction
 import RandomUtilities.DrawingTools.drawing as drawing
 
-scos = lambda p, x: p[0] * cos(2*pi*p[1]*(x-p[2])) + p[3]
+erfP = lambda p, x: p[0] * errorFunction.erf(p[1]*(x-p[2])) + p[3]
 
-def stddev(thickness, normalizedIntensity):
+def gaussianDistribution(**args):
+  thickness = args['thickness']
+  normalizedIntensity = args['normalizedIntensity']
+  intensityBackground = args['intensityBackground']/255.0
+  intensityBand = args['intensityBand']
+  
+  x = normalizedIntensity
+  
   amplitude = (2*thickness-(thickness/5.0))/2.0
-  p = [-amplitude, 0.5, 0.0, amplitude+thickness/5.0]
-  x = 1.0/(normalizedIntensity*255+1.0)
-  return scos(p, x)
-
-def colorMin():
-  pass
-
-def gaussianDistribution(thickness, normalizedIntensity, intensityBackground):
-  stddev = thickness / 5.0 / normalizedIntensity
-  colorMin = intensityBackground - 100
-  return stddev, colorMin
+  p = [amplitude, -5, 0.5, amplitude+thickness/5.0]
+  stddev = erfP(p, x)
+  
+  amplitude = (1.0-intensityBackground/2.0)/2.0
+  p = [amplitude, -4, 0.6, amplitude+intensityBackground/2.0]
+  colorMin = erfP(p,x)*intensityBand
+  
+  return stddev, int(colorMin*255)
 
 def noisy1():
 #  #FCC

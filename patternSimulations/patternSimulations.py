@@ -87,14 +87,26 @@ Band Color Intensity Function
 :return: a value between 0.0 and 1.0
 :rtype: int
 """
-def bandColorIntensityLog(normalizedIntensity, intensityMin, intensityMax):
-  return int(log(normalizedIntensity+1)*((intensityMax-intensityMin)/log(2))+intensityMin)/255.0
+def bandColorIntensityLog(**args):
+  normalizedIntensity = args['normalizedIntensity']
+  intensityMax = args['intensityMax']/255.0
+  intensityMin = args['intensityMin']/255.0
+  
+  return log(normalizedIntensity+1)*((intensityMax-intensityMin)/log(2))+intensityMin
 
-def bandColorIntensityLog10(normalizedIntensity, intensityMin, intensityMax):
-  return int(log10(normalizedIntensity+1)*((intensityMax-intensityMin)/log10(2))+intensityMin)/255.0
+def bandColorIntensityLog10(**args):
+  normalizedIntensity = args['normalizedIntensity']
+  intensityMax = args['intensityMax']/255.0
+  intensityMin = args['intensityMin']/255.0
+  
+  return log10(normalizedIntensity+1)*((intensityMax-intensityMin)/log10(2))+intensityMin
 
-def bandColorIntensity(normalizedIntensity, intensityMin, intensityMax):
-  return int(normalizedIntensity*((intensityMax-intensityMin))+intensityMin)/255.0
+def bandColorIntensity(**args):
+  normalizedIntensity = args['normalizedIntensity']
+  intensityMax = args['intensityMax']/255.0
+  intensityMin = args['intensityMin']/255.0
+  
+  return normalizedIntensity*((intensityMax-intensityMin))+intensityMin
 
 """
 Band Gaussian Distribution Functions
@@ -108,7 +120,9 @@ Band Gaussian Distribution Functions
 :return: the standard deviation and minimum color of the Gaussian distribution
 :rtype: tuple
 """
-def bandGaussian(thickness, normalizedIntensity):
+def bandGaussian(**args):
+  thickness = args['thickness']
+  
   return thickness/10.0, 0.0
 
 def drawPattern(reflectors
@@ -259,7 +273,7 @@ def drawPattern(reflectors
     
     #Color according to intensity
     normalizedIntensity = reflectors.getReflectorNormalizedIntensity(plane)
-    intensityBand = intensityFunction(normalizedIntensity, intensityMin, intensityMax)
+    intensityBand = intensityFunction(**locals())
     if colormode == drawing.COLORMODE_RGB:
       baseColor = colorsList.getColorRGB(index)
       color = (int(baseColor[0]*intensityBand), int(baseColor[1]*intensityBand), int(baseColor[2]*intensityBand))
@@ -306,7 +320,7 @@ def drawPattern(reflectors
                               , thickness=thickness
                               , color=color)
       else:
-        stddev, colorMin  = gaussianFunction(thickness, normalizedIntensity, intensityBackground)
+        stddev, colorMin  = gaussianFunction(**locals())
         im.drawLinearFunctionGaussianDistribution(m=m
                                                   , k=k
                                                   , thickness=thickness
@@ -361,7 +375,7 @@ def main():
               , bandfull=True
               , intensityMin=120
               , intensityMax=255
-              , gaussianStdDev=2.0
+              , gaussianFunction=None
               , intensityBackground=128
               , patternCenterX=0.0
               , patternCenterY=0.0
