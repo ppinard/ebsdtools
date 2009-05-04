@@ -149,9 +149,9 @@ class jPatternSimulations(java.lang.Object):
     qRotations = [qSpecimenRotation, qCrystalRotation, qTilt, qDetectorOrientation_]
     
     if self.gaussianDistribution:
-      gaussianStdDevFunction = patternSimulations.bandGaussianStdDev
+      gaussianFunction = patternSimulations.bandGaussian
     else:
-      gaussianStdDevFunction = None
+      gaussianFunction = None
     
     patt = patternSimulations.drawPattern(reflectors=ref
                                           , bandcenter=False
@@ -160,7 +160,7 @@ class jPatternSimulations(java.lang.Object):
                                           , intensityMin=self.intensityMin
                                           , intensityMax=self.intensityMax
                                           , intensityBackground=self.intensityBackground
-                                          , gaussianStdDevFunction=gaussianStdDevFunction
+                                          , gaussianFunction=gaussianFunction
                                           , patternCenterX=self.patternCenterX
                                           , patternCenterY=self.patternCenterY
                                           , detectorDistance=self.detectorDistance

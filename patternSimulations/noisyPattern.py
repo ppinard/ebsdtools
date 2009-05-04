@@ -26,7 +26,7 @@ import rmlimage.kernel.Convolution as Convolution
 import rmlimage.kernel.Kernel as Kernel
 import rmlimage.kernel.Transform as Transform
 import rmlimage.kernel.MathMorph as MathMorph
-import rmlimage.utility
+import rmlimage.utility.Noise as Noise
 
 # Local modules.
 import EBSDTools.crystallography.lattice as lattice
@@ -39,7 +39,7 @@ import RandomUtilities.DrawingTools.drawing as drawing
 
 erfP = lambda p, x: p[0] * errorFunction.erf(p[1]*(x-p[2])) + p[3]
 
-def gaussianDistribution(**args):
+def gaussianDistribution(args):
   thickness = args['thickness']
   normalizedIntensity = args['normalizedIntensity']
   intensityBackground = args['intensityBackground']/255.0
@@ -111,8 +111,7 @@ def noisy1():
   
   #Noise
   for i in range(4):
-    noise = rmlimage.utility.Noise()
-    noise.gaussian(image, 25.0)
+    Noise.gaussian(image, 25.0)
     
     image.setFile('noisy1_gn%i.bmp' % (i+1))
     IO.save(image)

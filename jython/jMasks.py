@@ -21,7 +21,7 @@ import java.lang
 # Third party modules.
 
 # Local modules.
-import EBSDTools.indexation.hough as hough
+import EBSDTools.indexation.masks as masks
 
 class jMasks(java.lang.Object):
   def discMask(self, width, height, centroidX, centroidY, radius):
@@ -29,7 +29,7 @@ class jMasks(java.lang.Object):
     """
     Create a binMap where a white disc is drawn according to the parameter
     """
-    return hough.createMaskDisc(width=width
+    return masks.createMaskDisc(width=width
                                 , height=height
                                 , centroid=(centroidX, centroidY)
                                 , radius=radius)

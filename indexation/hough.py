@@ -16,68 +16,43 @@ __svnId__ = ""
 # Standard library modules.
 import os
 from math import pi
-import java.io
 
 # Third party modules.
-import rmlimage.io.IO as IO
+import rmlimage.io.IO as IO #To be removed
 import rmlimage.kernel as kernel
-import rmlimage.macro.python.cui.EBSD as EBSD
+import rmlimage.plugin.ebsd.Transform as Transform
 import rmlimage.macro.python.cui.Analysis as Analysis
-import rmlimage.macro.python.cui.MapMath as MapMath
 import rmlimage.macro.command.cui.Filter as Filter
 import rmlimage.kernel.Contrast as Contrast
 import rmlshared.math.Stats as Stats
+import rmlimage.kernel.Convolution as Convolution
+import rmlimage.kernel.Kernel as Kernel
+import rmlimage.kernel.MathMorph as MathMorph
+import rmlimage.kernel.Edit as Edit
+import rmlimage.kernel.Threshold as Threshold
 
 # Local modules.
 import RandomUtilities.sort.sortDict as sortDict
 
-def createMaskDisc(width, height, centroid, radius):
-  """
-  Create a circular mask for a pattern size of *size* centered at *centroid* with a given *radius*
-  
-  :arg size: dimensions of the mask (width, height)
-  :type size: tuple
-  
-  :arg centroid: position in pixels of the center of the disc (x,y)
-  :type centroid: tuple
-  
-  :arg radius: radius of the disc in pixels
-  :type radius: int
-  
-  :rtype: :class:`BinMap <rmlimage.kernel.BinMap>`
-  """
-  pixArray = []
-  
-  for y in range(height):
-    for x in range(width):
-      if (x - centroid[0])**2 + (y - centroid[1])**2 < radius**2:
-        pixArray.append(1)
-      else:
-        pixArray.append(0)
-  
-  binMap = kernel.BinMap(width, height, pixArray)
-  
-  return binMap
+# Globals and constants variables.
+FINDPEAKS_TOP_HAT         = 'tophat'
+FINDPEAKS_BUTTERFLY       = 'butterfly'
 
 class Hough:
-  def __init__(self, filepath):
-    file = java.io.File(filepath)
-    map = IO.load(file)
-    if map.type == 'RGBMap':
-      self._map = kernel.Transform.getBlueLayer(map)
-    else:
-      self._map = map
+  def __init__(self, pattern):
+    """
+    Create a Hough class
     
-    assert self._map.type == 'ByteMap'
+    :arg pattern: a pattern
+    :type pattern: :class:`Pattern <EBSDTools.indexation.pattern.Pattern>`
+    """
+    self.pattern = pattern
     
-    self.height = self._map.height
-    self.width = self._map.width
-    
-    self._houghMap = None
+    self.houghMap = None
     self._peaks = None
     self._IQ = None
   
-  def calculateHough(self, angleIncrement=0.5, maskMap=None):
+  def calculateHough(self, angleIncrement=0.5):
     """
     Calculate the Hough Transform. 
     
@@ -85,38 +60,33 @@ class Hough:
     
     :arg angleIncrement: angle increment (in deg)
     :type angleIncrement: float
-    
-    :arg maskMap: binary map of a mask to be applied to the diffraction pattern before doing the Hough transform
-    :type maskMap: :class:`BinMap <rmlimage.kernel.BinMap>`
     """
+    patternMap = self.pattern.patternMap.duplicate()
     
-    if maskMap != None:
-      assert maskMap.type == 'BinMap'
-      assert self._map.size == maskMap.size
-      
-      self._maskMap = kernel.ByteMap(self._map.width, self._map.height)
-      MapMath.andOp(self._map, maskMap, self._maskMap)
-    else:
-      self._maskMap = self._map
+    Filter.median(patternMap)
+    Contrast.expansion(patternMap)
     
-#    MapMath.subtraction(self._maskMap, 128, self._maskMap)
-    Filter.median(self._maskMap)
-    Contrast.expansion(self._maskMap)
+#    self.houghMap = EBSD.houghTransform(patternMap, angleIncrement*pi/180.0)
+    tt = Transform()
+    self.houghMap = tt.hough(patternMap, angleIncrement*pi/180.0)
     
-    self._houghMap = EBSD.houghTransform(self._maskMap, angleIncrement*pi/180.0)
-    
-  
-  def findPeaks(self):
+  def findPeaks(self, method=FINDPEAKS_TOP_HAT, **args):
     """
     Find the peaks in the Hough transform with the classic Top Hat thresholding
     """
     
-    if self._houghMap == None: self.calculateHough()
+    if self.houghMap == None: self.calculateHough()
     
+    if method == FINDPEAKS_TOP_HAT:
+      self._findPeaks_top_hat(**args)
+    elif method == FINDPEAKS_BUTTERFLY:
+      self._findPeaks_butterfly(**args)
+  
+  def _findPeaks_top_hat(self, **args):
     #Get peaks from Hough
-    peaksMap = EBSD.houghThresholding(self._houghMap)
+    peaksMap = EBSD.houghThresholding(self.houghMap)
     identMap = Analysis.identify(peaksMap)
-    assert self._houghMap.size == identMap.size
+    assert self.houghMap.size == identMap.size
     
     #Get intensities of peaks from Hough Transform
     intensities = {}
@@ -126,7 +96,7 @@ class Hough:
     for index in range(identMap.size):
       objectId = identMap.pixArray[index]
       if objectId > 0:
-        houghPixelValue = self._houghMap.getPixValue(index)
+        houghPixelValue = self.houghMap.getPixValue(index)
         intensities[objectId-1].append(houghPixelValue)
     
     #Get centroid of peaks
@@ -136,8 +106,8 @@ class Hough:
     xS, yS = Analysis.measureCentroid(identMap)
     for i in range(len(xS)):
       x = int(round(xS[i])); y = int(round(yS[i]))
-      r = self._houghMap.getR(x, y)
-      theta = self._houghMap.getTheta(x, y)
+      r = self.houghMap.getR(x, y)
+      theta = self.houghMap.getTheta(x, y)
       
       centroids.append((r,theta))
       centroidsXY.append((x,y))
@@ -159,6 +129,46 @@ class Hough:
               , 'centroidXY': centroidXY
               , 'area': area}
       self._peaks[objectId] = peak
+  
+  def _findPeaks_butterfly(self, **args):
+    houghMap = self.houghMap.duplicate()
+    
+    MathMorph.closing(houghMap, 1)
+    
+    #3x3
+#    k = [[0,-2,0], [1,3,1], [0,-2,0]]
+    
+    #9x9
+    k = [[-10, -15, -22, -22, -22, -22, -22, -15, -10],
+         [ -1,  -6, -13, -22, -22, -22, -13,  -6,  -1],
+         [  3,   6,   4,  -3, -22,  -3,   4,   6,   3],
+         [  3,  11,  19,  28,  42,  28,  19,  11,   3],
+         [  3,  11,  27,  42,  42,  42,  27,  11,   3],
+         [  3,  11,  19,  28,  42,  28,  19,  11,   3],
+         [  3,   6,   4,  -3, -22,  -3,   4,   6,   3],
+         [ -1,  -6, -13, -22, -22, -22, -13,  -6,  -1],
+         [-10, -15, -22, -22, -22, -22, -22, -15, -10]]
+    
+    kernel = Kernel(k, 50)
+    Convolution.convolve(houghMap, kernel)
+    
+    #Crop white edges on top and bottom
+    cropDistanceY = int(args['radius'] / houghMap.getDeltaR()) - 6
+    houghMap.setROI(0, houghMap.height/2-cropDistanceY, houghMap.width-1, houghMap.height/2+cropDistanceY)
+    houghMap_crop = Edit.crop(houghMap)
+    houghMap.resetROI()
+    
+    #Thresholding
+    peaksMap = Threshold.iterative(houghMap_crop)
+    
+    #Clean peaks (small peaks)
+    
+    
+    identMap = Analysis.identify(peaksMap)
+    print identMap.getObjectCount()
+    
+    houghMap_crop.setFile('c:/documents/workspace/EBSDTools/dev/hough1_b.bmp')
+    IO.save(houghMap_crop)
   
   def calculateImageQuality(self, numberPeaks=None):
     """
@@ -204,9 +214,9 @@ class Hough:
     :rtype: :class:`HoughMap <rmlimage.plugin.ebsd.HoughMap>`
     """
     
-    if self._houghMap == None: self.calculateHough()
+    if self.houghMap == None: self.calculateHough()
     
-    return self._houghMap
+    return self.houghMap
   
   def getPeaks(self):
     """
@@ -292,21 +302,11 @@ class Hough:
   getIQ = getImageQuality
 
 if __name__ == '__main__':
-  """
+  import EBSDTools.indexation.masks as masks
+  import EBSDTools.indexation.pattern as pattern
   
-  """
-  
-  maskMap = createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
-  
-  maskMap.setFile(r'i:\philippe pinard\workspace\DeformationSamplePrep\maskk.bmp')
-  
-  IO.save(maskMap)
-  
-  hough = Hough(r'i:\philippe pinard\workspace\DeformationSamplePrep\data\patterns\TiB_diamond-05_1_000005.jpg')
-
-  print hough.calculateHough(maskMap=maskMap)
-  hough.findPeaks()
-  hough.calculateImageQuality(4)
-  print hough.getImageQuality()
-
-  
+  maskMap = masks.createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
+  P = pattern.Pattern(filepath='c:/documents/workspace/EBSDTools/indexation/testData/pattern1.bmp', maskMap=maskMap)
+  H = Hough(P)
+  H.calculateHough(angleIncrement=0.5)
+  H.findPeaks(method=FINDPEAKS_BUTTERFLY, radius=59)

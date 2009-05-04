@@ -159,9 +159,28 @@
 			\end{itemize}
 
 \newpage
+	\section{Image Quality in INCA Crystal}
+		\subsection{Definitions}
+			\begin{itemize}
+				\item From \cite{Sitzman2009}
+				\item For each pattern, the 7 strongest Hough peaks are identified
+				\item $IQ = 256 \frac{I_{\text{Max}} - I_{\text{Min}}}{20000}$ (for 8 bit)
+				\item $IQ = \frac{I_{\text{Max}} - I_{\text{Min}}}{2000}-20$ (for 16 bit)
+					\begin{itemize}
+						\item $I_{\text{Max}}$: Strongest peak relative to the average gray level (128) in Hough space
+						\item $I_{\text{Min}}$: Smallest peak relative to the average gray level (128) in Hough space
+					\end{itemize}
+				\item $IQ = 255 \frac{\frac{1brigtheness}{std.dev.} - 4.0}{9.5}$ (latest software)
+					\begin{itemize}
+						\item For a standard deviation ranging from 4 to 13.5
+					\end{itemize}
+			\end{itemize}
+
+\newpage
 	\section{Multi-peaks Model}
 		\subsection{Definitions}
 			\begin{itemize}
+				\item From \cite{Wu2005}
 				\item $N = \sum\limits_{i=1}^k {n_i}$
 				\item $IQ \approx \sum\limits_{i=1}^k {ND(n_i, \mu_i, \sigma_i)}$
 					\begin{itemize}
