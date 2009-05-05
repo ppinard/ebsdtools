@@ -25,7 +25,7 @@ import rmlimage.macro.python.cui.Analysis as Analysis
 import rmlimage.macro.command.cui.Filter as Filter
 import rmlimage.kernel.Contrast as Contrast
 import rmlshared.math.Stats as Stats
-import rmlimage.kernel.Convolution as Convolution
+import rmlimage.plugin.ebsd.Convolution as Convolution
 import rmlimage.kernel.Kernel as Kernel
 import rmlimage.kernel.MathMorph as MathMorph
 import rmlimage.kernel.Edit as Edit
@@ -133,7 +133,16 @@ class Hough:
   def _findPeaks_butterfly(self, **args):
     houghMap = self.houghMap.duplicate()
     
-    MathMorph.closing(houghMap, 1)
+    #Crop white edges on top and bottom
+    cropDistanceY = int(args['radius'] / houghMap.getDeltaR()) - 6
+    houghMap.setROI(0, houghMap.height/2-cropDistanceY, houghMap.width-1, houghMap.height/2+cropDistanceY)
+    houghMap_crop = Edit.crop(houghMap)
+    houghMap.resetROI()
+    
+    houghMap_crop.setFile('hough1.bmp')
+    IO.save(houghMap_crop)
+    
+    MathMorph.closing(houghMap_crop, 1)
     
     #3x3
 #    k = [[0,-2,0], [1,3,1], [0,-2,0]]
@@ -149,14 +158,11 @@ class Hough:
          [ -1,  -6, -13, -22, -22, -22, -13,  -6,  -1],
          [-10, -15, -22, -22, -22, -22, -22, -15, -10]]
     
-    kernel = Kernel(k, 50)
-    Convolution.convolve(houghMap, kernel)
+    kernel = Kernel(k, 1)
+    Convolution.convolve(houghMap_crop, kernel)
     
-    #Crop white edges on top and bottom
-    cropDistanceY = int(args['radius'] / houghMap.getDeltaR()) - 6
-    houghMap.setROI(0, houghMap.height/2-cropDistanceY, houghMap.width-1, houghMap.height/2+cropDistanceY)
-    houghMap_crop = Edit.crop(houghMap)
-    houghMap.resetROI()
+    houghMap.setFile('hough1_b.bmp')
+    IO.save(houghMap_crop)
     
     #Thresholding
     peaksMap = Threshold.iterative(houghMap_crop)
@@ -167,8 +173,8 @@ class Hough:
     identMap = Analysis.identify(peaksMap)
     print identMap.getObjectCount()
     
-    houghMap_crop.setFile('c:/documents/workspace/EBSDTools/dev/hough1_b.bmp')
-    IO.save(houghMap_crop)
+    peaksMap.setFile('peaks_b.bmp')
+    IO.save(peaksMap)
   
   def calculateImageQuality(self, numberPeaks=None):
     """
@@ -305,8 +311,8 @@ if __name__ == '__main__':
   import EBSDTools.indexation.masks as masks
   import EBSDTools.indexation.pattern as pattern
   
-  maskMap = masks.createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
-  P = pattern.Pattern(filepath='c:/documents/workspace/EBSDTools/indexation/testData/pattern1.bmp', maskMap=maskMap)
+  maskMap = masks.createMaskDisc(width=168, height=128, centroid=(84,64), radius=65)
+  P = pattern.Pattern(filepath='testData/pattern1.bmp', maskMap=maskMap)
   H = Hough(P)
   H.calculateHough(angleIncrement=0.5)
   H.findPeaks(method=FINDPEAKS_BUTTERFLY, radius=59)
