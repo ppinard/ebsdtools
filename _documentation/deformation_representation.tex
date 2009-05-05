@@ -49,20 +49,20 @@
 	\section{Mean, standard deviation, entropy maps of the patterns}
 		\subsection{Definitions}
 			\begin{itemize}
-				\item $IQ_M = \frac{1}{W\cdot H} \sum\limits_{i=1}^{W}{\sum\limits_{j=1}^{H}{I_{ij}}}$
+				\item $IQ_M = \frac{1}{W\cdot H} \sum\limits_{i=1}^{W}{\sum\limits_{j=1}^{H}{I_{ij}}}$ \cite{Tao2005,Wright2006}
 					\begin{itemize}
 						\item $W$: Pattern width
 						\item $H$: Pattern height
 						\item $I_{ij}$: Intensity (0-255) of the pixel at row $i$ and column $j$
 					\end{itemize}
-				\item $IQ_\sigma = \sqrt{\frac{\sum\limits_{i=1}^{W}{\sum\limits_{j=1}^{H}{I_{ij} - \bar{I}}}}{W\cdot H - 1}}$
+				\item $IQ_\sigma = \sqrt{\frac{\sum\limits_{i=1}^{W}{\sum\limits_{j=1}^{H}{I_{ij} - \bar{I}}}}{W\cdot H - 1}}$ \cite{Tao2005,Wright2006}
 					\begin{itemize}
 						\item $W$: Pattern width
 						\item $H$: Pattern height
 						\item $I_{ij}$: Intensity (0-255) of the pixel at row $i$ and column $j$
 						\item $\bar{I}$: Average intensity (i.e. $IQ_M$)
 					\end{itemize}
-				\item $IQ_E = - \sum\limits_{i=0}^{255}{P_i\ln{P_i}}$
+				\item $IQ_E = - \sum\limits_{i=0}^{255}{P_i\ln{P_i}}$ \cite{Tao2005,Wright2006}
 					\begin{itemize}
 						\item $P_i$: Probability of gray level $i$
 					\end{itemize}
@@ -97,13 +97,13 @@
 	\section{Image Quality}
 		\subsection{Definitions}
 			\begin{itemize}
-				\item $IQ_{HT} = \frac{1}{N} \sum\limits_{i=1}^N {H(\rho_i, \theta_i)}$
+				\item $IQ_{HT} = \frac{1}{N} \sum\limits_{i=1}^N {H(\rho_i, \theta_i)}$ \cite{Wright2006}
 					\begin{itemize}
 						\item $N$: number of peaks detected by the Hough transform (user defined value)
 						\item $H(\rho_i, \theta_i)$: Height of the $i$th peak
 						\item $IQ_{HT}$ will be dependent on the user's selection. Because the peaks are found in decreasing order of intensity, if fewer peaks are allowed, $IQ_{HT}$ will be large.
 					\end{itemize}
-				\item Normalization
+				\item Normalization \cite{Wright2006}
 					\begin{itemize}
 						\item $IQ_{\text{normalized}} = \frac{IQ_{\text{initial}}}{IQ_{\text{standard}}}$
 							\begin{itemize}
@@ -115,6 +115,7 @@
 								\item $IQ_{\text{max}}$: Maximum IQ value of a set
 							\end{itemize}
 					\end{itemize}
+				\item A quality measure based on the Hough Transform should thus in some way measure the ``amount'' of butterfly peaks in the normalized Hough Transform \cite{KriegerLassen1994}
 			\end{itemize}
 		
 		\subsection{Factors}
@@ -243,14 +244,32 @@
 										\end{itemize}
 							\end{enumerate}
 					\end{itemize}
+\newpage
+				\item Quality index by Krieger Lassen \cite{KriegerLassen1994}
+					\begin{itemize}
+						\item $I = \frac{\sum\limits_{u=-n/2}^{n/2-1}{\sum\limits_{v=-n/2}^{n/2-1}{S(u,v)(u^2 + v^2)}}} {\sum\limits_{u=-n/2}^{n/2-1}{\sum\limits_{v=-n/2}^{n/2-1}{S(u,v)}}}$
+							\begin{itemize}
+								\item $S(u,v)$: Inertia of the Fourier spectrum $S(u,v) = \norm{F(u,v)}$ around the center $(u,v) = (0,0)$
+								\item The inertia decreases as the spectrum becomes successively more concentrated at low frequencies and should thus be large for low quality images than for images of higher quality.
+							\end{itemize}
+						\item $I_{\text{max}} = \frac{1}{n^2}\sum\limits_{u=-n/2}^{n/2-1}{\sum\limits_{v=-n/2}^{n/2-1}{(u^2+v^2)}}$
+						\item $Q = 1 - \frac{I}{I_{\text{max}}}$
+					\end{itemize}
 			\end{itemize}
 		
 		\subsection{Factors}
 			\begin{itemize}
-				\item Strain
+				\item Strain \cite{Wilkinson1991}
 					\begin{itemize}
 						\item Steady decrease in the high frequency Fourier components as strain increases
 						\item Diffuseness of EBSP patterns is observed to increase with plastic strain
+					\end{itemize}
+				\item Quality \cite{KriegerLassen1994}
+					\begin{itemize}
+						\item There are linear features in Fourier spectra from the EBSD bands. They are most notable in high quality pattern.
+						\item High quality patterns have a large content of low frequency components and a lower content of high frequency components than the low quality patterns
+						\item The frequency content of the low quality EBSP is more uniformly distributed among the different frequency components and is approaching that of white noise.
+						\item Essentially a measure for the noise level of the images
 					\end{itemize}
 			\end{itemize}
 		
