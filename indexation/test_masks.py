@@ -43,13 +43,13 @@ class TestMasks(unittest.TestCase):
   
   def testCreateMaskDisc(self):
     #Centered
-    maskMap = masks.createMaskDisc(width=168, height=128, centroid=(84,64), radius=59)
+    maskMap = masks.MaskDisc(width=168, height=128, centroid=(84,64), radius=59)
     maskMap.setFile(os.path.join(self.basepath, 'test_maskDisc.bmp'))
     IO.save(maskMap)
     self.assert_(testImage.equal(os.path.join(self.basepath, 'test_maskDisc.bmp'), os.path.join(self.basepath, 'maskDisc.bmp')))
     
     #In the corner
-    maskMap = masks.createMaskDisc(width=168, height=128, centroid=(0,0), radius=59)
+    maskMap = masks.MaskDisc(width=168, height=128, centroid=(0,0), radius=59)
     maskMap.setFile(os.path.join(self.basepath, 'test_maskDisc2.bmp'))
     IO.save(maskMap)
     self.assert_(testImage.equal(os.path.join(self.basepath, 'test_maskDisc2.bmp'), os.path.join(self.basepath, 'maskDisc2.bmp')))

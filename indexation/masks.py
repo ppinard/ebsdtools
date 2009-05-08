@@ -16,34 +16,84 @@ __svnId__ = ""
 # Standard library modules.
 
 # Third party modules.
+import rmlimage
 import rmlimage.kernel as kernel
 
 # Local modules.
 
-def createMaskDisc(width, height, centroid, radius):
-  """
-  Create a circular mask for a pattern size of *size* centered at *centroid* with a given *radius*
+class MaskMap(rmlimage.kernel.BinMap):
+  def __init__(self, width, height, *args):
+    """
+    MaskMap class (inherit :class:`BinMap <rmlimage.kernel.BinMap>`
+    
+    :arg width: width of the mask map
+    :type width: int
+    
+    :arg height: width of the mask map
+    :type height: int
+    """
+    
+    rmlimage.kernel.BinMap.__init__(self, width, height, *args)
   
-  :arg size: dimensions of the mask (width, height)
-  :type size: tuple
+  def getType(self):
+    """
+    Override the class type to show that *MaskMap* inherits a *BinMap*
+    """
+    
+    return 'BinMap'
   
-  :arg centroid: position in pixels of the center of the disc (x,y)
-  :type centroid: tuple
+class MaskDisc(MaskMap):
+  def __init__(self, width, height, centroid, radius):
+    """
+    A circular mask
+    
+    :arg width: width of the mask map
+    :type width: int
+    
+    :arg height: width of the mask map
+    :type height: int
+    
+    :arg centroid: position in pixels of the center of the disc (x,y)
+    :type centroid: tuple of int
+    
+    :arg radius: radius of the disc in pixels
+    :type radius: int
+    """
+    
+    self.centroid = centroid
+    self.radius = radius
+    
+    pixArray = []
+    for y in range(height):
+      for x in range(width):
+        if (x - centroid[0])**2 + (y - centroid[1])**2 < radius**2:
+          pixArray.append(1)
+        else:
+          pixArray.append(0)
+    
+    MaskMap.__init__(self, width, height, pixArray)
   
-  :arg radius: radius of the disc in pixels
-  :type radius: int
+  def getRadius(self):
+    """
+    Return the radius of the circle
+    
+    :rtype: int
+    """
+    
+    return self.radius
   
-  :rtype: :class:`BinMap <rmlimage.kernel.BinMap>`
-  """
-  pixArray = []
+  def getCentroid(self):
+    """
+    Return the centroid of the circle
+    
+    :rtype: tuple of int
+    """
+    
+    return self.centroid
   
-  for y in range(height):
-    for x in range(width):
-      if (x - centroid[0])**2 + (y - centroid[1])**2 < radius**2:
-        pixArray.append(1)
-      else:
-        pixArray.append(0)
-  
-  binMap = kernel.BinMap(width, height, pixArray)
-  
-  return binMap
+if __name__ == '__main__':
+  import rmlimage.io.IO as IO
+  mask1 = MaskDisc(168, 128, (84, 64), 59)
+  mask1.setFile('test.bmp')
+  IO.save(mask1)
+  print mask1.height

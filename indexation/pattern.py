@@ -18,17 +18,19 @@ import os
 import java.io
 
 # Third party modules.
+import rmlimage
 import rmlimage.io.IO as IO
 import rmlimage.kernel as kernel
-import rmlshared.math.Stats as Stats
 import rmlimage.macro.python.cui.MapMath as MapMath
 
 # Local modules.
 
-class Pattern:
+class PatternMap(rmlimage.kernel.ByteMap):
   def __init__(self, filepath=None, byteMap=None, maskMap=None):
     """
-    Pattern class
+    PatternMap class (inherit :class:`ByteMap <rmlimage.kernel.ByteMap>`
+    
+    Store the information related to an EBSD pattern.
     
     Two optional constructors: 
     
@@ -50,82 +52,55 @@ class Pattern:
     if filepath != None and byteMap == None:
       file = java.io.File(filepath)
       map = IO.load(file)
+      
       if map.type == 'RGBMap':
-        patternMap = kernel.Transform.getBlueLayer(map)
+        self.originalPattern = kernel.Transform.getBlueLayer(map)
       else:
-        patternMap = map
+        self.originalPattern = map
     elif filepath == None and byteMap != None:
-      patternMap = byteMap
+      self.originalPattern = byteMap
     
-    assert patternMap.type == 'ByteMap'
+    assert self.originalPattern.type == 'ByteMap'
     
     #Apply mask
-    if maskMap != None:
-      assert maskMap.type == 'BinMap'
-      assert patternMap.size == maskMap.size
+    self.maskMap = maskMap
+    if self.maskMap != None:
+      assert self.maskMap.getType() == 'BinMap'
+      assert self.originalPattern.size == self.maskMap.size
       
-      patternMapMask = kernel.ByteMap(patternMap.width, patternMap.height)
-      MapMath.andOp(patternMap, maskMap, patternMapMask)
+      patternMapMask = kernel.ByteMap(self.originalPattern.width, self.originalPattern.height)
+      MapMath.andOp(self.originalPattern, self.maskMap, patternMapMask)
       
-      self.patternMap = patternMapMask
+      #Constructor
+      rmlimage.kernel.ByteMap.__init__(self, patternMapMask.width, patternMapMask.height, patternMapMask.pixArray)
     else:
-      self.patternMap = patternMap
-    
-    #Dimensions
-    self.height = self.patternMap.height
-    self.width = self.patternMap.width
-    
-    #Undefined results
-    self._mean = None
-    self._stddev = None
+      rmlimage.kernel.ByteMap.__init__(self, self.originalPattern.width, self.originalPattern.height, self.originalPattern.pixArray)
   
-  def getPattern(self):
+  def getMaskMap(self):
     """
-    Return the loaded pattern as a ByteMap
+    Return the mask map used 
+    
+    :rtype: :class:`BinMap <rmlimage.kernel.BinMap>` or ``None`` if no mask was applied
+    """
+    
+    return self.maskMap
+  
+  def getOriginalPattern(self):
+    """
+    Return the original pattern before the mask was applied (if any)
     
     :rtype: :class:`ByteMap <rmlimage.kernel.ByteMap>`
-    
-    .. note:: the pattern can also be access using the class variable *patternMap*.
     """
-    return self.patternMap
+    
+    return self.originalPattern
   
-  def calculateStatistics(self):
+  def getType(self):
     """
-    Calculate the mean and standard deviation
+    Override the class type to show that *PatternMap* inherits a *ByteMap*
     """
-    values = []
-    for index in range(self.patternMap.size):
-      value = self.patternMap.getPixValue(index)
-      if value > 0: #Ignore pixel with 0 value since they are outside the mask
-        values.append(value)
     
-    self._mean = Stats.average(values)
-    self._stddev = Stats.standardDeviation(values)
-  
-  def getMean(self):
-    """
-    Return the mean of the pattern
-    
-    :rtype: float
-    """
-    if self._mean == None: self.calculateStatistics()
-    
-    return self._mean
-  
-  def getStandardDeviation(self):
-    """
-    Return the mean of the pattern
-    
-    :rtype: float
-    """
-    if self._stddev == None: self.calculateStatistics()
-    
-    return self._stddev
-  
-  getStdDev = getStandardDeviation
+    return 'ByteMap'
   
 if __name__ == '__main__':
-  pattern = Pattern(filepath='testData/pattern1.bmp')
-  pattern.calculateStatistics()
+  patt = PatternMap(filepath='testData/pattern1.bmp')
   
-  print pattern.getMean(), pattern.getStandardDeviation()

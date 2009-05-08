@@ -18,7 +18,6 @@ import os
 import glob
 import ConfigParser
 import shutil
-import tempfile
 
 # Third party modules.
 
@@ -86,6 +85,8 @@ def update(location):
     files = glob.glob(os.path.join(config.source, '%s*.%s' % (config.prefix, config.filetype)))
     lastVersion = sorted(files)[-1]
   
+  #Read zip
+  print lastVersion
   zip = myzip.reader(filename=lastVersion, debug=True)
   
   #Remove and create source folder
@@ -103,6 +104,11 @@ def update(location):
     zip = myzip.reader(filename=jarFile, debug=True)
     zip.extractAll(rml_folder)
     zip.close()
+  
+  #Copy main jar to uniform jar name
+  mainjar = glob.glob(os.path.join(rml_folder, 'rml-image_ebsd*.jar'))[0]
+  print mainjar
+  shutil.copy(mainjar, os.path.join(rml_folder, 'rml-image_ebsd.jar'))
   
   #Remove folders in library path
   rmlimage_folder = os.path.join(config.jython_lib, 'rmlimage/')

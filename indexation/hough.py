@@ -18,9 +18,11 @@ import os
 from math import pi
 
 # Third party modules.
+import rmlimage
 import rmlimage.io.IO as IO #To be removed
 import rmlimage.kernel as kernel
 import rmlimage.plugin.ebsd.Transform as Transform
+import rmlimage.plugin.ebsd.Threshold as Threshold
 import rmlimage.macro.python.cui.Analysis as Analysis
 import rmlimage.macro.command.cui.Filter as Filter
 import rmlimage.kernel.Contrast as Contrast
@@ -29,7 +31,6 @@ import rmlimage.plugin.ebsd.Convolution as Convolution
 import rmlimage.kernel.Kernel as Kernel
 import rmlimage.kernel.MathMorph as MathMorph
 import rmlimage.kernel.Edit as Edit
-import rmlimage.kernel.Threshold as Threshold
 
 # Local modules.
 import RandomUtilities.sort.sortDict as sortDict
@@ -38,49 +39,47 @@ import RandomUtilities.sort.sortDict as sortDict
 FINDPEAKS_TOP_HAT         = 'tophat'
 FINDPEAKS_BUTTERFLY       = 'butterfly'
 
-class Hough:
-  def __init__(self, pattern):
+class HoughMap(rmlimage.plugin.ebsd.HoughMap):
+  def __init__(self, patternMap, angleIncrement=0.5):
     """
-    Create a Hough class
+    Create a Hough class (inherit :class:`HoughMap <rmlimage.plugin.ebsd.HoughMap>`
     
-    :arg pattern: a pattern
-    :type pattern: :class:`Pattern <EBSDTools.indexation.pattern.Pattern>`
-    """
-    self.pattern = pattern
-    
-    self.houghMap = None
-    self._peaks = None
-    self._IQ = None
-  
-  def calculateHough(self, angleIncrement=0.5):
-    """
     Calculate the Hough Transform. 
+        A median and a contrast expansion is performed before doing the Hough transform.
     
-    A median and a contrast expansion is performed before doing the Hough transform.
+    :arg patternMap: a pattern map
+    :type patternMap: :class:`PatternMap <EBSDTools.indexation.pattern.PatternMap>`
     
     :arg angleIncrement: angle increment (in deg)
     :type angleIncrement: float
     """
-    patternMap = self.pattern.patternMap.duplicate()
+    self.patternMap = patternMap
     
-    Filter.median(patternMap)
-    Contrast.expansion(patternMap)
+    #Calculate Hough
+    patternHoughMap = self.patternMap.duplicate()
     
-#    self.houghMap = EBSD.houghTransform(patternMap, angleIncrement*pi/180.0)
-    tt = Transform()
-    self.houghMap = tt.hough(patternMap, angleIncrement*pi/180.0)
+    Filter.median(patternHoughMap)
+    Contrast.expansion(patternHoughMap)
     
-  def findPeaks(self, method=FINDPEAKS_TOP_HAT, **args):
+    houghMap = Transform().hough(patternHoughMap, angleIncrement*pi/180.0)
+    
+    rmlimage.plugin.ebsd.HoughMap.__init__(self
+                                           , houghMap.getRMax()
+                                           , houghMap.getDeltaR()
+                                           , houghMap.getDeltaTheta())
+    
+    for index in range(houghMap.size):
+      self.setPixValue(index, houghMap.getPixValue(index))
+    
+  def findPeaks(self, method=FINDPEAKS_TOP_HAT):
     """
     Find the peaks in the Hough transform with the classic Top Hat thresholding
     """
     
-    if self.houghMap == None: self.calculateHough()
-    
     if method == FINDPEAKS_TOP_HAT:
-      self._findPeaks_top_hat(**args)
+      self._findPeaks_top_hat()
     elif method == FINDPEAKS_BUTTERFLY:
-      self._findPeaks_butterfly(**args)
+      self._findPeaks_butterfly()
   
   def _findPeaks_top_hat(self, **args):
     #Get peaks from Hough
@@ -130,19 +129,24 @@ class Hough:
               , 'area': area}
       self._peaks[objectId] = peak
   
-  def _findPeaks_butterfly(self, **args):
-    houghMap = self.houghMap.duplicate()
+  def _findPeaks_butterfly(self):
+    houghMap = self.duplicate()
     
     #Crop white edges on top and bottom
-    cropDistanceY = int(args['radius'] / houghMap.getDeltaR()) - 6
-    houghMap.setROI(0, houghMap.height/2-cropDistanceY, houghMap.width-1, houghMap.height/2+cropDistanceY)
+    topY = houghMap.getY(self.patternMap.getMaskMap().getRadius())
+    bottomY = houghMap.getY(-self.patternMap.getMaskMap().getRadius())
+    
+    houghMap.setROI(0, topY, houghMap.width-1, bottomY)
     houghMap_crop = Edit.crop(houghMap)
     houghMap.resetROI()
+    
+    #Apply median filter
+    MathMorph.median(houghMap_crop, 3)
     
     houghMap_crop.setFile('hough1.bmp')
     IO.save(houghMap_crop)
     
-    MathMorph.closing(houghMap_crop, 1)
+#    MathMorph.closing(houghMap_crop, 1)
     
     #3x3
 #    k = [[0,-2,0], [1,3,1], [0,-2,0]]
@@ -158,60 +162,30 @@ class Hough:
          [ -1,  -6, -13, -22, -22, -22, -13,  -6,  -1],
          [-10, -15, -22, -22, -22, -22, -22, -15, -10]]
     
-    kernel = Kernel(k, 1)
-    Convolution.convolve(houghMap_crop, kernel)
+    kk = Kernel(k, 1)
     
-    houghMap.setFile('hough1_b.bmp')
+    destMap = kernel.ByteMap(houghMap_crop.width, houghMap_crop.height)
+    Convolution.convolve(houghMap_crop, kk, destMap)
+    
+    destMap.setFile('hough1_b.bmp')
+    IO.save(destMap)
+    
+    Convolution.convolve(houghMap_crop, kk)
+    
+    houghMap_crop.setFile('hough1_b.bmp')
     IO.save(houghMap_crop)
     
     #Thresholding
-    peaksMap = Threshold.iterative(houghMap_crop)
-    
-    #Clean peaks (small peaks)
-    
-    
-    identMap = Analysis.identify(peaksMap)
-    print identMap.getObjectCount()
-    
-    peaksMap.setFile('peaks_b.bmp')
-    IO.save(peaksMap)
-  
-  def calculateImageQuality(self, numberPeaks=None):
-    """
-    Calculate the pattern quality.
-    
-    :arg numberPeaks: number of peaks to use in the calculation (``default=None``: use all)
-    :type numberPeaks: int or ``None``
-    
-    **Equations:**
-      :math:`\\mathrm{IQ} = \\frac{1}{N} \\sum\\limits_{i=0}^{N}{H(\\rho_i, \\theta_i)}`
-    
-    **References:**
-      Wright2006
-    """
-    
-    if self._peaks == None: self.findPeaks()
-    
-    peaks = []
-    for peakId in self._peaks.keys():
-      peaks.append(self._peaks[peakId]['intensity'])
-    
-    peaks =sortDict.sortListByKey(peaks, 'average', reverse=True)
-    if numberPeaks == None or numberPeaks > len(peaks): 
-      numberPeaks = len(peaks)
-    
-    IQ = 0
-    IQerr = 0
-    
-    for peakId in range(numberPeaks):
-      IQ += peaks[peakId]['average']
-      IQerr += peaks[peakId]['standard deviation']
-    
-    if len(self._peaks) > 0:
-      IQ /= numberPeaks
-      IQerr /= numberPeaks
-    
-    self._IQ = (IQ, IQerr)
+#    peaksMap = Threshold.automaticTopHat(houghMap_crop)
+#    
+#    #Clean peaks (small peaks)
+#    
+#    
+#    identMap = Analysis.identify(peaksMap)
+#    print identMap.getObjectCount()
+#    
+#    peaksMap.setFile('peaks_b.bmp')
+#    IO.save(peaksMap)
   
   def getHoughMap(self):
     """
@@ -292,27 +266,14 @@ class Hough:
     
     return self._peaks[peakId]['area']
   
-  def getImageQuality(self):
-    """
-    Return the image quality and its error of the Hough Transform
-    
-    .. seealso:: :func:`calculateImageQuality <EBSDTools.indexation.hough.Hough.calculateImageQuality>`
-    
-    :rtype: tuple
-    :return: (value, error) of the image quality
-    """
-    if self._IQ == None: self.calculateImageQuality()
-    
-    return self._IQ
-  
-  getIQ = getImageQuality
-
 if __name__ == '__main__':
   import EBSDTools.indexation.masks as masks
   import EBSDTools.indexation.pattern as pattern
   
-  maskMap = masks.createMaskDisc(width=168, height=128, centroid=(84,64), radius=65)
-  P = pattern.Pattern(filepath='testData/pattern1.bmp', maskMap=maskMap)
-  H = Hough(P)
-  H.calculateHough(angleIncrement=0.5)
-  H.findPeaks(method=FINDPEAKS_BUTTERFLY, radius=59)
+  maskMap = masks.MaskDisc(width=168, height=128, centroid=(84,64), radius=59)
+  P = pattern.PatternMap(filepath='testData/pattern1.bmp', maskMap=maskMap)
+  H = HoughMap(P)
+  
+  H.setFile('houghtt1.bmp')
+  IO.save(H)
+  H.findPeaks(method=FINDPEAKS_BUTTERFLY)
