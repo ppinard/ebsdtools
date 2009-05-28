@@ -63,7 +63,7 @@ def update(location):
   There are two types of location: ftp or local
   They are defined in the configuration file
   """
-  configurationFile = 'rmlimage_update.cfg'
+  configurationFile = os.path.join(os.path.dirname(__file__), 'rmlimage_update.cfg')
   config = UpdateConfiguration(configurationFile=configurationFile
                                , location=location)
   
@@ -125,4 +125,5 @@ def update(location):
   shutil.move(os.path.join(rml_folder, 'microscope/'), microscope_folder)
 
 if __name__ == '__main__':
+  print __file__
   update('ftp')
