@@ -18,6 +18,7 @@ import os
 import glob
 import ConfigParser
 import shutil
+import optparse
 
 # Third party modules.
 
@@ -26,55 +27,59 @@ import InternetTools.ftp.ftp as ftp
 import RandomUtilities.zipTools.myzip as myzip
 import DrixUtilities.Files as Files
 
+# Globals and constants variables.
+SOURCE_LOCAL = 'local'
+SOURCE_REMOTE = 'remote'
+
 class UpdateConfiguration:
   def __init__(self
                , configurationFile
-               , location):
-    self._readConfiguration(configurationFile, location)
-    self.location = location
+               , source):
+    self._readConfiguration(configurationFile, source)
+    self.source = source
 
-  def _readConfiguration(self, configurationFile, location):
+  def _readConfiguration(self, configurationFile, source):
     config = ConfigParser.SafeConfigParser()
     config.readfp(open(configurationFile, 'r'))
 
-    if config.has_section(location):
-      if config.has_option(location, "source"):
-        self.source = config.get(location, "source")
+    if config.has_section(source):
+      if config.has_option(source, "local_location"):
+        self.local_location = config.get(source, "local_location")
 
-      if config.has_option(location, "path_lib"):
-        self.path_lib = config.get(location, "path_lib")
+      if config.has_option(source, "path_lib"):
+        self.path_lib = config.get(source, "path_lib")
 
-      if config.has_option(location, "prefix_lib"):
-        self.prefix_lib = config.get(location, "prefix_lib")
+      if config.has_option(source, "prefix_lib"):
+        self.prefix_lib = config.get(source, "prefix_lib")
 
-      if config.has_option(location, "path_gui"):
-        self.path_gui = config.get(location, "path_gui")
+      if config.has_option(source, "path_gui"):
+        self.path_gui = config.get(source, "path_gui")
 
-      if config.has_option(location, "prefix_gui"):
-        self.prefix_gui = config.get(location, "prefix_gui")
+      if config.has_option(source, "prefix_gui"):
+        self.prefix_gui = config.get(source, "prefix_gui")
 
-      if config.has_option(location, "filetype"):
-        self.filetype = config.get(location, "filetype")
+      if config.has_option(source, "filetype"):
+        self.filetype = config.get(source, "filetype")
 
-      if config.has_option(location, "username"):
-        self.username = config.get(location, "username")
+      if config.has_option(source, "username"):
+        self.username = config.get(source, "username")
 
-      if config.has_option(location, "password"):
-        self.password = config.get(location, "password")
+      if config.has_option(source, "password"):
+        self.password = config.get(source, "password")
 
-      if config.has_option(location, "download_location"):
-        self.download_location = config.get(location, "download_location")
+      if config.has_option(source, "download_location"):
+        self.download_source = config.get(source, "download_location")
 
-def updateJythonLib(location):
+def updateJythonLib(source):
   """
-  There are two types of location: ftp or local
+  There are two types of source: remote or local
   They are defined in the configuration file
   """
   configurationFile = Files.getCurrentModulePath(__file__, 'rmlimage_update.cfg')
   config = UpdateConfiguration(configurationFile=configurationFile
-                               , location=location)
+                               , source=source)
 
-  if location == 'ftp':
+  if source == SOURCE_REMOTE:
     server = ftp.FTP(host = config.source
                      , username = config.username
                      , password = config.password)
@@ -88,8 +93,8 @@ def updateJythonLib(location):
     lastVersionFilename = sorted(files)[-1]
     server.download('distro/%s' % lastVersionFilename, config.download_location)
     lastVersion = os.path.join(config.download_location, lastVersionFilename)
-  elif location == 'local':
-    files = glob.glob(os.path.join(config.source, '%s*.%s' % (config.prefix_lib, config.filetype)))
+  elif source == SOURCE_LOCAL:
+    files = glob.glob(os.path.join(config.local_location, '%s*.%s' % (config.prefix_lib, config.filetype)))
     lastVersion = sorted(files)[-1]
 
   #Read zip
@@ -110,16 +115,16 @@ def updateJythonLib(location):
   print mainjar
   os.rename(mainjar, os.path.join(rml_folder, 'rml-image_ebsd.jar'))
 
-def updateProgram(location):
+def updateProgram(source):
   """
-  There are two types of location: ftp or local
+  There are two types of source: remote or local
   They are defined in the configuration file
   """
   configurationFile = Files.getCurrentModulePath(__file__, 'rmlimage_update.cfg')
   config = UpdateConfiguration(configurationFile=configurationFile
-                               , location=location)
+                               , source=source)
 
-  if location == 'ftp':
+  if source == SOURCE_REMOTE:
     server = ftp.FTP(host = config.source
                      , username = config.username
                      , password = config.password)
@@ -133,8 +138,8 @@ def updateProgram(location):
     lastVersionFilename = sorted(files)[-1]
     server.download('distro/%s' % lastVersionFilename, config.download_location)
     lastVersion = os.path.join(config.download_location, lastVersionFilename)
-  elif location == 'local':
-    files = glob.glob(os.path.join(config.source, '%s*.%s' % (config.prefix_gui, config.filetype)))
+  elif source == SOURCE_LOCAL:
+    files = glob.glob(os.path.join(config.local_location, '%s*.%s' % (config.prefix_gui, config.filetype)))
     lastVersion = sorted(files)[-1]
 
   #Read zip
@@ -150,6 +155,32 @@ def updateProgram(location):
   zip.extractAll(rml_folder)
   zip.close()
 
+def main():
+  usage = "Usage: %prog [options]\n Update the local folder with newer version of RML-Image."
+  parser = optparse.OptionParser(usage=usage)
+  parser.add_option("-l"
+                    , "--local"
+                    , action="store_true"
+                    , dest="local"
+                    , help="Update from the local source")
+  parser.add_option("-r"
+                    , "--remote"
+                    , action="store_true"
+                    , dest="remote"
+                    , help="Update from the remote source (ftp) (default)")
+
+  (options, args) = parser.parse_args()
+
+  if options.remote:
+    source = SOURCE_REMOTE
+  elif options.local:
+    source = SOURCE_LOCAL
+  else:
+    source = SOURCE_REMOTE
+
+  print source
+  updateJythonLib(source)
+  updateProgram(source)
+
 if __name__ == '__main__':
-  updateJythonLib('ftp')
-  updateProgram('ftp')
+  main()
