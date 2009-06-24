@@ -43,8 +43,8 @@ class UpdateConfiguration:
     config.readfp(open(configurationFile, 'r'))
 
     if config.has_section(source):
-      if config.has_option(source, "local_location"):
-        self.local_location = config.get(source, "local_location")
+      if config.has_option(source, "location"):
+        self.location = config.get(source, "location")
 
       if config.has_option(source, "path_lib"):
         self.path_lib = config.get(source, "path_lib")
@@ -68,7 +68,7 @@ class UpdateConfiguration:
         self.password = config.get(source, "password")
 
       if config.has_option(source, "download_location"):
-        self.download_source = config.get(source, "download_location")
+        self.download_location = config.get(source, "download_location")
 
 def updateJythonLib(source):
   """
@@ -80,7 +80,7 @@ def updateJythonLib(source):
                                , source=source)
 
   if source == SOURCE_REMOTE:
-    server = ftp.FTP(host = config.source
+    server = ftp.FTP(host = config.location
                      , username = config.username
                      , password = config.password)
 
@@ -94,7 +94,7 @@ def updateJythonLib(source):
     server.download('distro/%s' % lastVersionFilename, config.download_location)
     lastVersion = os.path.join(config.download_location, lastVersionFilename)
   elif source == SOURCE_LOCAL:
-    files = glob.glob(os.path.join(config.local_location, '%s*.%s' % (config.prefix_lib, config.filetype)))
+    files = glob.glob(os.path.join(config.location, '%s*.%s' % (config.prefix_lib, config.filetype)))
     lastVersion = sorted(files)[-1]
 
   #Read zip
@@ -125,7 +125,7 @@ def updateProgram(source):
                                , source=source)
 
   if source == SOURCE_REMOTE:
-    server = ftp.FTP(host = config.source
+    server = ftp.FTP(host = config.location
                      , username = config.username
                      , password = config.password)
 
@@ -139,7 +139,7 @@ def updateProgram(source):
     server.download('distro/%s' % lastVersionFilename, config.download_location)
     lastVersion = os.path.join(config.download_location, lastVersionFilename)
   elif source == SOURCE_LOCAL:
-    files = glob.glob(os.path.join(config.local_location, '%s*.%s' % (config.prefix_gui, config.filetype)))
+    files = glob.glob(os.path.join(config.location, '%s*.%s' % (config.prefix_gui, config.filetype)))
     lastVersion = sorted(files)[-1]
 
   #Read zip
