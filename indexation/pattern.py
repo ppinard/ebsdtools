@@ -20,12 +20,10 @@ import java.io
 # Third party modules.
 import rmlimage
 import rmlimage.io.IO as IO
-import rmlimage.kernel as kernel
-import rmlimage.macro.python.cui.MapMath as MapMath
 
 # Local modules.
 
-class PatternMap(rmlimage.kernel.ByteMap):
+class PatternMap(rmlimage.core.ByteMap):
   def __init__(self, filepath=None, byteMap=None, maskMap=None):
     """
     PatternMap class (inherit :class:`ByteMap <rmlimage.kernel.ByteMap>`
@@ -54,7 +52,7 @@ class PatternMap(rmlimage.kernel.ByteMap):
       map = IO.load(file)
 
       if map.type == 'RGBMap':
-        self.originalPattern = kernel.Transform.getBlueLayer(map)
+        self.originalPattern = rmlimage.core.Transform.getBlueLayer(map)
       else:
         self.originalPattern = map
     elif filepath == None and byteMap != None:
@@ -62,7 +60,7 @@ class PatternMap(rmlimage.kernel.ByteMap):
 
     assert self.originalPattern.type == 'ByteMap'
 
-    rmlimage.kernel.ByteMap.__init__(self, self.originalPattern.width, self.originalPattern.height, self.originalPattern.pixArray)
+    rmlimage.core.ByteMap.__init__(self, self.originalPattern.width, self.originalPattern.height, self.originalPattern.pixArray)
 
     #Apply mask
     self.maskMap = None
@@ -83,8 +81,8 @@ class PatternMap(rmlimage.kernel.ByteMap):
     assert self.maskMap.getType() == 'BinMap'
     assert self.originalPattern.size == self.maskMap.size
 
-    patternMapMask = kernel.ByteMap(self.originalPattern.width, self.originalPattern.height)
-    MapMath.andOp(self.originalPattern, self.maskMap, patternMapMask)
+    patternMapMask = rmlimage.core.ByteMap(self.originalPattern.width, self.originalPattern.height)
+    rmlimage.core.MapMath.and(self.originalPattern, self.maskMap, patternMapMask)
 
     self = patternMapMask
 

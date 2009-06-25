@@ -31,23 +31,23 @@ class TestMasks(unittest.TestCase):
 
   def setUp(self):
     unittest.TestCase.setUp(self)
-    
+
     self.basepath = os.path.join(EBSDTools.__path__[0], 'indexation/testData')
-    
+
   def tearDown(self):
     unittest.TestCase.tearDown(self)
-    
+
   def testSkeleton(self):
     #self.fail("Test if the TestCase is working.")
     self.assert_(True)
-  
+
   def testCreateMaskDisc(self):
     #Centered
     maskMap = masks.MaskDisc(width=168, height=128, centroid=(84,64), radius=59)
     maskMap.setFile(os.path.join(self.basepath, 'test_maskDisc.bmp'))
     IO.save(maskMap)
     self.assert_(testImage.equal(os.path.join(self.basepath, 'test_maskDisc.bmp'), os.path.join(self.basepath, 'maskDisc.bmp')))
-    
+
     #In the corner
     maskMap = masks.MaskDisc(width=168, height=128, centroid=(0,0), radius=59)
     maskMap.setFile(os.path.join(self.basepath, 'test_maskDisc2.bmp'))
