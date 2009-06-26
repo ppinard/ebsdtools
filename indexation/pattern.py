@@ -20,6 +20,7 @@ import java.io
 # Third party modules.
 import rmlimage
 import rmlimage.io.IO as IO
+import rmlimage.macro.python.cui.MapMath as MapMath
 
 # Local modules.
 
@@ -82,7 +83,7 @@ class PatternMap(rmlimage.core.ByteMap):
     assert self.originalPattern.size == self.maskMap.size
 
     patternMapMask = rmlimage.core.ByteMap(self.originalPattern.width, self.originalPattern.height)
-    rmlimage.core.MapMath.and(self.originalPattern, self.maskMap, patternMapMask)
+    MapMath.andOp(self.originalPattern, self.maskMap, patternMapMask)
 
     self = patternMapMask
 
