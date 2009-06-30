@@ -25,7 +25,6 @@ import rmlimage.io.IO as IO
 import EBSDTools
 import EBSDTools.indexation.pattern as pattern
 import EBSDTools.indexation.masks as masks
-import RandomUtilities.testing.testOthers as testOthers
 
 # Globals and constants variables.
 
@@ -41,10 +40,14 @@ class TestPatternMap(unittest.TestCase):
 
     file = java.io.File(os.path.join(self.basepath, 'pattern1.bmp'))
     byteMap = IO.load(file)
-    self.patt1_bytemap = pattern.PatternMap(byteMap=byteMap)
+    self.patt1Bytemap = pattern.PatternMap(byteMap=byteMap)
 
     self.maskMap = masks.MaskDisc(width=168, height=128, centroid=(84,64), radius=59)
-    self.patt1_mask = pattern.PatternMap(filepath=os.path.join(self.basepath, 'pattern1.bmp'), maskMap=self.maskMap)
+    self.patt1Mask = pattern.PatternMap(filepath=os.path.join(self.basepath, 'pattern1.bmp'), maskMap=self.maskMap)
+
+    file = java.io.File(os.path.join(self.basepath, 'pattern1Masked.bmp'))
+    byteMap = IO.load(file)
+    self.expectedPatt1Masked = pattern.PatternMap(byteMap=byteMap)
 
   def tearDown(self):
     unittest.TestCase.tearDown(self)
@@ -62,29 +65,31 @@ class TestPatternMap(unittest.TestCase):
     self.assertEqual(self.patt2.height, 128)
     self.assertEqual(self.patt2.getType(), 'ByteMap')
 
-    self.assertEqual(self.patt1_bytemap.width, 168)
-    self.assertEqual(self.patt1_bytemap.height, 128)
-    self.assertEqual(self.patt1_bytemap.getType(), 'ByteMap')
+    self.assertEqual(self.patt1Bytemap.width, 168)
+    self.assertEqual(self.patt1Bytemap.height, 128)
+    self.assertEqual(self.patt1Bytemap.getType(), 'ByteMap')
 
-    self.assertEqual(self.patt1_mask.width, 168)
-    self.assertEqual(self.patt1_mask.height, 128)
-    self.assertEqual(self.patt1_mask.getType(), 'ByteMap')
+    self.assertEqual(self.patt1Mask.width, 168)
+    self.assertEqual(self.patt1Mask.height, 128)
+    self.assertEqual(self.patt1Mask.getType(), 'ByteMap')
 
   def test_applyMask(self):
+    self.patt1Mask.assertPixEquals(self.expectedPatt1Masked)
+
     self.patt1.applyMask(self.maskMap)
-    self.assertEqual(self.patt1.pixArray, self.patt1_mask.pixArray)
+    self.patt1.assertPixEquals(self.patt1Mask)
 
   def test_getMaskMap(self):
     self.assertEqual(self.patt1.getMaskMap(), None)
     self.assertEqual(self.patt2.getMaskMap(), None)
-    self.assertEqual(self.patt1_bytemap.getMaskMap(), None)
-    self.assertEqual(self.patt1_mask.getMaskMap().pixArray, self.maskMap.pixArray)
+    self.assertEqual(self.patt1Bytemap.getMaskMap(), None)
+    self.patt1Mask.getMaskMap().assertPixEquals(self.maskMap)
 
   def test_getOriginalPattern(self):
-    self.assertEqual(self.patt1.getOriginalPattern().pixArray, self.patt1.pixArray)
-    self.assertEqual(self.patt2.getOriginalPattern().pixArray, self.patt2.pixArray)
-    self.assertEqual(self.patt1_bytemap.getOriginalPattern().pixArray, self.patt1_bytemap.pixArray)
-    self.assertEqual(self.patt1_mask.getOriginalPattern().pixArray, self.patt1.pixArray)
+    self.patt1.getOriginalPattern().assertPixEquals(self.patt1)
+    self.patt2.getOriginalPattern().assertPixEquals(self.patt2)
+    self.patt1Bytemap.getOriginalPattern().assertPixEquals(self.patt1Bytemap)
+    self.patt1Mask.getOriginalPattern().assertPixEquals(self.patt1)
 
 if __name__ == '__main__':
   unittest.main()

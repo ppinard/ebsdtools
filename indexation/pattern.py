@@ -59,8 +59,6 @@ class PatternMap(rmlimage.core.ByteMap):
     elif filepath == None and byteMap != None:
       self.originalPattern = byteMap
 
-    assert self.originalPattern.type == 'ByteMap'
-
     rmlimage.core.ByteMap.__init__(self, self.originalPattern.width, self.originalPattern.height, self.originalPattern.pixArray)
 
     #Apply mask
@@ -79,13 +77,9 @@ class PatternMap(rmlimage.core.ByteMap):
     if maskMap != None:
       self.maskMap = maskMap
 
-    assert self.maskMap.getType() == 'BinMap'
-    assert self.originalPattern.size == self.maskMap.size
-
-    patternMapMask = rmlimage.core.ByteMap(self.originalPattern.width, self.originalPattern.height)
-    MapMath.andOp(self.originalPattern, self.maskMap, patternMapMask)
-
-    self = patternMapMask
+    originalPattern = self.originalPattern.duplicate()
+    MapMath.andOp(self.originalPattern, self.maskMap, self)
+    self.originalPattern = originalPattern
 
   def getMaskMap(self):
     """
