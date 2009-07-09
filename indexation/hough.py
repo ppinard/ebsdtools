@@ -28,6 +28,8 @@ import rmlshared.math as math
 # Local modules.
 import RandomUtilities.sort.sortDict as sortDict
 
+import EBSDTools.indexation.peaks as peaks
+
 # Globals and constants variables.
 FINDPEAKS_TOP_HAT         = 'tophat'
 FINDPEAKS_BUTTERFLY       = 'butterfly'
@@ -58,20 +60,20 @@ MathMorph.median(houghMap_crop, 3)
 
     ebsd.core.HoughMap.__init__(self, houghMap)
 
-  def findPeaks(self, method=FINDPEAKS_TOP_HAT):
+  def findPeaks(self, method=FINDPEAKS_TOP_HAT, **args):
     """
     Find the peaks in the Hough transform with the classic Top Hat thresholding
     """
 
     if method == FINDPEAKS_TOP_HAT:
-      self._findPeaks_top_hat()
+      self._findPeaks_top_hat(**args)
     elif method == FINDPEAKS_BUTTERFLY:
-      self._findPeaks_butterfly()
+      self._findPeaks_butterfly(**args)
 
   def _findPeaks_top_hat(self, **args):
     #Get peaks from Hough
     peaksMap = ebsd.core.Threshold.automaticTopHat(self.houghMap)
-    identMap = ebsd.core.Identification.identify(peaksMap)
+    identMap = rmlimage.core.Identification.identify(peaksMap)
     assert self.houghMap.size == identMap.size
 
     #Get intensities of peaks from Hough Transform
@@ -116,24 +118,22 @@ MathMorph.median(houghMap_crop, 3)
               , 'area': area}
       self._peaks[objectId] = peak
 
-  def _findPeaks_butterfly(self):
+  def _findPeaks_butterfly(self, **args):
     houghMap = self.duplicate()
 
     #Crop white edges on top and bottom
-    topY = houghMap.getY(self.patternMap.getMaskMap().getRadius())
-    bottomY = houghMap.getY(-self.patternMap.getMaskMap().getRadius())
+    if self.patternMap.getMaskMap() != None:
+      topY = houghMap.getY(self.patternMap.getMaskMap().getRadius())
+      bottomY = houghMap.getY(-self.patternMap.getMaskMap().getRadius())
 
-    houghMap.setROI(0, topY, houghMap.width-1, bottomY)
-    houghMap_crop = rmlimage.core.Edit.crop(houghMap)
-    houghMap.resetROI()
+      houghMap.setROI(0, topY, houghMap.width-1, bottomY)
+      houghMap_crop = rmlimage.core.Edit.crop(houghMap)
+      houghMap.resetROI()
+    else:
+      houghMap_crop = houghMap
 
     #Apply median filter
     rmlimage.core.MathMorph.median(houghMap_crop, 3)
-
-    houghMap_crop.setFile('hough1.bmp')
-    IO.save(houghMap_crop)
-
-#    MathMorph.closing(houghMap_crop, 1)
 
     #3x3
 #    k = [[0,-2,0], [1,3,1], [0,-2,0]]
@@ -151,44 +151,20 @@ MathMorph.median(houghMap_crop, 3)
 
     kk = rmlimage.core.Kernel(k, 1)
 
-    destMap = rmlimage.core.ByteMap(houghMap_crop.width, houghMap_crop.height)
-    ebsd.core.Convolution.convolve(houghMap_crop, kk, destMap)
+    convolMap = rmlimage.core.ByteMap(houghMap_crop.width, houghMap_crop.height)
+    ebsd.core.Convolution.convolve(houghMap_crop, kk, convolMap)
 
-    destMap.setFile('hough1_b.bmp')
-    IO.save(destMap)
+    peaksMap = ebsd.core.Threshold.automaticTopHat(convolMap)
+    identMap = rmlimage.core.Identification.identify(peaksMap)
 
-#    Convolution.convolve(houghMap_crop, kk)
-#
-#    houghMap_crop.setFile('hough1_b.bmp')
-#    IO.save(houghMap_crop)
-
-    #Thresholding
-#    peaksMap = Threshold.automaticTopHat(houghMap_crop)
-#
-#    #Clean peaks (small peaks)
-#
-#
-#    identMap = Analysis.identify(peaksMap)
-#    print identMap.getObjectCount()
-#
-#    peaksMap.setFile('peaks_b.bmp')
-#    IO.save(peaksMap)
+    self._peaks = peaks.Peaks(identMap, convolMap)
 
   def getPeaks(self):
     """
-    Return the peaks dictionary containing:
+    Return a list of peaks
 
-    ==========   ====================================================
-    key          Description
-    ==========   ====================================================
-    intensity    ``{'average': float, 'standard deviation': float}``
-    centroid     (:math:`\\rho`, :math:`\\theta`)
-    area         in pixels
-    ==========   ====================================================
-
-    :rtype: dict
+    :rtype: :keyword:`list`
     """
-
     if self._peaks == None: self.findPeaks()
 
     return self._peaks
