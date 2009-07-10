@@ -121,14 +121,10 @@ MathMorph.median(houghMap_crop, 3)
   def _findPeaks_butterfly(self, **args):
     houghMap = self.duplicate()
 
-    #Crop white edges on top and bottom
+    #Crop white edges on top and bottom using the mask radius if available
     if self.patternMap.getMaskMap() != None:
-      topY = houghMap.getY(self.patternMap.getMaskMap().getRadius())
-      bottomY = houghMap.getY(-self.patternMap.getMaskMap().getRadius())
-
-      houghMap.setROI(0, topY, houghMap.width-1, bottomY)
-      houghMap_crop = rmlimage.core.Edit.crop(houghMap)
-      houghMap.resetROI()
+      radius = self.patternMap.getMaskMap().getRadius()
+      houghMap_crop = ebsd.core.Edit.crop(houghMap, radius)
     else:
       houghMap_crop = houghMap
 
@@ -151,13 +147,12 @@ MathMorph.median(houghMap_crop, 3)
 
     kk = rmlimage.core.Kernel(k, 1)
 
-    convolMap = rmlimage.core.ByteMap(houghMap_crop.width, houghMap_crop.height)
-    ebsd.core.Convolution.convolve(houghMap_crop, kk, convolMap)
+    ebsd.core.Convolution.convolve(houghMap_crop, kk)
 
-    peaksMap = ebsd.core.Threshold.automaticTopHat(convolMap)
+    peaksMap = ebsd.core.Threshold.automaticTopHat(houghMap_crop)
     identMap = rmlimage.core.Identification.identify(peaksMap)
 
-    self._peaks = peaks.Peaks(identMap, convolMap)
+    self._peaks = peaks.Peaks(identMap, houghMap_crop)
 
   def getPeaks(self):
     """
@@ -226,6 +221,6 @@ if __name__ == '__main__':
   P = pattern.PatternMap(filepath='testData/pattern1.bmp', maskMap=maskMap)
   H = HoughMap(P)
 
-  H.setFile('houghtt1.bmp')
-  IO.save(H)
+#  H.setFile('houghtt1.bmp')
+#  IO.save(H)
   H.findPeaks(method=FINDPEAKS_BUTTERFLY)

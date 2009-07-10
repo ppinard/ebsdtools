@@ -42,7 +42,10 @@ class HoughQualityIndexes(QualityIndexes):
     self._peaksList.sort(peaks.AVERAGE_INTENSITY, reverse=True)
 
   def getValue(self, numberPeaks):
-    return self._calculate(self._peaksList[:numberPeaks])
+    if len(self._peaksList) == 0:
+      return 0.0
+    else:
+      return self._calculate(self._peaksList[:numberPeaks])
 
   def _calculate(self, peaksList):
     raise NotImplementedError
@@ -90,8 +93,6 @@ class standardDeviationIntensity(HoughQualityIndexes):
       intensities.append(peak.getIntensityStandardDeviation())
 
     return rmlshared.math.Stats.average(intensities)
-
-
 
 if __name__ == '__main__':
   import pattern

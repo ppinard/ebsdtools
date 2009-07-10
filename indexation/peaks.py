@@ -54,7 +54,7 @@ class Peak(dict):
 
     self._calculateIntensityStats()
     self._calculateArea()
-#    self._calculateCentroid()
+    self._calculateCentroid()
 
   def _calculateIntensityStats(self):
     average = ebsd.core.Analysis.average(self._peakHoughMap)
@@ -75,8 +75,8 @@ class Peak(dict):
 
   def _calculateCentroid(self):
     centroid = rmlimage.core.Analysis.getCentroid(self._peakIdentMap)
-    centroidX = centroid.x[0]
-    centroidY = centroid.y[0]
+    centroidX = int(centroid.x[0])
+    centroidY = int(centroid.y[0])
     centroidRho = self._houghMap.getR(centroidX, centroidY)
     centroidTheta = self._houghMap.getTheta(centroidX, centroidY)
 
