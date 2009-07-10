@@ -103,8 +103,11 @@ def updateJythonLib(source):
 
   #Remove and create source folder
   rml_folder = config.path_lib
-  if os.path.exists(rml_folder): shutil.rmtree(rml_folder)
-  os.mkdir(rml_folder)
+  try:
+    if os.path.exists(rml_folder): shutil.rmtree(rml_folder)
+    os.mkdir(rml_folder)
+  except OSError:
+    pass
 
   #Extract zip
   zip.extractAll(rml_folder)
