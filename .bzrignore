@@ -9,3 +9,4 @@ _help/build
 patternSimulations/results
 _setup/jython/rmlimage_update.cfg
 runner/configuration.cfg
+indexation/runner/configuration.cfg
