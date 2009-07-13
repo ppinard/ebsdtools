@@ -44,11 +44,14 @@ class Peak(dict):
     self._peakBinMap = peakBinMap
     self._houghMap = houghMap
 
-    self._peakHoughMap = rmlimage.core.ByteMap(houghMap.width, houghMap.height)
-    rmlimage.core.MapMath.andOp(houghMap, peakBinMap, self._peakHoughMap)
-
     self._peakIdentMap = rmlimage.core.Identification.identify(peakBinMap)
     assert self._peakIdentMap.getObjectCount() == 1
+
+    #Dilation of the peak to include more pixels around the peak for Hough calculation
+    rmlimage.core.MathMorph.dilation(peakBinMap, 2, 8, 3)
+
+    self._peakHoughMap = rmlimage.core.ByteMap(houghMap.width, houghMap.height)
+    rmlimage.core.MapMath.andOp(houghMap, peakBinMap, self._peakHoughMap)
 
     dict.__init__(self)
 
@@ -107,7 +110,7 @@ class Peaks(list):
     peaks = self._findPeaks()
     list.__init__(self, peaks)
 
-  def __deepcopy__(self, memo):
+  def __deepcopy__(self, memo=None):
     return Peaks(self._identMap, self._houghMap)
 
   def _findPeaks(self):
@@ -125,9 +128,6 @@ class Peaks(list):
       rmlimage.core.Identification.keepObjects(identMap, [iPeak])
       peakBinMap = rmlimage.core.Conversion.toBinMap(identMap)
 
-      #Dilation of the peak
-      rmlimage.core.MathMorph.dilation(peakBinMap, 2, 8, 3)
-
       #Create a Peak class
       peak = Peak(peakBinMap, self._houghMap)
       peaks.append(peak)
@@ -138,6 +138,27 @@ class Peaks(list):
 
   def sort(self, key, reverse=False):
     self = sortDict.sortListByKey(self, key, reverse)
+
+  def overlay(self, originalPatternMap, numberPeaks, color):
+    peaks = self.__deepcopy__()
+    overlayMap = originalPatternMap.duplicate()
+
+    peaks.sort(AVERAGE_INTENSITY, reverse=True)
+    peaks = peaks[:numberPeaks]
+
+    peaksBinMap = peaks[0]._peakBinMap
+    for peak in peaks[1:]:
+      rmlimage.core.MapMath.orOp(peaksBinMap, peak._peakBinMap, peaksBinMap)
+
+
+
+    rgb = rmlimage.core.RGB(*color)
+    ebsd.core.QC().overlay(overlayMap, peaksBinMap, rgb)
+
+    peaksBinMap.setFile('bin%i.bmp' % numberPeaks)
+    rmlimage.io.IO.save(peaksBinMap)
+
+    return overlayMap
 
 if __name__ == '__main__':
   pass

@@ -125,8 +125,18 @@ MathMorph.median(houghMap_crop, 3)
     if self.patternMap.getMaskMap() != None:
       radius = self.patternMap.getMaskMap().getRadius()
       houghMap_crop = ebsd.core.Edit.crop(houghMap, radius)
+#      for i in range(0, 15):
+#        try:
+#          radius = self.patternMap.getMaskMap().getRadius() - i
+#
+#          houghMap_crop = ebsd.core.Edit.crop(houghMap, radius)
+#          print 'S', i, radius, houghMap_crop.getRMin(), houghMap_crop.getRMax()
+#        except:
+#          print 'F', i, radius, houghMap.getRMin(), houghMap.getRMax()
     else:
-      houghMap_crop = houghMap
+      houghMap_crop = houghMaphoughMap_crop.getRMax()
+
+    self._houghMap_crop = houghMap_crop
 
     #Apply median filter
     rmlimage.core.MathMorph.median(houghMap_crop, 3)
@@ -149,8 +159,28 @@ MathMorph.median(houghMap_crop, 3)
 
     ebsd.core.Convolution.convolve(houghMap_crop, kk)
 
+    self._houghMap_convol = houghMap_crop
+
+    #Increase contrast
+    invertedHoughMap = houghMap_crop.duplicate()
+    rmlimage.core.MapMath.not(invertedHoughMap)
+
+    invertedHoughMap.setFile('invert.bmp')
+    IO.save(invertedHoughMap)
+
+    dividedMap = rmlimage.core.ByteMap(houghMap_crop.width, houghMap_crop.height)
+    rmlimage.core.MapMath.division(houghMap_crop, invertedHoughMap, 128.0, 0.0, dividedMap)
+    dividedMap.setFile('divided.bmp')
+    IO.save(dividedMap)
+
     peaksMap = ebsd.core.Threshold.automaticTopHat(houghMap_crop)
+
+
+
     identMap = rmlimage.core.Identification.identify(peaksMap)
+
+    identMap.setFile('ident2.bmp')
+    IO.save(identMap)
 
     self._peaks = peaks.Peaks(identMap, houghMap_crop)
 
@@ -224,3 +254,16 @@ if __name__ == '__main__':
 #  H.setFile('houghtt1.bmp')
 #  IO.save(H)
   H.findPeaks(method=FINDPEAKS_BUTTERFLY)
+  peaks = H.getPeaks()
+#  print peaks
+
+
+
+#  for numberPeak in range(3, 5):
+#    overlayMap = peaks.overlay(P.getOriginalPattern(), numberPeak, (255,0,0))
+#
+#    overlayMap.setFile('overlay%i.bmp' % numberPeak)
+#    IO.save(overlayMap)
+
+#
+
