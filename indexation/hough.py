@@ -123,18 +123,10 @@ MathMorph.median(houghMap_crop, 3)
 
     #Crop white edges on top and bottom using the mask radius if available
     if self.patternMap.getMaskMap() != None:
-      radius = self.patternMap.getMaskMap().getRadius()
+      radius = self.patternMap.getMaskMap().getRadius() - 10
       houghMap_crop = ebsd.core.Edit.crop(houghMap, radius)
-#      for i in range(0, 15):
-#        try:
-#          radius = self.patternMap.getMaskMap().getRadius() - i
-#
-#          houghMap_crop = ebsd.core.Edit.crop(houghMap, radius)
-#          print 'S', i, radius, houghMap_crop.getRMin(), houghMap_crop.getRMax()
-#        except:
-#          print 'F', i, radius, houghMap.getRMin(), houghMap.getRMax()
     else:
-      houghMap_crop = houghMaphoughMap_crop.getRMax()
+      houghMap_crop = houghMap
 
     self._houghMap_crop = houghMap_crop
 
@@ -157,30 +149,23 @@ MathMorph.median(houghMap_crop, 3)
 
     kk = rmlimage.core.Kernel(k, 1)
 
-    ebsd.core.Convolution.convolve(houghMap_crop, kk)
+    houghMap_convol = houghMap_crop.duplicate()
+    ebsd.core.Convolution.convolve(houghMap_crop, kk, houghMap_convol)
 
-    self._houghMap_convol = houghMap_crop
+    self._houghMap_convol = houghMap_convol
 
     #Increase contrast
-    invertedHoughMap = houghMap_crop.duplicate()
-    rmlimage.core.MapMath.not(invertedHoughMap)
-
-    invertedHoughMap.setFile('invert.bmp')
-    IO.save(invertedHoughMap)
+    invertedHoughMap = houghMap_convol.duplicate()
+    rmlimage.core.MapMath.notOp(invertedHoughMap)
 
     dividedMap = rmlimage.core.ByteMap(houghMap_crop.width, houghMap_crop.height)
-    rmlimage.core.MapMath.division(houghMap_crop, invertedHoughMap, 128.0, 0.0, dividedMap)
-    dividedMap.setFile('divided.bmp')
-    IO.save(dividedMap)
+    rmlimage.core.MapMath.division(houghMap_crop, invertedHoughMap, 128.0, -128.0, dividedMap)
+    self._divideMap = dividedMap
 
-    peaksMap = ebsd.core.Threshold.automaticTopHat(houghMap_crop)
-
-
+    peaksMap = ebsd.core.Threshold.automaticStdDev(dividedMap)
 
     identMap = rmlimage.core.Identification.identify(peaksMap)
-
-    identMap.setFile('ident2.bmp')
-    IO.save(identMap)
+    self._identMap = identMap
 
     self._peaks = peaks.Peaks(identMap, houghMap_crop)
 
@@ -249,21 +234,38 @@ if __name__ == '__main__':
 
   maskMap = masks.MaskDisc(width=168, height=128, centroid=(84,64), radius=59)
   P = pattern.PatternMap(filepath='testData/pattern1.bmp', maskMap=maskMap)
+
+  P = pattern.PatternMap(filepath='/media/disk/temp/test2/5781_pattern.bmp')
+  maskMap = masks.MaskDisc(width=P.width, height=P.height
+                           , centroid=(P.width/2,P.height/2)
+                           , radius=P.height/2-10)
+  P.applyMask(maskMap)
+
   H = HoughMap(P)
 
 #  H.setFile('houghtt1.bmp')
 #  IO.save(H)
   H.findPeaks(method=FINDPEAKS_BUTTERFLY)
   peaks = H.getPeaks()
-#  print peaks
+  print len(peaks)
+
+  H._divideMap.setFile('div.bmp')
+  IO.save(H._divideMap)
+
+  H._identMap.setFile('ident.bmp')
+  IO.save(H._identMap)
 
 
-
-#  for numberPeak in range(3, 5):
+#  for numberPeak in range(3, 10):
 #    overlayMap = peaks.overlay(P.getOriginalPattern(), numberPeak, (255,0,0))
-#
+##
 #    overlayMap.setFile('overlay%i.bmp' % numberPeak)
 #    IO.save(overlayMap)
+#
+#  overlayMap = peaks.overlay(P.getOriginalPattern(), 100, (255,0,0))
+##
+#  overlayMap.setFile('overlay%i.bmp' % numberPeak)
+#  IO.save(overlayMap)
 
 #
 

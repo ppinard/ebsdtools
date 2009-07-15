@@ -39,7 +39,7 @@ class HoughQualityIndexes(QualityIndexes):
     self._houghMap = houghMap
     houghMap.findPeaks(hough.FINDPEAKS_BUTTERFLY)
     self._peaksList = houghMap.getPeaks()
-    self._peaksList.sort(peaks.AVERAGE_INTENSITY, reverse=True)
+    self._peaksList.sort(peaks.MAXIMUM_INTENSITY, reverse=True)
 
   def getValue(self, numberPeaks):
     if len(self._peaksList) == 0:
@@ -68,7 +68,7 @@ class imageQuality(HoughQualityIndexes):
 
     value = 0.0
     for peak in peaksList:
-      value += peak.getIntensityAverage()
+      value += peak.getMaximumIntensity()
 
     value /= numberPeaks
 
@@ -78,32 +78,34 @@ class numberPeaks(HoughQualityIndexes):
   def getValue(self):
     return len(self._peaksList)
 
-class averageIntensity(HoughQualityIndexes):
+class imageQualityInca1(HoughQualityIndexes):
   def _calculate(self, peaksList):
-    intensities = []
-    for peak in peaksList:
-      intensities.append(peak.getIntensityAverage())
+    assert len(peaksList) >= 2
 
-    return rmlshared.math.Stats.average(intensities)
+    intensities = [peak.getMaximumIntensity() for peak in peaksList]
 
-class standardDeviationIntensity(HoughQualityIndexes):
-  def _calculate(self, peaksList):
-    intensities = []
-    for peak in peaksList:
-      intensities.append(peak.getIntensityStandardDeviation())
+    maximum = intensities[0]
+    minimum = intensities[-1]
 
-    return rmlshared.math.Stats.average(intensities)
+    iq = 256 * (maximum - minimum) / 20000.0
+
+    return iq
+
+#class averageIntensity(HoughQualityIndexes):
+#  def _calculate(self, peaksList):
+#    intensities = []
+#    for peak in peaksList:
+#      intensities.append(peak.getIntensityAverage())
+#
+#    return rmlshared.math.Stats.average(intensities)
+#
+#class standardDeviationIntensity(HoughQualityIndexes):
+#  def _calculate(self, peaksList):
+#    intensities = []
+#    for peak in peaksList:
+#      intensities.append(peak.getIntensityStandardDeviation())
+#
+#    return rmlshared.math.Stats.average(intensities)
 
 if __name__ == '__main__':
-  import pattern
-
-  patt1 = pattern.PatternMap(filepath='testData/pattern1.bmp')
-
-  print average(patt1).getValue()
-  print standardDeviation(patt1).getValue()
-  print entropy(patt1).getValue()
-  iq = imageQuality(patt1)
-  print iq.getValue(5)
-  print iq.getValue(6)
-  print iq.getValue(3)
-  print iq.getValue(100)
+  pass

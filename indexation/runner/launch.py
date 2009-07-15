@@ -63,7 +63,7 @@ def launch(mapping, numberPatterns, seed):
   maxPattern = ctf.getSize()
 
   patterns = []
-  for i in range(len(numberPatterns)):
+  for i in range(numberPatterns):
     patterns.append(random.randrange(0, maxPattern+1))
 
   #Create results folder
@@ -159,10 +159,10 @@ if __name__ == '__main__':
 
   if options.all == None and options.project != None:
     mapping = config.getMapping(options.project)
-    launch(mapping, options.jobs, options.numberPatterns, options.seed)
+    launch(mapping, options.numberPatterns, options.seed)
   elif options.all == True:
     mappings = config.getMappings()
     for mapping in mappings.values():
-      launch(mapping, options.jobs, options.numberPatterns, options.seed)
+      launch(mapping, options.numberPatterns, options.seed)
   else:
     print 'Give proper arguments'

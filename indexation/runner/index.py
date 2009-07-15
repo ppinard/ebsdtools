@@ -56,11 +56,11 @@ imagePath = os.path.join(patterns_location, '%s.jpg' % imageLabel)
 patt = pattern.PatternMap(filepath=imagePath)
 
 #Save original pattern
-patt.setFile(os.path.join(results_folder, 'pattern_%i.bmp' % index))
+patt.setFile(os.path.join(results_folder, '%i_pattern.bmp' % index))
 IO.save(patt)
 
 maskMap = masks.MaskDisc(patt.width, patt.height, (patt.width/2, patt.height/2), patt.height/2-10)
-maskMap.setFile(os.path.join(results_folder, 'mask_%i.bmp' % index))
+maskMap.setFile(os.path.join(results_folder, '%i_mask.bmp' % index))
 IO.save(maskMap)
 
 MathMorph.median(patt, 2)
@@ -68,7 +68,7 @@ MathMorph.median(patt, 2)
 patt.applyMask(maskMap)
 
 #Save original pattern
-patt.setFile(os.path.join(results_folder, 'patternmask_%i.bmp' % index))
+patt.setFile(os.path.join(results_folder, '%i_patternmask.bmp' % index))
 IO.save(patt)
 
 houghMap = hough.HoughMap(patt)
@@ -78,22 +78,22 @@ peaks = houghMap.getPeaks()
 
 #Hough map cropped
 houghMap_crop = houghMap._houghMap_crop.duplicate()
-houghMap_crop.setFile(os.path.join(results_folder, 'houghmapcrop_%i.bmp' % (index)))
+houghMap_crop.setFile(os.path.join(results_folder, '%i_houghmapcrop.bmp' % (index)))
 IO.save(houghMap_crop)
 
 #Hough map convoluted
-houghMap_convol = houghMap._houghMap_crop.duplicate()
-houghMap_convol.setFile(os.path.join(results_folder, 'houghmapconvol_%i.bmp' % (index)))
+houghMap_convol = houghMap._houghMap_convol.duplicate()
+houghMap_convol.setFile(os.path.join(results_folder, '%i_houghmapconvol.bmp' % (index)))
 IO.save(houghMap_convol)
 
 #BinMap
 identMap = peaks._identMap.duplicate()
-identMap.setFile(os.path.join(results_folder, 'identMap_%i.bmp' % (index)))
+identMap.setFile(os.path.join(results_folder, '%i_identMap.bmp' % (index)))
 IO.save(identMap)
 
 for numberPeak in range(3, 15):
   overlayMap = peaks.overlay(patt.getOriginalPattern(), numberPeak, (255,0,0))
 
-  overlayMap.setFile(os.path.join(results_folder, 'overlay_%i_%i.bmp' % (index, numberPeak)))
+  overlayMap.setFile(os.path.join(results_folder, '%i_overlay_%i.bmp' % (index, numberPeak)))
   IO.save(overlayMap)
 

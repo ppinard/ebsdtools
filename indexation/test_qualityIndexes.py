@@ -72,24 +72,29 @@ class TestPattern(unittest.TestCase):
     self.assertAlmostEqual(qualityIndexes.entropy(self.patt1_mask).getValue(), 4.502349539585318)
 
   def testImageQuality(self):
-    self.assertAlmostEqual(qualityIndexes.imageQuality(self.houghMap1).getValue(3), 163.341395359)
-    self.assertAlmostEqual(qualityIndexes.imageQuality(self.houghMap2).getValue(3), 170.371520946)
-    self.assertAlmostEqual(qualityIndexes.imageQuality(self.houghMap1_mask).getValue(3), 150.780082805)
+    self.assertAlmostEqual(qualityIndexes.imageQuality(self.houghMap1).getValue(3), 137.66666666)
+    self.assertAlmostEqual(qualityIndexes.imageQuality(self.houghMap2).getValue(3), 158.0)
+    self.assertAlmostEqual(qualityIndexes.imageQuality(self.houghMap1_mask).getValue(3), 169.33333333)
 
   def testNumberPeaks(self):
-    self.assertEqual(qualityIndexes.numberPeaks(self.houghMap1).getValue(), 13)
-    self.assertEqual(qualityIndexes.numberPeaks(self.houghMap2).getValue(), 20)
-    self.assertEqual(qualityIndexes.numberPeaks(self.houghMap1_mask).getValue(), 15)
+    self.assertEqual(qualityIndexes.numberPeaks(self.houghMap1).getValue(), 10)
+    self.assertEqual(qualityIndexes.numberPeaks(self.houghMap2).getValue(), 32)
+    self.assertEqual(qualityIndexes.numberPeaks(self.houghMap1_mask).getValue(), 16)
 
-  def testAverageIntensity(self):
-    self.assertAlmostEqual(qualityIndexes.averageIntensity(self.houghMap1).getValue(3), 163.341395359)
-    self.assertAlmostEqual(qualityIndexes.averageIntensity(self.houghMap2).getValue(3), 170.371520946)
-    self.assertAlmostEqual(qualityIndexes.averageIntensity(self.houghMap1_mask).getValue(3), 150.780082805)
+  def testBandContrastInca1(self):
+    self.assertEqual(qualityIndexes.imageQualityInca1(self.houghMap1).getValue(3), 0.0512)
+    self.assertEqual(qualityIndexes.imageQualityInca1(self.houghMap2).getValue(3), 0.0256)
+    self.assertEqual(qualityIndexes.imageQualityInca1(self.houghMap1_mask).getValue(3), 0.0896)
 
-  def testStandardDeviationIntensity(self):
-    self.assertAlmostEqual(qualityIndexes.standardDeviationIntensity(self.houghMap1).getValue(3), 15.3658991169)
-    self.assertAlmostEqual(qualityIndexes.standardDeviationIntensity(self.houghMap2).getValue(3), 9.80636044478)
-    self.assertAlmostEqual(qualityIndexes.standardDeviationIntensity(self.houghMap1_mask).getValue(3), 28.1453966376)
+#  def testAverageIntensity(self):
+#    self.assertAlmostEqual(qualityIndexes.averageIntensity(self.houghMap1).getValue(3), 163.341395359)
+#    self.assertAlmostEqual(qualityIndexes.averageIntensity(self.houghMap2).getValue(3), 170.371520946)
+#    self.assertAlmostEqual(qualityIndexes.averageIntensity(self.houghMap1_mask).getValue(3), 150.780082805)
+#
+#  def testStandardDeviationIntensity(self):
+#    self.assertAlmostEqual(qualityIndexes.standardDeviationIntensity(self.houghMap1).getValue(3), 15.3658991169)
+#    self.assertAlmostEqual(qualityIndexes.standardDeviationIntensity(self.houghMap2).getValue(3), 9.80636044478)
+#    self.assertAlmostEqual(qualityIndexes.standardDeviationIntensity(self.houghMap1_mask).getValue(3), 28.1453966376)
 
 if __name__ == '__main__':
   unittest.main()
