@@ -25,6 +25,8 @@ import EBSDTools.indexation.hough as hough
 import EBSDTools.indexation.peaks as peaks
 
 # Local modules.
+import EBSDTools.indexation.fourier as fourier
+
 
 class QualityIndexes(object):
   def getValue(self, *args):
@@ -65,6 +67,7 @@ class entropy(PatternQualityIndexes):
 class imageQuality(HoughQualityIndexes):
   def _calculate(self, peaksList):
     numberPeaks = len(peaksList)
+    if numberPeaks == 0: return 0.0
 
     value = 0.0
     for peak in peaksList:
@@ -80,7 +83,7 @@ class numberPeaks(HoughQualityIndexes):
 
 class imageQualityInca1(HoughQualityIndexes):
   def _calculate(self, peaksList):
-    assert len(peaksList) >= 2
+    if len(peaksList) < 2: return 0.0
 
     intensities = [peak.getMaximumIntensity() for peak in peaksList]
 
@@ -90,6 +93,10 @@ class imageQualityInca1(HoughQualityIndexes):
     iq = 256 * (maximum - minimum) / 20000.0
 
     return iq
+
+class fourierQuality(PatternQualityIndexes):
+  def getValue(self):
+    return fourier.qualityIndex(self._patternMap)
 
 #class averageIntensity(HoughQualityIndexes):
 #  def _calculate(self, peaksList):

@@ -70,12 +70,11 @@ class UpdateConfiguration:
       if config.has_option(source, "download_location"):
         self.download_location = config.get(source, "download_location")
 
-def updateJythonLib(source):
+def updateJythonLib(configurationFile, source):
   """
   There are two types of source: remote or local
   They are defined in the configuration file
   """
-  configurationFile = Files.getCurrentModulePath(__file__, 'rmlimage_update.cfg')
   config = UpdateConfiguration(configurationFile=configurationFile
                                , source=source)
 
@@ -118,12 +117,11 @@ def updateJythonLib(source):
   print mainjar
   os.rename(mainjar, os.path.join(rml_folder, 'rml-image_ebsd.jar'))
 
-def updateProgram(source):
+def updateProgram(configurationFile, source):
   """
   There are two types of source: remote or local
   They are defined in the configuration file
   """
-  configurationFile = Files.getCurrentModulePath(__file__, 'rmlimage_update.cfg')
   config = UpdateConfiguration(configurationFile=configurationFile
                                , source=source)
 
@@ -161,6 +159,11 @@ def updateProgram(source):
 def main():
   usage = "Usage: %prog [options]\n Update the local folder with newer version of RML-Image."
   parser = optparse.OptionParser(usage=usage)
+  parser.add_option("-c"
+                    , action="store"
+                    , dest="config"
+                    , help="Configuration file")
+
   parser.add_option("-l"
                     , "--local"
                     , action="store_true"
@@ -174,6 +177,8 @@ def main():
 
   (options, args) = parser.parse_args()
 
+  config = options.config
+
   if options.remote:
     source = SOURCE_REMOTE
   elif options.local:
@@ -182,8 +187,9 @@ def main():
     source = SOURCE_REMOTE
 
   print source
-  updateJythonLib(source)
-  updateProgram(source)
+  print config  
+  updateJythonLib(config, source)
+  updateProgram(config, source)
 
 if __name__ == '__main__':
   main()

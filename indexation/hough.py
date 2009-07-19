@@ -21,7 +21,7 @@ from math import pi
 import rmlimage.io.IO as IO #To be removed
 import rmlimage.core
 import rmlimage.module.ebsd as ebsd
-import rmlimage.macro.python.cui as macro
+import rmlimage.module.real as real
 
 import rmlshared.math as math
 
@@ -54,7 +54,7 @@ MathMorph.median(houghMap_crop, 3)
     patternHoughMap = self.patternMap.duplicate()
 
     rmlimage.core.MathMorph.median(patternHoughMap)
-    rmlimage.core.Contrast.expansion(patternHoughMap)
+#    rmlimage.core.Contrast.expansion(patternHoughMap)
 
     houghMap = ebsd.core.Transform().hough(patternHoughMap, angleIncrement*pi/180.0)
 
@@ -124,14 +124,14 @@ MathMorph.median(houghMap_crop, 3)
     #Crop white edges on top and bottom using the mask radius if available
     if self.patternMap.getMaskMap() != None:
       radius = self.patternMap.getMaskMap().getRadius() - 10
-      houghMap_crop = ebsd.core.Edit.crop(houghMap, radius)
+      houghMapCrop = ebsd.core.Edit.crop(houghMap, radius)
     else:
-      houghMap_crop = houghMap
+      houghMapCrop = houghMap
 
-    self._houghMap_crop = houghMap_crop
+    self._houghMapCrop = houghMapCrop
 
     #Apply median filter
-    rmlimage.core.MathMorph.median(houghMap_crop, 3)
+    rmlimage.core.MathMorph.median(houghMapCrop, 3)
 
     #3x3
 #    k = [[0,-2,0], [1,3,1], [0,-2,0]]
@@ -149,25 +149,31 @@ MathMorph.median(houghMap_crop, 3)
 
     kk = rmlimage.core.Kernel(k, 1)
 
-    houghMap_convol = houghMap_crop.duplicate()
-    ebsd.core.Convolution.convolve(houghMap_crop, kk, houghMap_convol)
+    houghMapConvol_real = real.core.Convolution.convolve(houghMapCrop, kk)
 
-    self._houghMap_convol = houghMap_convol
+    self._houghMapConvol_real = houghMapConvol_real.duplicate()
+
+    #Truncate convoluted real map
+    houghMapFlatten_real = houghMapConvol_real.duplicate()
+    real.core.Edit.flatten(houghMapFlatten_real, -800, 800, 0)
+    self._houghMapFlatten_real = houghMapFlatten_real.duplicate()
+
+    #Convert back to byteMap
+    houghMapFlatten = real.core.Contrast.expansion(houghMapFlatten_real)
 
     #Increase contrast
-    invertedHoughMap = houghMap_convol.duplicate()
+    invertedHoughMap = houghMapFlatten.duplicate()
     rmlimage.core.MapMath.notOp(invertedHoughMap)
-
-    dividedMap = rmlimage.core.ByteMap(houghMap_crop.width, houghMap_crop.height)
-    rmlimage.core.MapMath.division(houghMap_crop, invertedHoughMap, 128.0, -128.0, dividedMap)
+    dividedMap = rmlimage.core.ByteMap(houghMapFlatten.width, houghMapFlatten.height)
+    rmlimage.core.MapMath.division(houghMapFlatten, invertedHoughMap, 128.0, 0.0, dividedMap)
     self._divideMap = dividedMap
 
-    peaksMap = ebsd.core.Threshold.automaticStdDev(dividedMap)
+    peaksMap = ebsd.core.Threshold.automaticTopHat(dividedMap)
 
     identMap = rmlimage.core.Identification.identify(peaksMap)
     self._identMap = identMap
 
-    self._peaks = peaks.Peaks(identMap, houghMap_crop)
+    self._peaks = peaks.Peaks(identMap, houghMapCrop)
 
   def getPeaks(self):
     """
@@ -235,7 +241,7 @@ if __name__ == '__main__':
   maskMap = masks.MaskDisc(width=168, height=128, centroid=(84,64), radius=59)
   P = pattern.PatternMap(filepath='testData/pattern1.bmp', maskMap=maskMap)
 
-  P = pattern.PatternMap(filepath='/media/disk/temp/test2/5781_pattern.bmp')
+  P = pattern.PatternMap(filepath='/home/xj3392/tmp/Project404783.bmp')
   maskMap = masks.MaskDisc(width=P.width, height=P.height
                            , centroid=(P.width/2,P.height/2)
                            , radius=P.height/2-10)

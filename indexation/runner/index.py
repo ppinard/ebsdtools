@@ -20,6 +20,7 @@ import sys
 # Third party modules.
 import rmlimage.core.MathMorph as MathMorph
 import rmlimage.io.IO as IO
+import rmlimage.module.real as real
 
 # Local modules.
 import RandomUtilities.csvTools.mycsv as mycsv
@@ -77,23 +78,36 @@ houghMap.findPeaks(hough.FINDPEAKS_BUTTERFLY)
 peaks = houghMap.getPeaks()
 
 #Hough map cropped
-houghMap_crop = houghMap._houghMap_crop.duplicate()
+houghMap_crop = houghMap._houghMapCrop.duplicate()
 houghMap_crop.setFile(os.path.join(results_folder, '%i_houghmapcrop.bmp' % (index)))
 IO.save(houghMap_crop)
 
+#Hough map real convoluted
+houghMapReal_convol = houghMap._houghMapConvol_real.duplicate()
+houghMapReal_convol.setFile(os.path.join(results_folder, '%i_houghmaprealconvol.rmp' % (index)))
+real.io.IO.save(houghMapReal_convol)
+
+houghMapReal_trunc = houghMap._houghMapFlatten_real.duplicate()
+houghMapReal_trunc.setFile(os.path.join(results_folder, '%i_houghmaprealflatten.rmp' % (index)))
+real.io.IO.save(houghMapReal_trunc)
+
+houghMapFlatten = real.core.Contrast.expansion(houghMapReal_trunc)
+houghMapFlatten.setFile(os.path.join(results_folder, '%i_houghmapflatten.bmp' % index))
+IO.save(houghMapFlatten)
+
 #Hough map convoluted
-houghMap_convol = houghMap._houghMap_convol.duplicate()
-houghMap_convol.setFile(os.path.join(results_folder, '%i_houghmapconvol.bmp' % (index)))
-IO.save(houghMap_convol)
+#houghMap_convol = houghMap._houghMap_convol.duplicate()
+#houghMap_convol.setFile(os.path.join(results_folder, '%i_houghmapconvol.bmp' % (index)))
+#IO.save(houghMap_convol)
 
 #BinMap
 identMap = peaks._identMap.duplicate()
 identMap.setFile(os.path.join(results_folder, '%i_identMap.bmp' % (index)))
 IO.save(identMap)
 
-for numberPeak in range(3, 15):
-  overlayMap = peaks.overlay(patt.getOriginalPattern(), numberPeak, (255,0,0))
-
-  overlayMap.setFile(os.path.join(results_folder, '%i_overlay_%i.bmp' % (index, numberPeak)))
-  IO.save(overlayMap)
+#for numberPeak in range(3, 15):
+#  overlayMap = peaks.overlay(patt.getOriginalPattern(), numberPeak, (255,0,0))
+#
+#  overlayMap.setFile(os.path.join(results_folder, '%i_overlay_%i.bmp' % (index, numberPeak)))
+#  IO.save(overlayMap)
 
