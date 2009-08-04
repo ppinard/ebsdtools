@@ -87,6 +87,10 @@ houghMapReal_convol = houghMap._houghMapConvol_real.duplicate()
 houghMapReal_convol.setFile(os.path.join(results_folder, '%i_houghmaprealconvol.rmp' % (index)))
 real.io.IO.save(houghMapReal_convol)
 
+houghMapConvol = real.core.Contrast.expansion(houghMapReal_convol)
+houghMapConvol.setFile(os.path.join(results_folder, '%i_houghmapconvol.bmp' % (index)))
+IO.save(houghMapConvol)
+
 houghMapReal_trunc = houghMap._houghMapFlatten_real.duplicate()
 houghMapReal_trunc.setFile(os.path.join(results_folder, '%i_houghmaprealflatten.rmp' % (index)))
 real.io.IO.save(houghMapReal_trunc)
@@ -105,9 +109,9 @@ identMap = peaks._identMap.duplicate()
 identMap.setFile(os.path.join(results_folder, '%i_identMap.bmp' % (index)))
 IO.save(identMap)
 
-#for numberPeak in range(3, 15):
-#  overlayMap = peaks.overlay(patt.getOriginalPattern(), numberPeak, (255,0,0))
-#
-#  overlayMap.setFile(os.path.join(results_folder, '%i_overlay_%i.bmp' % (index, numberPeak)))
-#  IO.save(overlayMap)
+for numberPeak in range(3, 15):
+  overlayMap = peaks.overlay(patt.getOriginalPattern(), numberPeak, (255,0,0))
+
+  overlayMap.setFile(os.path.join(results_folder, '%i_overlay_%i.bmp' % (index, numberPeak)))
+  IO.save(overlayMap)
 

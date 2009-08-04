@@ -35,18 +35,24 @@ RHO_MAX = 'rho max'
 RHO_MIN = 'rho min'
 THETA_MAX = 'theta max'
 THETA_MIN = 'theta min'
+OBJECT_ID = 'object id'
 
 class Peak(dict):
   def __init__(self
+               , objectId
                , centroidRho
                , centroidTheta
                , maximumIntensity):
     """
 
     """
+    self[OBJECT_ID] = objectId
     self[CENTROID_RHO] = centroidRho
     self[CENTROID_THETA] = centroidTheta
     self[MAXIMUM_INTENSITY] = maximumIntensity
+
+  def getObjectId(self):
+    return self.get(OBJECT_ID)
 
   def getMaximumIntensity(self):
     return self.get(MAXIMUM_INTENSITY)
@@ -59,17 +65,21 @@ class Peaks(list):
     """
 
     """
-    self._identMap = identMap
     self._houghMap = houghMap
 
-    peaks = self._findPeaks()
+    peaks = self._findPeaks(identMap)
     list.__init__(self, peaks)
 
   def __deepcopy__(self, memo=None):
     return Peaks(self._identMap, self._houghMap)
 
-  def _findPeaks(self):
+  def _findPeaks(self, identMap):
     peaks = []
+    
+    #Dilation of peaks to increase their area
+    binMap = rmlimage.core.Conversion.toBinMap(identMap)
+    rmlimage.core.MathMorph.dilation(binMap, 2, 8, 3)
+    self._identMap = rmlimage.core.Identification.identify(binMap)
 
     #Remove peaks touching the edges
     rmlimage.core.Identification.removeObjectsTouchingEdges(self._identMap)
@@ -85,11 +95,12 @@ class Peaks(list):
 
     #Create Peak object
     for i in range(self._identMap.getObjectCount()):
+      id = i + 1 #the background is id=0
       maximumIntensity = maximums[i]
       centroidRho = centroidsRho[i]
       centroidTheta = centroidsTheta[i]
 
-      peak = Peak(centroidRho, centroidTheta, maximumIntensity)
+      peak = Peak(id, centroidRho, centroidTheta, maximumIntensity)
 
       peaks.append(peak)
 
@@ -98,24 +109,29 @@ class Peaks(list):
   def sort(self, key, reverse=False):
     self = sortDict.sortListByKey(self, key, reverse)
 
-#  def overlay(self, originalPatternMap, numberPeaks, color):
-#    peaks = self.__deepcopy__()
-#    overlayMap = originalPatternMap.duplicate()
-#
-#    peaks.sort(MAXIMUM_INTENSITY, reverse=True)
-#    peaks = peaks[:numberPeaks]
-#
-#    peaksBinMap = peaks[0]._peakBinMap
-#    for peak in peaks[1:]:
-#      rmlimage.core.MapMath.orOp(peaksBinMap, peak._peakBinMap, peaksBinMap)
-#
-#    rgb = rmlimage.core.RGB(*color)
-#    ebsd.core.QC().overlay(overlayMap, peaksBinMap, rgb)
-#
-#    peaksBinMap.setFile('bin%i.bmp' % numberPeaks)
-#    rmlimage.io.IO.save(peaksBinMap)
-#
-#    return overlayMap
+  def overlay(self, originalPatternMap, numberPeaks, color):
+    peaks = self.__deepcopy__()
+    overlayMap = originalPatternMap.duplicate()
+
+    peaks.sort(MAXIMUM_INTENSITY, reverse=True)
+    peaks = peaks[:numberPeaks]
+
+    ids = []
+    for i in range(min(numberPeaks, len(peaks))):
+      ids.append(peaks[i].getObjectId())
+    print ids
+
+    identMap = self._identMap.duplicate()
+    peaksBinMap = rmlimage.core.Identification.extractObjects(identMap, ids)
+    peaksBinMap.setProperties(identMap)
+
+    rgb = rmlimage.core.RGB(*color)
+    ebsd.core.QC().overlay(overlayMap, peaksBinMap, rgb)
+
+    peaksBinMap.setFile('bin%i.bmp' % numberPeaks)
+    rmlimage.io.IO.save(peaksBinMap)
+
+    return overlayMap
 
 if __name__ == '__main__':
   pass

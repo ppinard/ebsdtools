@@ -167,6 +167,7 @@ MathMorph.median(houghMap_crop, 3)
     dividedMap = rmlimage.core.ByteMap(houghMapFlatten.width, houghMapFlatten.height)
     rmlimage.core.MapMath.division(houghMapFlatten, invertedHoughMap, 128.0, 0.0, dividedMap)
     self._divideMap = dividedMap
+    dividedMap.setProperties(houghMapConvol_real)
 
     peaksMap = ebsd.core.Threshold.automaticTopHat(dividedMap)
 
@@ -174,6 +175,7 @@ MathMorph.median(houghMap_crop, 3)
     self._identMap = identMap
 
     self._peaks = peaks.Peaks(identMap, houghMapCrop)
+#    self._peaks = peaks.Peaks(identMap, houghMapFlatten)
 
   def getPeaks(self):
     """

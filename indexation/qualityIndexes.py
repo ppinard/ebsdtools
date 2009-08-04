@@ -19,6 +19,7 @@ import java.io
 import copy
 
 # Third party modules.
+import rmlimage
 import rmlimage.module.ebsd as ebsd
 import rmlshared.math.Stats
 import EBSDTools.indexation.hough as hough
@@ -97,6 +98,14 @@ class imageQualityInca1(HoughQualityIndexes):
 class fourierQuality(PatternQualityIndexes):
   def getValue(self):
     return fourier.qualityIndex(self._patternMap)
+
+class rangeQuality(HoughQualityIndexes):
+  def getValue(self):
+    rrange = rmlimage.core.MapStats.range(self._houghMap._houghMapCrop)
+    minimum = rrange.getMin()
+    maximum = rrange.getMax()
+
+    return maximum - minimum
 
 #class averageIntensity(HoughQualityIndexes):
 #  def _calculate(self, peaksList):

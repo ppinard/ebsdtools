@@ -46,7 +46,7 @@ APPLICATION_PLATFORM = launcher.PLATFORM_JYTHON
 APPLICATION_PATH = Files.getCurrentModulePath(__file__, 'index.py')
 APPLICATION_BZR_REV = launcher.getBzrRev(APPLICATION_PATH)
 
-def launch(mapping, numberPatterns, seed):
+def launch(mapping, numberPatterns, seed, pattern=None):
   random.seed(seed)
 
   #Define author
@@ -62,9 +62,12 @@ def launch(mapping, numberPatterns, seed):
   ctf = ctfFile.ctf(mapping.getCtfFilePath())
   maxPattern = ctf.getSize()
 
-  patterns = []
-  for i in range(numberPatterns):
-    patterns.append(random.randrange(0, maxPattern+1))
+  if pattern == None:
+    patterns = []
+    for i in range(numberPatterns):
+      patterns.append(random.randrange(0, maxPattern+1))
+  else:
+    patterns = [pattern]
 
   #Create results folder
   if not os.path.exists(mapping.getResultsFolderPath()):
@@ -145,6 +148,13 @@ if __name__ == '__main__':
                     , default=50
                     , type="int"
                     , help="number of patterns to study")
+  parser.add_option("-t"
+                    , "--pattern"
+                    , action="store"
+                    , dest="pattern"
+                    , default=None
+                    , type="int"
+                    , help="a specific pattern")
   parser.add_option("-s"
                     , "--seed"
                     , action="store"
@@ -159,10 +169,10 @@ if __name__ == '__main__':
 
   if options.all == None and options.project != None:
     mapping = config.getMapping(options.project)
-    launch(mapping, options.numberPatterns, options.seed)
+    launch(mapping, options.numberPatterns, options.seed, options.pattern)
   elif options.all == True:
     mappings = config.getMappings()
     for mapping in mappings.values():
-      launch(mapping, options.numberPatterns, options.seed)
+      launch(mapping, options.numberPatterns, options.seed, options.pattern)
   else:
     print 'Give proper arguments'
