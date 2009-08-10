@@ -94,8 +94,10 @@ if __name__ == '__main__':
   print qualityIndex(P)
 #  import rmlimage
 #
-#  realMap = radiusMap(256, 256)
-#  byteMap = real.core.Contrast.expansion(realMap)
+  realMap = createRadiusMap(256, 256)
+  byteMap = real.core.Contrast.expansion(realMap)
+  byteMap.setFile('radiusmap.bmp')
+  rmlimage.io.IO.save(byteMap)
 #
 #  realMap.setFile('radiusmap.rmp')
 #  real.io.IO.save(realMap)
