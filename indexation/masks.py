@@ -20,6 +20,9 @@ import rmlimage
 
 # Local modules.
 
+# Interfaces
+import rmlimage.module.ebsd.python.interfaces
+
 class MaskMap(rmlimage.core.BinMap):
   def __init__(self, width, height, *args):
     """
@@ -31,68 +34,80 @@ class MaskMap(rmlimage.core.BinMap):
     :arg height: width of the mask map
     :type height: int
     """
-
     rmlimage.core.BinMap.__init__(self, width, height, *args)
 
-  def getType(self):
+  def gettype(self):
     """
     Override the class type to show that *MaskMap* inherits a *BinMap*
     """
-
     return 'BinMap'
 
-class MaskDisc(MaskMap):
-  def __init__(self, width, height, centroid, radius):
+class MaskDisc(MaskMap, rmlimage.module.ebsd.python.interfaces.MaskDisc):
+  def __init__(self, width, height, centroid_x, centroid_y, radius):
     """
     A circular mask
 
     :arg width: width of the mask map
-    :type width: int
+    :type width: :keyword:`int`
 
     :arg height: width of the mask map
-    :type height: int
+    :type height: :keyword:`int`
 
-    :arg centroid: position in pixels of the center of the disc (x,y)
-    :type centroid: tuple of int
+    :arg centroid_x: x position in pixels of the center of the disc
+    :type centroid_x: :keyword:`int`
+
+    :arg centroid_y: y position in pixels of the center of the disc
+    :type centroid_y: :keyword:`int`
 
     :arg radius: radius of the disc in pixels
-    :type radius: int
+    :type radius: :keyword:`int`
     """
+    self._centroid_x = centroid_x
+    self._centroid_y = centroid_y
+    self._radius = radius
 
-    self.centroid = centroid
-    self.radius = radius
-
-    pixArray = []
+    pixarray = []
     for y in range(height):
       for x in range(width):
-        if (x - centroid[0])**2 + (y - centroid[1])**2 < radius**2:
-          pixArray.append(1)
+        if (x - centroid_x)**2 + (y - centroid_y)**2 < radius**2:
+          pixarray.append(1)
         else:
-          pixArray.append(0)
+          pixarray.append(0)
 
-    MaskMap.__init__(self, width, height, pixArray)
+    MaskMap.__init__(self, width, height, pixarray)
 
-  def getRadius(self):
+  def getradius(self):
     """
     Return the radius of the circle
 
-    :rtype: int
+    :rtype: :keyword:`int
     """
+    return self._radius
 
-    return self.radius
+  def getcentroid_x(self):
+    """
+    Return the x coordinate of the centroid of the circle
 
-  def getCentroid(self):
+    :rtype: :keyword:`int`
+    """
+    return self._centroid_x
+
+  def getcentroid_y(self):
+    """
+    Return the y coordinate of the centroid of the circle
+
+    :rtype: :keyword:`int`
+    """
+    return self._centroid_y
+
+  def getcentroid(self):
     """
     Return the centroid of the circle
 
-    :rtype: tuple of int
+    :rtype: :keyword:`tuple`
     """
+    return self._centroid_x, self._centroid_y
 
-    return self.centroid
-
-if __name__ == '__main__':
-  import rmlimage.io.IO as IO
-  mask1 = MaskDisc(168, 128, (84, 64), 59)
-  mask1.setFile('test.bmp')
-  IO.save(mask1)
-  print mask1.height
+if __name__ == '__main__': #pragma: no cover
+  import DrixUtilities.Runner as Runner
+  Runner.Runner().run(runFunction=None)

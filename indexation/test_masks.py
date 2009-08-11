@@ -16,12 +16,15 @@ __svnId__ = ""
 # Standard library modules.
 import os
 import unittest
+import logging
+import tempfile
+import shutil
 
 # Third party modules.
 import rmlimage.io.IO as IO
 
 # Local modules.
-import EBSDTools
+import DrixUtilities.Files as Files
 import EBSDTools.indexation.masks as masks
 import RandomUtilities.testing.testImage as testImage
 
@@ -32,37 +35,52 @@ class TestMasks(unittest.TestCase):
   def setUp(self):
     unittest.TestCase.setUp(self)
 
-    self.basepath = os.path.join(EBSDTools.__path__[0], 'indexation/testData')
+    self.basepath = Files.getCurrentModulePath(__file__, 'testData')
+    self.tmpfolder = tempfile.mkdtemp()
+
+    #Centered
+    self.maskMap1 = masks.MaskDisc(width=168, height=128, centroid_x=84, centroid_y=64, radius=59)
+
+    #In the corner
+    self.maskMap2 = masks.MaskDisc(width=168, height=128, centroid_x=0, centroid_y=0, radius=59)
 
   def tearDown(self):
     unittest.TestCase.tearDown(self)
+
+    shutil.rmtree(self.tmpfolder)
 
   def testSkeleton(self):
     #self.fail("Test if the TestCase is working.")
     self.assert_(True)
 
-  def testCreateMaskDisc(self):
-    #Centered
-    maskMap = masks.MaskDisc(width=168, height=128, centroid=(84,64), radius=59)
-    maskMap.setFile(os.path.join(self.basepath, 'test_maskDisc.bmp'))
-    IO.save(maskMap)
-    self.assert_(testImage.equal(os.path.join(self.basepath, 'test_maskDisc.bmp'), os.path.join(self.basepath, 'maskDisc.bmp')))
+  def test__init__(self):
+    self.maskMap1.setFile(os.path.join(self.tmpfolder, 'test_maskDisc.bmp'))
+    IO.save(self.maskMap1)
+    self.assertTrue(testImage.equal(os.path.join(self.tmpfolder, 'test_maskDisc.bmp')
+                                    , os.path.join(self.basepath, 'maskDisc.bmp')))
 
     #In the corner
-    maskMap = masks.MaskDisc(width=168, height=128, centroid=(0,0), radius=59)
-    maskMap.setFile(os.path.join(self.basepath, 'test_maskDisc2.bmp'))
-    IO.save(maskMap)
-    self.assert_(testImage.equal(os.path.join(self.basepath, 'test_maskDisc2.bmp'), os.path.join(self.basepath, 'maskDisc2.bmp')))
+    self.maskMap2.setFile(os.path.join(self.tmpfolder, 'test_maskDisc2.bmp'))
+    IO.save(self.maskMap2)
+    self.assertTrue(testImage.equal(os.path.join(self.tmpfolder, 'test_maskDisc2.bmp')
+                                    , os.path.join(self.basepath, 'maskDisc2.bmp')))
 
-def cleanup():
-  files = os.listdir(os.path.join(EBSDTools.__path__[0], 'indexation/testData/'))
+  def testget_radius(self):
+    self.assertEqual(self.maskMap1.getradius(), 59)
+    self.assertEqual(self.maskMap2.getradius(), 59)
 
-  for file in files:
-    if 'test_' in file:
-      os.remove(os.path.join(EBSDTools.__path__[0], 'indexation/testData/', file))
+  def testget_centroid_x(self):
+    self.assertEqual(self.maskMap1.getcentroid_x(), 84)
+    self.assertEqual(self.maskMap2.getcentroid_x(), 0)
 
-if __name__ == '__main__':
-  try:
-    unittest.main()
-  finally:
-    cleanup()
+  def testget_centroid_y(self):
+    self.assertEqual(self.maskMap1.getcentroid_y(), 64)
+    self.assertEqual(self.maskMap2.getcentroid_y(), 0)
+
+  def testget_centroid(self):
+    self.assertEqual(self.maskMap1.getcentroid(), (84, 64))
+    self.assertEqual(self.maskMap2.getcentroid(), (0, 0))
+
+if __name__ == '__main__': #pragma: no cover
+  logging.getLogger().setLevel(logging.DEBUG)
+  unittest.main()
