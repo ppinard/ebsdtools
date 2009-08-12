@@ -22,7 +22,7 @@ import java
 
 
 # Globals and constants variables.
-class MaskDiskFactory(java.lang.Object, rmlimage.module.ebsd.python.interfaces):
+class MaskDiscFactory(java.lang.Object, rmlimage.module.ebsd.python.interfaces.MaskDiscFactory):
   
   def create(self, width, height, centroidX, centroidY, radius):
     """
