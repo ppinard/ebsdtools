@@ -24,7 +24,7 @@ import EBSDTools.indexation.masks as masks
 
 
 # Globals and constants variables.
-class MaskDiskFactory(java.lang.Object, rmlimage.module.ebsd.python.interfaces.MaskDiscFactory):
+class MaskDiscFactory(java.lang.Object, rmlimage.module.ebsd.python.interfaces.MaskDiscFactory):
 
   def create(self, width, height, centroidX, centroidY, radius):
     """
@@ -46,6 +46,6 @@ class MaskDiskFactory(java.lang.Object, rmlimage.module.ebsd.python.interfaces.M
     return masks.MaskDisc(width, height, centroidX, centroidY, radius)
 
 if __name__ == '__main__':
-  factory = MaskDiskFactory()
+  factory = MaskDiscFactory()
   binMap = factory.create(100, 100, 0, 0, 50)
   print binMap.height
