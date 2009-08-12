@@ -1,5 +1,7 @@
 package rmlimage.module.ebsd.python.interfaces;
 
+import rmlimage.core.BinMap;
+
 public interface MaskDisc {
 
     /**
@@ -16,5 +18,10 @@ public interface MaskDisc {
     Return the y coordinate of the centroid of the circle
      */
     public int getcentroid_y();
+
+    /**
+    Return the BinMap
+     */
+    public BinMap getbinmap();
 
 }

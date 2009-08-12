@@ -36,13 +36,19 @@ class MaskMap(rmlimage.core.BinMap):
     """
     rmlimage.core.BinMap.__init__(self, width, height, *args)
 
-  def gettype(self):
+  def getType(self):
     """
     Override the class type to show that *MaskMap* inherits a *BinMap*
     """
     return 'BinMap'
 
-class MaskDisc(MaskMap):
+  def getbinmap(self):
+    """
+    Return the *BinMap*.
+    """
+    return self
+
+class MaskDisc(MaskMap, rmlimage.module.ebsd.python.interfaces.MaskDisc):
   def __init__(self, width, height, centroid_x, centroid_y, radius):
     """
     A circular mask
@@ -107,7 +113,3 @@ class MaskDisc(MaskMap):
     :rtype: :keyword:`tuple`
     """
     return self._centroid_x, self._centroid_y
-
-#if __name__ == '__main__': #pragma: no cover
-#  import DrixUtilities.Runner as Runner
-#  Runner.Runner().run(runFunction=None)
