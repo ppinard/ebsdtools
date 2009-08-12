@@ -19,27 +19,33 @@ __svnId__ = ""
 
 # Local modules.
 import java
+import rmlimage.module.ebsd.python.interfaces
+import EBSDTools.indexation.masks as masks
 
 
 # Globals and constants variables.
-class MaskDiskFactory(java.lang.Object, rmlimage.module.ebsd.python.interfaces):
-  
+class MaskDiskFactory(java.lang.Object, rmlimage.module.ebsd.python.interfaces.MaskDiscFactory):
+
   def create(self, width, height, centroidX, centroidY, radius):
     """
-    Create a circular mask for a pattern size of *size* centered at *centroid* 
+    Create a circular mask for a pattern size of *size* centered at *centroid*
     with a given *radius*
-    
+
     :arg size: dimensions of the mask (width, height)
     :type size: tuple
-    
+
     :arg centroid: position in pixels of the center of the disc (x,y)
     :type centroid: tuple
-    
+
     :arg radius: radius of the disc in pixels
     :type radius: int
-    
+
     :rtype: :class:`BinMap <rmlimage.kernel.BinMap>`
     """
-    
-    return MaskDisc(width, height, centroidX, centroidY, radius)
-    
+
+    return masks.MaskDisc(width, height, centroidX, centroidY, radius)
+
+if __name__ == '__main__':
+  factory = MaskDiskFactory()
+  binMap = factory.create(100, 100, 0, 0, 50)
+  print binMap.height
