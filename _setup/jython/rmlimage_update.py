@@ -19,12 +19,13 @@ import glob
 import ConfigParser
 import shutil
 import optparse
+import logging
 
 # Third party modules.
 
 # Local modules.
-import InternetTools.ftp.ftp as ftp
-import RandomUtilities.zipTools.myzip as myzip
+import ftptools.ftp as ftp
+import ziptools.myzip as myzip
 import DrixUtilities.Files as Files
 
 # Globals and constants variables.
@@ -83,7 +84,7 @@ def updateJythonLib(configurationFile, source):
                      , username = config.username
                      , password = config.password)
 
-    distros = server.directoryListing('distro/')['files'].keys()
+    distros = server.directory_listing('distro/')['files'].keys()
     files = []
     for distro in distros:
       if config.prefix_lib in distro:
@@ -98,7 +99,7 @@ def updateJythonLib(configurationFile, source):
 
   #Read zip
   print lastVersion
-  zip = myzip.reader(filename=lastVersion, debug=True)
+  zip = myzip.Reader(lastVersion)
 
   #Remove and create source folder
   rml_folder = config.path_lib
@@ -109,7 +110,7 @@ def updateJythonLib(configurationFile, source):
     pass
 
   #Extract zip
-  zip.extractAll(rml_folder)
+  zip.extract_all(rml_folder)
   zip.close()
 
 #  #Copy main jar to uniform jar name
@@ -130,7 +131,7 @@ def updateProgram(configurationFile, source):
                      , username = config.username
                      , password = config.password)
 
-    distros = server.directoryListing('distro/')['files'].keys()
+    distros = server.directory_listing('distro/')['files'].keys()
     files = []
     for distro in distros:
       if config.prefix_gui in distro:
@@ -145,7 +146,7 @@ def updateProgram(configurationFile, source):
 
   #Read zip
   print lastVersion
-  zip = myzip.reader(filename=lastVersion, debug=True)
+  zip = myzip.Reader(lastVersion)
 
   #Remove and create source folder
   rml_folder = config.path_gui
@@ -153,10 +154,12 @@ def updateProgram(configurationFile, source):
   os.mkdir(rml_folder)
 
   #Extract zip
-  zip.extractAll(rml_folder)
+  zip.extract_all(rml_folder)
   zip.close()
 
 def main():
+  logging.getLogger().setLevel(logging.DEBUG)
+
   usage = "Usage: %prog [options]\n Update the local folder with newer version of RML-Image."
   parser = optparse.OptionParser(usage=usage)
   parser.add_option("-c"
@@ -187,9 +190,11 @@ def main():
     source = SOURCE_REMOTE
 
   print source
-  print config  
+  print config
   updateJythonLib(config, source)
   updateProgram(config, source)
 
-if __name__ == '__main__':
-  main()
+if __name__ == '__main__': #pragma: no cover
+  import DrixUtilities.Runner as Runner
+  Runner.Runner().run(runFunction=main)
+
