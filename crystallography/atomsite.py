@@ -90,17 +90,6 @@ class AtomSite(object):
     symbol = ElementProperties.getSymbol(self.atomicnumber)
     return "%s->%s" % (symbol, self.position)
 
-  def __eq__(self, other):
-    equality = True
-
-    equality = equality and self.atomicnumber == other.atomicnumber
-    equality = equality and self.position == other.position
-
-    return equality
-
-  def __ne__(self, other):
-    return not self == other
-
 if __name__ == '__main__': #pragma: no cover
   import DrixUtilities.Runner as Runner
   Runner.Runner().run(runFunction=None)

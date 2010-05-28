@@ -11,7 +11,6 @@
 .. inheritance-diagram:: atomsites
 
 """
-
 # Script information for the file.
 __author__ = "Philippe Pinard <philippe.pinard@mail.mcgill.ca>"
 __version__ = ""
@@ -30,8 +29,26 @@ __svnId__ = ""
 
 # Local modules.
 import mathtools.algebra.vectors as vectors
+from ebsdtools.crystallography.atomsite import AtomSite
 
 # Globals and constants variables.
+
+def create_fcc_atomsites(atomicnumber):
+  return AtomSites([AtomSite(atomicnumber, 0.5, 0.5, 0.0)
+                    , AtomSite(atomicnumber, 0.5, 0.0, 0.5)
+                    , AtomSite(atomicnumber, 0.0, 0.5, 0.5)
+                    , AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
+
+def create_bcc_atomsites(atomicnumber):
+  return AtomSites([AtomSite(atomicnumber, 0.5, 0.5, 0.5)
+                    , AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
+
+def create_hcp_atomsites(atomicnumber):
+  return AtomSites([AtomSite(atomicnumber, 1 / 3.0, 2 / 3.0, 0.5)
+                    , AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
+
+def create_single_atomsites(atomicnumber):
+  return AtomSites([AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
 
 class AtomSites(list):
   def __init__(self, data=[]):

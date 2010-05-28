@@ -357,7 +357,7 @@ class TestCalculations(unittest.TestCase):
         expected_angle = acos(equation(self.trigonal, *args))
         self.assertAlmostEqual(angle, expected_angle, 6)
 
-  def testinterplanarangle_orthorhmbic(self):
+  def testinterplanarangle_orthorhombic(self):
     equation = lambda lat, h1, k1, l1, h2, k2, l2: \
       (h1 * h2 / lat.a ** 2 + k1 * k2 / lat.b ** 2 + l1 * l2 / lat.c ** 2) / \
       sqrt((h1 ** 2 / lat.a ** 2 + \
@@ -458,34 +458,35 @@ class TestCalculations(unittest.TestCase):
     formfactor = calculations.formfactor(plane1, self.cubic
                                          , self.atomsfcc, self.scatter)
     expected_formfactor = 27.527840181773566
-    self.assertAlmostEqual(formfactor, expected_formfactor)
+    self.assertAlmostEqual(abs(formfactor), expected_formfactor)
 
     formfactor = calculations.formfactor(plane2, self.cubic
                                          , self.atomsfcc, self.scatter)
-    expected_formfactor = 0j
-    self.assertAlmostEqual(formfactor, expected_formfactor)
+    expected_formfactor = 0
+    self.assertAlmostEqual(abs(formfactor), expected_formfactor)
 
     # BCC
     formfactor = calculations.formfactor(plane1, self.cubic
                                          , self.atomsbcc, self.scatter)
-    expected_formfactor = 0j
-    self.assertAlmostEqual(formfactor, expected_formfactor)
+    expected_formfactor = 0
+    self.assertAlmostEqual(abs(formfactor), expected_formfactor)
 
     formfactor = calculations.formfactor(plane2, self.cubic
                                          , self.atomsbcc, self.scatter)
     expected_formfactor = 15.319715145909786
-    self.assertAlmostEqual(formfactor, expected_formfactor)
+    self.assertAlmostEqual(abs(formfactor), expected_formfactor)
 
     # HCP
     formfactor = calculations.formfactor(plane1, self.hexagonal
                                          , self.atomshcp, self.scatter)
-    expected_formfactor = 0j
-    self.assertAlmostEqual(formfactor, expected_formfactor)
+    expected_formfactor = 0
+    self.assertAlmostEqual(abs(formfactor), expected_formfactor)
 
     formfactor = calculations.formfactor(plane2, self.hexagonal
                                          , self.atomshcp, self.scatter)
-    expected_formfactor = 11.800945464186695 - 6.8132790404402881j
-    self.assertAlmostEqual(formfactor, expected_formfactor)
+    expected_formfactor = complex(11.800945464186695, -6.8132790404402881)
+    self.assertAlmostEqual(formfactor.real, expected_formfactor.real)
+    self.assertAlmostEqual(formfactor.imag, expected_formfactor.imag)
 
   def testmaximum_formfactor(self):
     #FCC
@@ -527,7 +528,7 @@ class TestCalculations(unittest.TestCase):
     # BCC
     intensity = calculations.diffraction_intensity(plane1, self.cubic
                                                   , self.atomsbcc, self.scatter)
-    expected_intensity = 0j
+    expected_intensity = 0
     self.assertAlmostEqual(intensity, expected_intensity)
 
     intensity = calculations.diffraction_intensity(plane2, self.cubic
@@ -595,11 +596,11 @@ class TestCalculations(unittest.TestCase):
 
     # HCP
     self.assertFalse(calculations.is_diffracting(plane1
-                                                , self.cubic
+                                                , self.hexagonal
                                                 , self.atomshcp
                                                 , self.scatter))
     self.assertTrue(calculations.is_diffracting(plane2
-                                                , self.cubic
+                                                , self.hexagonal
                                                 , self.atomshcp
                                                 , self.scatter))
 

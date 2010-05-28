@@ -178,8 +178,9 @@ class UnitCell:
         , :attr:`gamma_`
       * volume: :attr:`volume`
       * reciprocal volume: :attr:`volume_`
-      * metrical matrix: :attr:`metrical_matrix` (:class:`matrices.Matrix3D`)
-      * crystal system: :attr:`crystalsystem` (:class:`matrices.Matrix3D`)
+      * metrical matrix: :attr:`metricalmatrix` (:class:`matrices.Matrix3D`)
+      * carterian matrix: :attr:`cartesianmatrix` (:class:`matrices.Matrix3D`)
+      * crystal system: :attr:`crystalsystem`
 
     **References**
 
@@ -193,16 +194,24 @@ class UnitCell:
     self.beta = float(beta)
     self.gamma = float(gamma)
 
+    self._calculate_reciprocal_angles()
+
     self._calculate_metrical_matrix()
-    self._calculate_reciprocal_angle()
+    self._calculate_cartesian_matrix()
+
     self._calculate_volume()
     self._calculate_reciprocal_volume()
-    self._calculate_reciprocal_basis()
-    self._calculate_cartesian_matrix()
+
+    self._calculate_reciprocal_bases()
 
     self._find_crystalsystem()
 
-  def _calculate_reciprocal_angle(self):
+  def _calculate_reciprocal_bases(self):
+    self.a_ = self.b * self.c * sin(self.alpha) / self.volume
+    self.b_ = self.a * self.c * sin(self.beta) / self.volume
+    self.c_ = self.a * self.b * sin(self.gamma) / self.volume
+
+  def _calculate_reciprocal_angles(self):
     self.alpha_ = acos((cos(self.beta) * cos(self.gamma) - cos(self.alpha)) / (sin(self.beta) * sin(self.gamma)))
     self.beta_ = acos((cos(self.alpha) * cos(self.gamma) - cos(self.beta)) / (sin(self.alpha) * sin(self.gamma)))
     self.gamma_ = acos((cos(self.alpha) * cos(self.beta) - cos(self.gamma)) / (sin(self.alpha) * sin(self.beta)))
@@ -217,11 +226,6 @@ class UnitCell:
 
     """
     self.volume = sqrt(matrices.det(self.metricalmatrix))
-
-  def _calculate_reciprocal_basis(self):
-    self.a_ = self.b * self.c * sin(self.alpha) / self.volume
-    self.b_ = self.a * self.c * sin(self.beta) / self.volume
-    self.c_ = self.a * self.b * sin(self.gamma) / self.volume
 
   def _calculate_reciprocal_volume(self):
     """

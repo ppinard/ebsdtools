@@ -1,0 +1,400 @@
+\documentclass[legalpaper]{article}
+\usepackage[left=1cm, right=1cm, top=1cm, bottom=1cm]{geometry}
+\usepackage[latin1]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{trees}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric}
+
+
+
+\begin{document}
+\pagestyle{empty}
+
+\renewcommand{\deg}{$^\circ$ }
+
+
+% Set the overall layout of the tree
+\tikzstyle{level 1}=[level distance=4cm, sibling distance=6cm]
+\tikzstyle{level 2}=[level distance=6cm, sibling distance=2.5cm]
+
+% Define styles for bags and leafs
+\tikzstyle{bag} = [text width=7em, text centered]
+\tikzstyle{end} = [circle, minimum width=3pt,fill, inner sep=0pt]
+
+\section{Pattern Simulation}
+
+\begin{tikzpicture}[grow=left, sloped]
+\node[bag] {Pattern}
+    child {
+        node[bag] {Rotation}
+            child {
+              node[bag] {Euler1}
+                edge from parent
+                node[above] {[0, 360, 72] \deg}
+                node[below] {(5)}
+            }
+            child {
+              node[bag] {Euler2}
+                edge from parent
+                node[above] {[0, 360, 72] \deg}
+                node[below] {(6)}
+            }
+            child {
+              node[bag] {Euler3}
+                edge from parent
+                node[above] {[0, 360, 72] \deg}
+                node[below] {(5)}
+             }
+            edge from parent
+    }
+    child {
+        node[bag] {Crystal structure}
+            child {
+              node[bag] {Unit cell}
+                edge from parent
+                node[above] {[fcc, bcc, hcp]}
+                node[below] {(3)}
+            }
+            child {
+              node[bag] {Atomic number}
+                edge from parent
+                node[above] {[13, 29, 47, 79]}
+                node[below] {(4)}
+            }
+            edge from parent
+    }
+    child {
+        node[bag] {Diffraction}
+            child {
+              node[bag] {Energy}
+                edge from parent
+                node[above] {[10, 30, 10] keV}
+                node[below] {(3)}
+            }
+            child {
+              node[bag] {Pattern center X}
+                edge from parent
+                node[above] {[-0.3, 0.3, 0.3]}
+                node[below] {(3)}
+            }
+            child {
+              node[bag] {Pattern center Y}
+                edge from parent
+                node[above] {[-0.3, 0.3, 0.3]}
+                node[below] {(3)}
+            }
+            child {
+              node[bag] {Detector distance}
+                edge from parent
+                node[above] {[0.2, 1.0, 0.2]}
+                node[below] {(5)}
+            }
+            edge from parent
+    }
+    child[grow=right, level distance=1cm] {
+        child {
+            node[bag] {Image BMP (2688x2048)}
+        }
+        child {
+            node[bag] {Peak coordinates}
+        }
+    };
+\end{tikzpicture}
+
+\vspace{2cm}
+
+\noindent
+\textbf{Legend}: \\
+$[x, y, z] \Rightarrow [start, end, step]$\\
+$(n) \Rightarrow$ number of analyses
+
+\newpage
+
+\section{Detection Simulation}
+
+\begin{tikzpicture}[sloped]
+\node[bag] (pattern) {Pattern};
+
+\node[bag, below=2cm of pattern] (smoothing) {Smoothing};
+\node[bag, left=5cm of smoothing] (kernelsize) {Kernel Size};
+\draw[-] (smoothing.west) -- (kernelsize.east)
+  node[midway, sloped, above] {[3x3, 7x7 ,11x11 ,15x15]}
+  node[midway, sloped, below] {(4)};
+
+\draw[-] (pattern.south) -- (smoothing.north);
+
+\node[bag, below=2cm of smoothing] (binning) {Binning};
+\node[bag, left=5cm of binning] (binsize) {Size};
+\draw[-] (binning.west) -- (binsize.east)
+  node[midway, sloped, above] {[1,2,4,8]}
+  node[midway, sloped, below] {(4)};
+
+\draw[-] (smoothing.south) -- (binning.north);
+
+\node[bag, below=2cm of binning] (noise) {Noise}
+  child[grow=left, level distance=1cm] {
+    child {
+      node[bag] {Std. Dev.}
+      edge from parent
+      node[above] {[10, 25, 50]}
+      node[below] {(3)}
+    }
+    child {
+      node[bag] {Repeat}
+      edge from parent
+      node[above] {[0, 10, 2]}
+      node[below] {(6)}
+    }
+  };
+
+\draw[-] (binning.south) -- (noise.north);
+
+\node[bag, below=2cm of noise] (hough) {Hough Transform};
+\node[bag, left=5cm of hough] (resolution) {Resolution};
+\draw[-] (hough.west) -- (resolution.east)
+  node[midway, sloped, above] {[0.5, 1, 2, 3, 4, 5] \deg}
+  node[midway, sloped, below] {(6)};
+
+\draw[-] (noise.south) -- (hough.north);
+
+\node[bag, below=2cm of hough] (peakdetection) {Peak Detection};
+\node[bag, left=5cm of peakdetection] (butterfly) {Butterfly Kernel Size};
+\draw[-] (peakdetection.west) -- (butterfly.east)
+  node[midway, sloped, above] {[7x7, 9x9, 11x11, 13x13]}
+  node[midway, sloped, below] {(4)};
+
+\draw[-] (hough.south) -- (peakdetection.north);
+
+\node[bag, below=of peakdetection] (output) {}
+  child[grow=down, level distance=1cm] {
+    child {
+      node[bag] {Image Quality}
+    }
+    child {
+      node[bag] {Peak Coordinates Fit}
+    }
+  };
+
+\end{tikzpicture}
+
+\newpage
+
+\section{Experiments}
+
+\subsection{Classes}
+
+\subsubsection{Experiment}
+\begin{itemize}
+  \item Store all information to run \textbf{one} experiment (pattern and detection parameters)
+  \item Load and save information in \emph{.exp} files
+    \begin{itemize}
+      \item key=value
+      \item simulate only pattern (optional)
+      \item outputs requested (fit, image quality, etc.)
+      \item database connection information (optional)
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Experiments}
+\begin{itemize}
+  \item Create an \texttt{ArrayList} of \texttt{Experiment} based on the lists of values
+  \item Use \texttt{MultipleLoop} to construct the \texttt{ArrayList}
+  \item Load values from constructor or,
+  \item Load values from \emph{.exps} files
+    \begin{itemize}
+      \item key=value1, value2
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{ExperimentsCasir}
+  \begin{enumerate}
+    \item Split experiments based on the number of nods
+    \item Create list of \emph{.exp} in \emph{.txt} files
+    \item Launch \emph{qsub} \texttt{patterns.java} with the \emph{.txt} files
+  \end{enumerate}
+
+\newpage
+
+\subsection{Mains}
+
+\subsubsection{Pattern.java}
+\begin{itemize}
+  \item Process
+    \begin{enumerate}
+      \item Create a \texttt{Experiment} class from a \emph{.exp} file or the command line arguments (arguments override \emph{.exp} file)
+      \item Create a pattern (see class \texttt{Pattern})
+      \item Analyse pattern (based on argument)
+      \item Save results in prop file (based on argument)
+      \item Save image (based on argument)
+      \item Save results in MySQL database (based on argument)
+    \end{enumerate}
+
+  \item Arguments
+    \begin{description}
+      \item[-f] \emph{.exp} filename
+      \item[-s] save image
+      \item[-r] save results
+      \item[etc.]
+    \end{description}
+\end{itemize}
+
+\subsubsection{ExperimentsRun.java}
+\begin{itemize}
+  \item Process
+    \begin{enumerate}
+      \item Load the values contained in a \emph{.exps} to create a \texttt{Experiments} class
+      \item Create \emph{.exp} for all experiments
+      \item Launch each \texttt{Experiment} based on the argument (see below)
+    \end{enumerate}
+
+  \item{Arguments}
+    \begin{description}
+      \item[-f] \emph{.exps} filename
+      \item[-c] launch on casir (i.e. call \texttt{ExperimentsCasir}) with the number of nods desired
+      \item[-l] launch locally
+    \end{description}
+\end{itemize}
+
+\subsubsection{Patterns.java}
+\begin{itemize}
+  \item Similar than \texttt{Pattern.java} but load a file (\emph{.txt}) containing a list of \emph{.exp}.
+  \item Run each \emph{.exp} like \texttt{Pattern.java}
+\end{itemize}
+
+\newpage
+
+\section{Interfaces and inputs}
+
+\tikzstyle{bag} = [rectangle, text width=16em, text centered, draw]
+\tikzstyle{subbag} = [ellipse, dashed, text width=12em, text centered, draw]
+\tikzstyle{item} = [ellipse, text centered, draw]
+\tikzstyle{if} = [diamond, text width=4em, draw]
+\tikzstyle{linebag} = [->, line width=2pt]
+
+\begin{tikzpicture}[sloped]
+\node[bag] (pattern_sim_ops) {PatternSimulationOp* \\\emph{Rotation, Camera,
+energy, Crystal}\\\emph{to ByteMap}};
+\node[item, right=of pattern_sim_ops.east] (fullbandxrayscatter)
+{FullBandXrayScatter} edge (pattern_sim_ops);
+
+\node[bag, below=1.5cm of pattern_sim_ops] (image_proc_ops) {ImageProcessingOps*
+\\\emph{ByteMap to ByteMap}};
+\node[item, above right=of image_proc_ops.east] (smoothing) {Smoothing} edge
+(image_proc_ops);
+\node[item, above right=0.5cm and 4cm of image_proc_ops.east] (crop) {Crop} edge
+(image_proc_ops);
+\node[item, right=of image_proc_ops.east] (binning) {Binning} edge
+(image_proc_ops);
+\node[item, below right=of image_proc_ops.east] (noise) {Noise} edge
+(image_proc_ops);
+
+\node[bag, below=2.5cm of image_proc_ops] (pattern_ops) {PatternResultsOps
+\\\emph{ByteMap to double}};
+\node[item, above right=of pattern_ops.east] (average) {Average} edge
+(pattern_ops);
+\node[item, above right=0.5cm and 4cm of pattern_ops.east] (fourier) {Fourier}
+edge (pattern_ops);
+\node[item, right=of pattern_ops.east] (stddev) {StandardDeviation} edge
+(pattern_ops);
+\node[item, below right=of pattern_ops.east] (entropy) {Entropy} edge
+(pattern_ops);
+
+\node[if, below=1.5cm of pattern_ops,
+      label={above right:if ($HoughResultsOps.length > 0 \; || \;
+PeakResultsOps.length > 0$)},
+      label={160:no},
+      label={290:yes}] (if_hough) {};
+
+\node[bag, below=1cm of if_hough] (hough_preproc_ops) {HoughPreProcessingOps*
+\\\emph{ByteMap to ByteMap}};
+\node[item, right=of hough_preproc_ops.east] (median) {Median} edge
+(hough_preproc_ops);
+
+\node[bag, below=0.25cm of hough_preproc_ops] (hough) {HoughTransformOp*
+\\\emph{ByteMap to HoughMap}};
+\node[item, right=of hough.east] (houghtransform) {HoughTransform} edge
+(hough);
+
+\node[bag, below=0.5cm of hough] (hough_postproc_ops) {HoughPostProcessingOps*
+\\\emph{HoughMap to HoughMap}};
+\node[item, right=of hough_postproc_ops.east] (houghcrop) {HoughCrop} edge
+(hough_postproc_ops);
+
+\node[bag, below=0.5cm of hough_postproc_ops] (hough_ops) {HoughResultsOps
+\\\emph{HoughMap to double}};
+\node[item, right=of hough_ops.east] (iq_houghrange) {HoughRange} edge
+(hough_ops);
+
+\node[if, below=1cm of hough_ops,
+      label={above right:if ($PeakResultsOps.length > 0$)},
+      label={160:no},
+      label={290:yes}] (if_peaks) {};
+
+\node[bag, below=0.5cm of if_peaks] (peak_preproc_ops)
+{PeakDetectionPreProcessingOps* \\\emph{HoughMap to HoughMap}};
+\node[item, above right=0.5 and 1cm of peak_preproc_ops.east] (butterfly)
+{Butterfly} edge (peak_preproc_ops);
+\node[item, below right=0.5 and 1cm of peak_preproc_ops.east] (division)
+{DivisionInversion} edge (peak_preproc_ops);
+
+\node[bag, below=1cm of peak_preproc_ops] (peakdetection) {PeakDetectionOp*
+\\\emph{HoughMap to BinMap}};
+\node[item, right=of peakdetection.east] (tophat) {AutomaticTopHat} edge
+(peakdetection);
+
+\node[bag, below=0.5cm of peakdetection] (peak_postproc_ops)
+{PeakDetectionPostProcessingOp* \\\emph{BinMap to BinMap}};
+% \node[item, right=of peak_postproc_ops.east] (tophat) {AutomaticTopHat} edge
+% (peak_postproc_ops);
+
+\node[subbag, below=0.5cm of peak_postproc_ops] (peak_ident)
+{PeakDetectionIdentification \\\emph{HoughMap, BinMap} \\\emph{to HoughPeaks}};
+
+\node[bag, below=0.5cm of peak_ident] (peak_ops) {PeakResultsOps
+\\\emph{HoughPeaks to double}};
+\node[item, above right=0.5cm and 6cm of peak_ops.east] (numberpeaks)
+{NumberPeaks} edge (peak_ops);
+\node[item, below right=0.5cm and 6cm of peak_ops.east] (iq_inca)
+{ImageQualityInca} edge (peak_ops);
+\node[item, above right=of peak_ops.east] (fit) {Fit} edge (peak_ops);
+\node[item, right=of peak_ops.east] (iq) {ImageQuality} edge (peak_ops);
+\node[item, below right=of peak_ops.east] (houghpeakrange_iq) {HoughPeakRange}
+edge (peak_ops);
+
+\node[bag, below=2.5cm of peak_ops] (output_ops) {OutputOps};
+\node[item, above right=of output_ops.east] (xmlfile)
+{XMLFile} edge (output_ops);
+\node[item, right=of output_ops.east] (propfile)
+{PropFile} edge (output_ops);
+\node[item, below right=of output_ops.east] (mysql) {MySQL} edge (output_ops);
+
+\draw[linebag] (pattern_sim_ops.south) -- (image_proc_ops.north);
+\draw[linebag] (image_proc_ops.south) -- (pattern_ops.north);
+\draw[linebag] (pattern_ops.south) -- (if_hough.north);
+
+\draw[linebag] (if_hough.south) -- (hough_preproc_ops.north);
+\node[above left=1cm and 2cm of if_hough] (if_hough_no) {};
+\draw[linebag] (if_hough.west) -| (if_hough_no);
+
+\draw[linebag] (hough_preproc_ops.south) -- (hough.north);
+\draw[linebag] (hough.south) -- (hough_postproc_ops.north);
+\draw[linebag] (hough_postproc_ops.south) -- (hough_ops.north);
+\draw[linebag] (hough_ops.south) -- (if_peaks.north);
+
+\draw[linebag] (if_peaks.south) -- (peak_preproc_ops.north);
+\node[above left=1cm and 2cm of if_peaks] (if_peaks_no) {};
+\draw[linebag] (if_peaks.west) -| (if_peaks_no);
+
+\draw[linebag] (peak_preproc_ops.south) -- (peakdetection.north);
+\draw[linebag] (peakdetection.south) -- (peak_postproc_ops.north);
+\draw[linebag] (peak_postproc_ops.south) -- (peak_ident.north);
+\draw[linebag] (peak_ident.south) -- (peak_ops.north);
+
+\draw[linebag] (peak_ops.south) -- (output_ops.north);
+
+\end{tikzpicture}
+
+
+
+\end{document}

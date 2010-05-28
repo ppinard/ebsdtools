@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 """
 ================================================================================
-:mod:`test_atomsite` -- Unit tests for the module :mod:`atomsite.`
+:mod:`test_peak` -- Unit tests for the module :mod:`peak`.
 ================================================================================
 
-.. module:: test_atomsite
-   :synopsis: Unit tests for the module :mod:`atomsite.`
+.. module:: test_peak
 .. moduleauthor:: Philippe Pinard <philippe.pinard@mail.mcgill.ca>
-
-.. inheritance-diagram:: test_atomsite
 
 """
 
@@ -31,18 +28,20 @@ import logging
 # Third party modules.
 
 # Local modules.
-import ebsdtools.crystallography.atomsite as atomsite
-from mathtools.algebra.vectors import almostequal
+import ebsdtools.hough.peak as peak
 
 # Globals and constants variables.
 
-class TestAtomSite(unittest.TestCase):
+class TestPeak(unittest.TestCase):
 
   def setUp(self):
     unittest.TestCase.setUp(self)
 
-    self.atom1 = atomsite.AtomSite(13, 0, 0.5, 1.5)
-    self.atom2 = atomsite.AtomSite(14, (0.3, -0.8, 0.1))
+    self.peak1 = peak.Peak(3, 0.5)
+    self.peak2 = peak.Peak(5, 0.1)
+
+    self.peak3 = peak.Peak(3, 0.5)
+    self.peak3.setdefault(peak.OBJECT_ID, 1)
 
   def tearDown(self):
     unittest.TestCase.tearDown(self)
@@ -52,15 +51,24 @@ class TestAtomSite(unittest.TestCase):
     self.assert_(True)
 
   def testconstructor(self):
-    self.assertEqual(self.atom1.atomicnumber, 13)
-    self.assertEqual(self.atom2.atomicnumber, 14)
+    self.assertEqual(self.peak1.rho, 3)
+    self.assertEqual(self.peak1.theta, 0.5)
 
-    self.assertTrue(almostequal(self.atom1.position, [0, 0.5, 0.5]))
-    self.assertTrue(almostequal(self.atom2.position, [0.3, 0.2, 0.1]))
+    self.assertEqual(self.peak2.rho, 5)
+    self.assertEqual(self.peak2.theta, 0.1)
 
   def test__repr__(self):
-    self.assertEqual(str(self.atom1), "Al->[0.0, 0.5, 0.5]")
-    self.assertEqual(str(self.atom2), "Si->[0.29999999999999999, 0.19999999999999996, 0.10000000000000001]")
+    self.assertEqual(str(self.peak1), "(3.000000, 0.500000)")
+    self.assertEqual(str(self.peak2), "(5.000000, 0.100000)")
+    self.assertEqual(str(self.peak3), "(3.000000, 0.500000)")
+
+  def test__hash__(self):
+    self.assertNotEqual(hash(self.peak1), hash(self.peak2))
+    self.assertEqual(hash(self.peak1), hash(self.peak3))
+
+  def test__eq__(self):
+    self.assertNotEqual(self.peak1, self.peak2)
+    self.assertEqual(self.peak1, self.peak3)
 
 if __name__ == '__main__': #pragma: no cover
   logging.getLogger().setLevel(logging.DEBUG)

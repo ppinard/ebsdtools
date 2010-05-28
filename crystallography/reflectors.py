@@ -25,7 +25,6 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-import copy
 
 # Third party modules.
 
@@ -56,6 +55,7 @@ class Reflector(dict):
       * plane (indices): :attr:`plane`
       * plane spacing: :attr:`planespacing`
       * intensity: :attr:`intensity`
+      * normalized intensity: :attr:`normalizedintensity`
 
     """
     dict.__init__(self)
@@ -71,12 +71,14 @@ class Reflector(dict):
       * plane (indices): :attr:`plane`
       * plane spacing: :attr:`planespacing`
       * intensity: :attr:`intensity`
+      * normalized intensity: :attr:`normalizedintensity`
 
     """
     return self.get(attr)
 
   def __repr__(self):
-    return '{%s d=%f I=%f}' % (self.plane, self.planespacing, self.intensity)
+    return '{%s d=%f I=%f In=%f}' % (self.plane, self.planespacing
+                                     , self.intensity, self.normalizedintensity)
 
   def __hash__(self):
     """
@@ -130,7 +132,7 @@ class Reflectors(list):
           p = plane.Plane(h, k, l)
           p.positive()
 
-          # Calculte the intensities
+          # Calculate the intensities
           intensity = calculations.diffraction_intensity(p
                                                          , self._unitcell
                                                          , self._atoms

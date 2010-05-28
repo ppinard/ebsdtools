@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 """
 ================================================================================
-:mod:`test_atomsite` -- Unit tests for the module :mod:`atomsite.`
+:mod:`test_linedrawing` -- Unit tests for the module :mod:`linedrawing`.
 ================================================================================
 
-.. module:: test_atomsite
-   :synopsis: Unit tests for the module :mod:`atomsite.`
+.. module:: test_linedrawing
+   :synopsis: Unit tests for the module :mod:`linedrawing`.
 .. moduleauthor:: Philippe Pinard <philippe.pinard@mail.mcgill.ca>
-
-.. inheritance-diagram:: test_atomsite
 
 """
 
@@ -31,18 +29,14 @@ import logging
 # Third party modules.
 
 # Local modules.
-import ebsdtools.crystallography.atomsite as atomsite
-from mathtools.algebra.vectors import almostequal
+import ebsdtools.patternsimulations.linedrawing as linedrawing
 
 # Globals and constants variables.
 
-class TestAtomSite(unittest.TestCase):
+class TestLinedrawing(unittest.TestCase):
 
   def setUp(self):
     unittest.TestCase.setUp(self)
-
-    self.atom1 = atomsite.AtomSite(13, 0, 0.5, 1.5)
-    self.atom2 = atomsite.AtomSite(14, (0.3, -0.8, 0.1))
 
   def tearDown(self):
     unittest.TestCase.tearDown(self)
@@ -51,16 +45,21 @@ class TestAtomSite(unittest.TestCase):
     #self.fail("Test if the TestCase is working.")
     self.assert_(True)
 
-  def testconstructor(self):
-    self.assertEqual(self.atom1.atomicnumber, 13)
-    self.assertEqual(self.atom2.atomicnumber, 14)
+  def testslopeintercept_to_points(self):
+    p0, p1 = linedrawing.slopeintercept_to_points(m= -1.0, k=0
+                                                  , width=5, height=5
+                                                  , origin_x=0.5, origin_y=0.5)
+    print p0, p1
+#    self.assertEqual(p0, (-1, 6))
+#    self.assertEqual(p1, (6, -1))
 
-    self.assertTrue(almostequal(self.atom1.position, [0, 0.5, 0.5]))
-    self.assertTrue(almostequal(self.atom2.position, [0.3, 0.2, 0.1]))
+    p0, p1 = linedrawing.slopeintercept_to_points(m= -1.0, k=1
+                                                  , width=5, height=5
+                                                  , origin_x=0.5, origin_y=0.5)
+    print p0, p1
+#    self.assertEqual(p0, (-1, 1))
+#    self.assertEqual(p1, (6, -6))
 
-  def test__repr__(self):
-    self.assertEqual(str(self.atom1), "Al->[0.0, 0.5, 0.5]")
-    self.assertEqual(str(self.atom2), "Si->[0.29999999999999999, 0.19999999999999996, 0.10000000000000001]")
 
 if __name__ == '__main__': #pragma: no cover
   logging.getLogger().setLevel(logging.DEBUG)

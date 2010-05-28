@@ -74,6 +74,9 @@ class TestPlane(unittest.TestCase):
     bravais = self.plane3.to_bravais()
     self.assertEqual(bravais, [-1.0, -2.0, 3.0, 0.0])
 
+  def testhash(self):
+    print hash(self.plane1)
+
 class TestPlaneFunctions(unittest.TestCase):
 
   def setUp(self):

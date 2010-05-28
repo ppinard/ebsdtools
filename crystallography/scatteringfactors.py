@@ -348,7 +348,7 @@ class XrayScatteringFactors(ScatteringFactors):
 
   def get(self, atomicnumber, planespacing, charge=0):
     """
-    Return the scattering factor for *atomicnumber* and a *plane*.
+
 
     :arg atomicnumber: atomic number of the atom
     :type atomicnumber: :class:`int`
@@ -431,7 +431,7 @@ class XrayScatteringFactors(ScatteringFactors):
     if coeffs is None:
       raise KeyError, "Atomic number with specified charge not in table"
 
-    a = [coeffs['a0'], coeffs['a1'], coeffs['a2'] / 10, coeffs['a3'] / 100]
+    a = [coeffs['a0'], coeffs['a1'], coeffs['a2'] / 10.0, coeffs['a3'] / 100.0]
 
     # Calculate factor
     f = 0.0

@@ -25,7 +25,18 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
-import fractions
+try:
+  from fractions import gcd
+except ImportError: # For jython 2.5
+  def gcd(a, b):
+    """Calculate the Greatest Common Divisor of a and b.
+
+    Unless b==0, the result will have the same sign as b (so that when
+    b is divided by it, the result comes out positive).
+    """
+    while b:
+        a, b = b, a % b
+    return a
 
 # Third party modules.
 
@@ -79,14 +90,16 @@ class Plane(vectors.Vector3D):
     Simplify the indices so that the largest common integer of the
     plane's indices is 1.
     """
-    gcd = fractions.gcd(self[0], fractions.gcd(self[1], self[2]))
+    commondenominator = gcd(self[0], gcd(self[1], self[2]))
 
     if self[0] < 0:
-      gcd = -abs(gcd)
+      commondenominator = -abs(commondenominator)
     else:
-      gcd = abs(gcd)
+      commondenominator = abs(commondenominator)
 
-    vectors.Vector3D.__init__(self, vectors.Vector3D.__div__(self, gcd))
+    vectors.Vector3D.__init__(self
+                              , vectors.Vector3D.__div__(self
+                                                         , commondenominator))
 
   def to_bravais(self):
     """

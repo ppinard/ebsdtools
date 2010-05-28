@@ -39,7 +39,7 @@ import ebsdtools.crystallography.unitcell as unitcell
 from ebsdtools.crystallography.plane import Plane
 import ebsdtools.crystallography.scatteringfactors as scatteringfactors
 from ebsdtools.crystallography.atomsite import AtomSite
-from ebsdtools.crystallography.atomsites import AtomSites
+import ebsdtools.crystallography.atomsites as atomsites
 
 # Globals and constants variables.
 
@@ -57,14 +57,9 @@ class TestReflectors(unittest.TestCase):
     unitcell_hcp = unitcell.create_hexagonal_unitcell(3.21, 5.21)
 
     # Atom sites.
-    atoms_fcc = AtomSites([AtomSite(14, 0.5, 0.5, 0.0)
-                                , AtomSite(14, 0.5, 0.0, 0.5)
-                                , AtomSite(14, 0.0, 0.5, 0.5)
-                                , AtomSite(14, 0.0, 0.0, 0.0)])
-    atoms_bcc = AtomSites([AtomSite(14, 0.5, 0.5, 0.5)
-                           , AtomSite(14, 0.0, 0.0, 0.0)])
-    atoms_hcp = AtomSites([AtomSite(14, 1 / 3.0, 2 / 3.0, 0.5)
-                           , AtomSite(14, 0.0, 0.0, 0.0)])
+    atoms_fcc = atomsites.create_fcc_atomsites(14)
+    atoms_bcc = atomsites.create_bcc_atomsites(14)
+    atoms_hcp = atomsites.create_hcp_atomsites(14)
 
     # Scattering factors
     relativepath = os.path.join('..', 'testdata', 'goodconfiguration.cfg')
@@ -92,6 +87,11 @@ class TestReflectors(unittest.TestCase):
   def testSkeleton(self):
 #    self.fail("Test if the testcase is working.")
     self.assert_(True)
+
+  def testconstructor(self):
+    self.assertEqual(len(self.refls_fcc), 17)
+    self.assertEqual(len(self.refls_bcc), 31)
+    self.assertEqual(len(self.refls_hcp), 53)
 
   def testplane(self):
     # BCC
@@ -137,7 +137,7 @@ class TestReflectors(unittest.TestCase):
       # From Rollett 2008
       condition1 = (plane[0] + 2 * plane[1]) % 3 < 0
       condition2 = plane[2] % 2 == 1
-      self.assertNotEqual(condition1 and condition2, True)
+      self.assertFalse(condition1 and condition2)
 
   def testplanespacing(self):
     ## Compared with HKL Channel 5 Phases Database

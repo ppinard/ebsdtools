@@ -24,41 +24,7 @@ import rmlimage.module.ebsd as ebsd
 import RandomUtilities.sort.sortDict as sortDict
 
 # Globals and constants variables.
-AVERAGE_INTENSITY = 'average intensity'
-STDDEV_INTENSITY = 'stddev intensity'
-MAXIMUM_INTENSITY = 'maximum intensity'
-MINIMUM_INTENSITY = 'minimum intensity'
-AREA = 'area'
-CENTROID_RHO = 'centroid rho'
-CENTROID_THETA = 'centroid theta'
-RHO_MAX = 'rho max'
-RHO_MIN = 'rho min'
-THETA_MAX = 'theta max'
-THETA_MIN = 'theta min'
-OBJECT_ID = 'object id'
 
-class Peak(dict):
-  def __init__(self
-               , objectId
-               , centroidRho
-               , centroidTheta
-               , maximumIntensity):
-    """
-
-    """
-    self[OBJECT_ID] = objectId
-    self[CENTROID_RHO] = centroidRho
-    self[CENTROID_THETA] = centroidTheta
-    self[MAXIMUM_INTENSITY] = maximumIntensity
-
-  def getObjectId(self):
-    return self.get(OBJECT_ID)
-
-  def getMaximumIntensity(self):
-    return self.get(MAXIMUM_INTENSITY)
-
-  def getCentroid(self):
-    return self.get(CENTROID_RHO), self.get(CENTROID_THETA)
 
 class Peaks(list):
   def __init__(self, identMap, houghMap):
@@ -75,7 +41,7 @@ class Peaks(list):
 
   def _findPeaks(self, identMap):
     peaks = []
-    
+
     #Dilation of peaks to increase their area
     binMap = rmlimage.core.Conversion.toBinMap(identMap)
     rmlimage.core.MathMorph.dilation(binMap, 2, 8, 3)

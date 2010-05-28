@@ -184,6 +184,8 @@ def zoneaxis(plane1, plane2, unitcell):
   :arg unitcell: unit cell of *plane1* and *plane2*
   :type unitcell: :class:`unitcell.UnitCell`
 
+  :rtype: :class:`vectors.Vector3D`
+
   **References**
 
     Theorem 2.14 from Mathematical Crystallography
@@ -339,11 +341,11 @@ def formfactor(plane, unitcell, atomsites, scatteringfactors):
 
   """
   F = 0.0
+  d = planespacing(plane, unitcell)
 
   for atom in atomsites:
     position = atom.position
     atomicnumber = atom.atomicnumber
-    d = planespacing(plane, unitcell)
 
     x = 2 * pi * vectors.dot(plane, position)
     fi = scatteringfactors.get(atomicnumber, d)
@@ -397,7 +399,12 @@ def diffraction_intensity(plane, unitcell, atomsites, scatteringfactors):
   """
   F = formfactor(plane, unitcell, atomsites, scatteringfactors)
 
-  return (F * F.conjugate()).real
+  try:
+    intensity = (F * F.conjugate()).real
+  except AttributeError:
+    intensity = F * F
+
+  return intensity
 
 def diffraction_maxintensity(unitcell, atomsites, scatteringfactors):
   """
@@ -418,7 +425,12 @@ def diffraction_maxintensity(unitcell, atomsites, scatteringfactors):
   """
   F = maximum_formfactor(unitcell, atomsites, scatteringfactors)
 
-  return (F * F.conjugate()).real
+  try:
+    intensity = (F * F.conjugate()).real
+  except AttributeError:
+    intensity = F * F
+
+  return intensity
 
 def is_diffracting(plane, unitcell, atomsites
                    , scatteringfactors, fraction=1e-14):

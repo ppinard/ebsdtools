@@ -26,7 +26,6 @@ import logging
 # Local modules.
 import ftptools.ftp as ftp
 import ziptools.myzip as myzip
-import DrixUtilities.Files as Files
 
 # Globals and constants variables.
 SOURCE_LOCAL = 'local'
@@ -80,9 +79,9 @@ def updateJythonLib(configurationFile, source):
                                , source=source)
 
   if source == SOURCE_REMOTE:
-    server = ftp.FTP(host = config.location
-                     , username = config.username
-                     , password = config.password)
+    server = ftp.FTP(host=config.location
+                     , username=config.username
+                     , password=config.password)
 
     distros = server.directory_listing('distro/')['files'].keys()
     files = []
@@ -127,9 +126,9 @@ def updateProgram(configurationFile, source):
                                , source=source)
 
   if source == SOURCE_REMOTE:
-    server = ftp.FTP(host = config.location
-                     , username = config.username
-                     , password = config.password)
+    server = ftp.FTP(host=config.location
+                     , username=config.username
+                     , password=config.password)
 
     distros = server.directory_listing('distro/')['files'].keys()
     files = []

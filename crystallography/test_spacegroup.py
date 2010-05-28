@@ -29,7 +29,6 @@ import logging
 # Third party modules.
 
 # Local modules.
-import ebsdtools.crystallography.spacegroup as spacegroup
 import ebsdtools.crystallography.spacegroups as spacegroups
 import ebsdtools.crystallography.atomsite as atomsite
 
