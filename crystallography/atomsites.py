@@ -6,17 +6,16 @@
 
 .. module:: atomsites
    :synopsis: Store the locations of the atoms.
-.. moduleauthor:: Philippe Pinard <philippe.pinard@mail.mcgill.ca>
 
-.. inheritance-diagram:: atomsites
+.. inheritance-diagram:: ebsdtools.crystallography.atomsites
 
 """
 # Script information for the file.
-__author__ = "Philippe Pinard <philippe.pinard@mail.mcgill.ca>"
-__version__ = ""
-__date__ = ""
-__copyright__ = "Copyright (c) 2009 Philippe Pinard"
-__license__ = ""
+__author__ = "Philippe T. Pinard"
+__email__ = "philippe.pinard@gmail.com"
+__version__ = "0.1"
+__copyright__ = "Copyright (c) 2009 Philippe T. Pinard"
+__license__ = "GPL v3"
 
 # Subversion informations for the file.
 __svnRevision__ = ""

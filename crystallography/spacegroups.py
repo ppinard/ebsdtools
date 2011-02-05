@@ -7,7 +7,6 @@
 .. module:: spacegroups
    :synopsis: Symmetry from space group.
 .. moduleauthor:: Dr. Ethan Merritt <merritt@u.washington.edu>
-.. moduleauthor:: Philippe Pinard <philippe.pinard@mail.mcgill.ca>
 
 .. note:: From PymmLib 1.0
 

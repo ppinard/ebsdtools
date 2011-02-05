@@ -6,16 +6,15 @@
 
 .. module:: calculations
    :synopsis: Various calculations using lattice, atom sites, plane.
-.. moduleauthor:: Philippe Pinard <philippe.pinard@mail.mcgill.ca>
 
 """
 
 # Script information for the file.
-__author__ = "Philippe Pinard <philippe.pinard@mail.mcgill.ca>"
-__version__ = ""
-__date__ = ""
-__copyright__ = "Copyright (c) 2009 Philippe Pinard"
-__license__ = ""
+__author__ = "Philippe T. Pinard"
+__email__ = "philippe.pinard@gmail.com"
+__version__ = "0.1"
+__copyright__ = "Copyright (c) 2009 Philippe T. Pinard"
+__license__ = "GPL v3"
 
 # Subversion informations for the file.
 __svnRevision__ = ""
@@ -337,7 +336,7 @@ def formfactor(plane, unitcell, atomsites, scatteringfactors):
 
   **Equation**
 
-    :math:`F = \\sum\\limits_{i=1}^N {\\exp{\\left(2\\pi\\im\\left[(h, k, l)\\cdot (u_i, v_i, w_i)\\right]\\right)}}`
+    :math:`F = \\sum\\limits_{i=1}^N {\\exp{\\left(2\\pi i\\left[(h, k, l)\\cdot (u_i, v_i, w_i)\\right]\\right)}}`
 
   """
   F = 0.0

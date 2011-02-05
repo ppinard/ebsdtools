@@ -6,23 +6,17 @@
 
 .. module:: unitcell
    :synopsis: Lattice's unit cell.
-.. moduleauthor:: Philippe Pinard <philippe.pinard@mail.mcgill.ca>
 
-.. inheritance-diagram:: unitcell
+.. inheritance-diagram:: ebsdtools.crystallography.unitcell
 
 """
 
 # Script information for the file.
-__author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
-__version__ = ""
-__date__ = ""
-__copyright__ = "Copyright (c) 2008-2009 Philippe Pinard"
-__license__ = ""
-
-# Subversion informations for the file.
-__svnRevision__ = ""
-__svnDate__ = ""
-__svnId__ = ""
+__author__ = "Philippe T. Pinard"
+__email__ = "philippe.pinard@gmail.com"
+__version__ = "0.1"
+__copyright__ = "Copyright (c) 2009 Philippe T. Pinard"
+__license__ = "GPL v3"
 
 # Standard library modules.
 from math import sin, cos, pi, sqrt

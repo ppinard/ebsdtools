@@ -7,21 +7,15 @@
 
 .. module:: test_reflectors
    :synopsis: Unit tests for the module :mod:`reflectors`.
-.. moduleauthor:: Philippe Pinard <philippe.pinard@mail.mcgill.ca>
 
 """
 
 # Script information for the file.
-__author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
-__version__ = ""
-__date__ = ""
-__copyright__ = "Copyright (c) 2008 Philippe Pinard"
-__license__ = ""
-
-# Subversion informations for the file.
-__svnRevision__ = "$Revision$"
-__svnDate__ = "$Date$"
-__svnId__ = "$Id$"
+__author__ = "Philippe T. Pinard"
+__email__ = "philippe.pinard@gmail.com"
+__version__ = "0.1"
+__copyright__ = "Copyright (c) 2009 Philippe T. Pinard"
+__license__ = "GPL v3"
 
 # Standard library modules.
 import unittest

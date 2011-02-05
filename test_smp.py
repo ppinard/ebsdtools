@@ -1,38 +1,38 @@
 """
 ================================================================================
-:mod:`test_smp` -- Unit tests for the module MODULE.
+:mod:`test_smp` -- Unit tests for the module :mod:`smp`.
 ================================================================================
-
-.. currentmodule:: test_smp
-.. moduleauthor:: Philippe Pinard <philippe.pinard@mail.mcgill.ca>
 
 """
 
 # Script information for the file.
-__author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
-__version__ = ""
-__date__ = ""
-__copyright__ = "Copyright (c) 2010 Philippe Pinard"
-__license__ = ""
+__author__ = "Philippe T. Pinard"
+__email__ = "philippe.pinard@gmail.com"
+__version__ = "0.1"
+__copyright__ = "Copyright (c) 2010 Philippe T. Pinard"
+__license__ = "GPL v3"
 
 # Standard library modules.
 import unittest
 import logging
+import os
 
 # Third party modules.
 
-
 # Local modules.
+import DrixUtilities.Files as Files
+
 import smp
 
 # Globals and constants variables.
 
-class Test(unittest.TestCase):
+class TestReader(unittest.TestCase):
 
     def setUp(self):
         unittest.TestCase.setUp(self)
 
-        self.reader = smp.reader(open('test.smp', 'rb'))
+        filepath = Files.getCurrentModulePath(__file__, os.path.join('testdata', 'test.smp'))
+        self.reader = smp.reader(open(filepath, 'rb'))
 
     def tearDown(self):
         unittest.TestCase.tearDown(self)

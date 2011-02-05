@@ -6,7 +6,6 @@
 
 .. module:: smp
    :synopsis: Reader of stream maps file format (SMP)
-.. moduleauthor:: Philippe Pinard <philippe.pinard@mail.mcgill.ca>
 
 .. inheritance-diagram:: ebsdtools.smp
 
@@ -27,11 +26,11 @@ The rest of the file is filled with the values of the maps sequentially.
 """
 
 # Script information for the file.
-__author__ = "Philippe Pinard (philippe.pinard@mail.mcgill.ca)"
-__version__ = ""
-__date__ = ""
-__copyright__ = "Copyright (c) 2010 Philippe Pinard"
-__license__ = ""
+__author__ = "Philippe T. Pinard"
+__email__ = "philippe.pinard@gmail.com"
+__version__ = "0.1"
+__copyright__ = "Copyright (c) 2010 Philippe T. Pinard"
+__license__ = "GPL v3"
 
 # Standard library modules.
 import logging
