@@ -23,8 +23,8 @@ import logging
 # Third party modules.
 
 # Local modules.
-import ebsdtools.crystallography.symmetry as symmetry
-import mathtools.rotation.quaternions as quaternions
+#import ebsdtools.crystallography.symmetry as symmetry
+#import mathtools.rotation.quaternions as quaternions
 
 # Globals and constants variables.
 
@@ -81,5 +81,5 @@ class TestSymmetry(unittest.TestCase):
 #      self.assertEqual(qm, qq)
 
 if __name__ == '__main__': #pragma: no cover
-  logging.getLogger().setLevel(logging.DEBUG)
-  unittest.main()
+    logging.getLogger().setLevel(logging.DEBUG)
+    unittest.main()

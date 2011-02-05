@@ -7476,11 +7476,11 @@ def getspacegroup(name):
 
     """
     for sg in spacegrouplist:
-      if sg.check_group_name(name):
-        return sg
+        if sg.check_group_name(name):
+            return sg
 
     return None
 
 if __name__ == '__main__': #pragma: no cover
-  import DrixUtilities.Runner as Runner
-  Runner.Runner().run(runFunction=None)
+    import DrixUtilities.Runner as Runner
+    Runner.Runner().run(runFunction=None)

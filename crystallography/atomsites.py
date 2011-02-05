@@ -33,73 +33,72 @@ from ebsdtools.crystallography.atomsite import AtomSite
 # Globals and constants variables.
 
 def create_fcc_atomsites(atomicnumber):
-  return AtomSites([AtomSite(atomicnumber, 0.5, 0.5, 0.0)
-                    , AtomSite(atomicnumber, 0.5, 0.0, 0.5)
-                    , AtomSite(atomicnumber, 0.0, 0.5, 0.5)
-                    , AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
+    return AtomSites([AtomSite(atomicnumber, 0.5, 0.5, 0.0),
+                      AtomSite(atomicnumber, 0.5, 0.0, 0.5),
+                      AtomSite(atomicnumber, 0.0, 0.5, 0.5),
+                      AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
 
 def create_bcc_atomsites(atomicnumber):
-  return AtomSites([AtomSite(atomicnumber, 0.5, 0.5, 0.5)
-                    , AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
+    return AtomSites([AtomSite(atomicnumber, 0.5, 0.5, 0.5),
+                      AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
 
 def create_hcp_atomsites(atomicnumber):
-  return AtomSites([AtomSite(atomicnumber, 1 / 3.0, 2 / 3.0, 0.5)
-                    , AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
+    return AtomSites([AtomSite(atomicnumber, 1 / 3.0, 2 / 3.0, 0.5),
+                      AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
 
 def create_single_atomsites(atomicnumber):
-  return AtomSites([AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
+    return AtomSites([AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
 
 class AtomSites(list):
-  def __init__(self, data=[]):
-    """
-    Store the *atomsite* in a :class:`list`.
+    def __init__(self, data=[]):
+        """
+        Store the *atomsite* in a :class:`list`.
+        
+        """
+        self._assert_newitems(data)
+        list.__init__(self, data)
 
-    """
-    self._assert_newitems(data)
-    list.__init__(self, data)
+    def _assert_newitems(self, items):
+        """
+        Assert that two *atomsite* don't have the same position.
+        
+        """
+        if not isinstance(items, list):
+            items = [items]
 
-  def _assert_newitems(self, items):
-    """
-    Assert that two *atomsite* don't have the same position.
+        for item in items:
+            for atom in self:
+                if vectors.almostequal(item.position, atom.position):
+                    raise AtomSitePositionError, "Position already exists"
 
-    """
-    if not isinstance(items, list):
-      items = [items]
+    def __setitem__(self, i, y):
+        self._assert_newitems(y)
+        list.__setitem__(self, i, y)
 
-    for item in items:
-      for atom in self:
-        if vectors.almostequal(item.position
-                               , atom.position):
-          raise AtomSitePositionError, "Position already exists"
+    def append(self, object):
+        self._assert_newitems(object)
+        list.append(self, object)
 
-  def __setitem__(self, i, y):
-    self._assert_newitems(y)
-    list.__setitem__(self, i, y)
+    def extend(self, iterable):
+        self._assert_newitems(iterable)
+        list.extend(self, iterable)
 
-  def append(self, object):
-    self._assert_newitems(object)
-    list.append(self, object)
-
-  def extend(self, iterable):
-    self._assert_newitems(iterable)
-    list.extend(self, iterable)
-
-  def insert(self, index, object):
-    self._assert_newitems(object)
-    list.insert(self, index, object)
+    def insert(self, index, object):
+        self._assert_newitems(object)
+        list.insert(self, index, object)
 
 class AtomSitePositionError(ValueError):
-  """
-  Exception raised when the position of an new atomsite already exists in the
-  atomsites list.
+    """
+    Exception raised when the position of an new atomsite already exists in the
+    atomsites list.
+    
+    """
+    def __init__(self, value):
+        self.value = value
 
-  """
-  def __init__(self, value):
-    self.value = value
-
-  def __str__(self):
-    return repr(self.value)
+    def __str__(self):
+        return repr(self.value)
 
 if __name__ == '__main__': #pragma: no cover
-  import DrixUtilities.Runner as Runner
-  Runner.Runner().run(runFunction=None)
+    import DrixUtilities.Runner as Runner
+    Runner.Runner().run(runFunction=None)

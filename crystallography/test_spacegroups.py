@@ -29,29 +29,29 @@ import ebsdtools.crystallography.spacegroups as spacegroups
 
 class TestSpaceGroups(unittest.TestCase):
 
-  def setUp(self):
-    unittest.TestCase.setUp(self)
+    def setUp(self):
+        unittest.TestCase.setUp(self)
 
-  def tearDown(self):
-    unittest.TestCase.tearDown(self)
+    def tearDown(self):
+        unittest.TestCase.tearDown(self)
 
-  def testSkeleton(self):
-    #self.fail("Test if the TestCase is working.")
-    self.assert_(True)
+    def testSkeleton(self):
+        #self.fail("Test if the TestCase is working.")
+        self.assert_(True)
 
-  def testspacegrouplist(self):
-    self.assertEqual(len(spacegroups.spacegrouplist), 265)
+    def testspacegrouplist(self):
+        self.assertEqual(len(spacegroups.spacegrouplist), 265)
 
-  def testgetspacegroup(self):
-    self.assertEqual(spacegroups.getspacegroup(1), spacegroups.sg1)
+    def testgetspacegroup(self):
+        self.assertEqual(spacegroups.getspacegroup(1), spacegroups.sg1)
 
-    self.assertEqual(spacegroups.getspacegroup("P4332"), spacegroups.sg212)
+        self.assertEqual(spacegroups.getspacegroup("P4332"), spacegroups.sg212)
 
-  def testconsistency(self):
-    for sg in spacegroups.spacegrouplist:
-      num_sym = len(sg.symop_list)
-      self.assertEqual(sg.num_sym_equiv, num_sym)
+    def testconsistency(self):
+        for sg in spacegroups.spacegrouplist:
+            num_sym = len(sg.symop_list)
+            self.assertEqual(sg.num_sym_equiv, num_sym)
 
 if __name__ == '__main__': #pragma: no cover
-  logging.getLogger().setLevel(logging.DEBUG)
-  unittest.main()
+    logging.getLogger().setLevel(logging.DEBUG)
+    unittest.main()
