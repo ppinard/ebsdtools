@@ -64,7 +64,7 @@ class Build(BaseBuild, SetupBuild, DocBuild, TestBuild, CoverageBuild):
                                               exclude_directories=['_doc'])
 
         # Doc Build
-        self.doc_dir = os.path.join(self.PROJECT_DIR, 'docs')
+        self.doc_dir = os.path.join(self.PROJECT_DIR, 'doc')
 
 if __name__ == '__main__':
     build = Build()
