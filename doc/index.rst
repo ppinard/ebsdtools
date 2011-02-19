@@ -8,6 +8,8 @@ Contents:
    
    ebsdtools/*
    ebsdtools/crystallography/*
+   ebsdtools/hkl/flamenco/*
+   ebsdtools/hkl/tango/*
 
 Indices and tables
 ==================

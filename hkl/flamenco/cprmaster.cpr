@@ -1,0 +1,136 @@
+[Discriminators]
+bs = 
+mad = 
+bc = 
+
+[Phases]
+count = 
+noreflectors = 
+
+[Live EBSP]
+insoftware = False
+autobackgroundon = False
+lowerlimit = 
+autostretch = False
+autobackgroundlevel = 
+mintimeperframe = 
+delay = 
+backgroundmode = 0
+backgroundcorron = 
+upperlimit = 
+noframesbackground = 
+noframes = 
+
+[AOI2DHough]
+x0 = 
+r = 
+y0 = 
+
+[Fields]
+count = 9
+field8 = 11
+field9 = 12
+field2 = 4
+field3 = 5
+field1 = 3
+field6 = 8
+field7 = 10
+field4 = 6
+field5 = 7
+
+[Job]
+griddisty = 
+griddistx = 
+ycells = 
+top = 
+noofpoints = 
+xcells = 
+magnification = 
+tiltangle = 
+kv = 
+coverage = 
+device = 
+workingdistance = 
+automatic = 
+tiltaxis = 
+left = 
+
+[EDX Control]
+mappingenabled = False
+windowcount = 
+window#type = 
+mincycletime = 
+window#atomicnumber = 
+
+[AOI3DHough]
+top = 
+right = 
+bottom = 
+left = 
+
+[Band Detection]
+olocklevel = 1
+detect = 0
+min = 
+max = 
+divergence = 0
+houghres = 
+olock = False
+usebandwidth = 
+
+[General]
+percycle = 
+author = 
+notes = 
+jobmode = 
+duration = 
+version = 
+time = 
+date = 
+samplesymmetry = 
+description = 
+
+[References]
+imagestoragefolder = 
+originalprojectname = 
+
+[FG_DCam parameters]
+gain = Low
+binning = No binning
+
+[Acquisition Surface]
+euler3 = 
+euler2 = 
+euler1 = 
+
+[EDX Windows]
+count = 
+window# = 
+
+[SEMFields]
+doeuler2 = 
+doeuler3 = 
+doeuler1 = 
+
+[Image Compression]
+nonvisibleblack = 
+smoothing = 
+savewhen = 
+percentage = 
+quality = 
+method = 
+
+[StagePosition]
+rpos = 
+xpos = 
+zvalid = 
+zpos = 
+ypos = 
+tpos = 
+
+[ProjectionParameters]
+vhratio = 
+pcx = 
+pcy = 
+dd = 
+
