@@ -40,7 +40,7 @@ project = Project(find_package_path('ebsdtools'))
 #project.dependencies.append(mathtools_project)
 
 # base
-project.metadata.name = "pyFlamenco"
+project.metadata.name = "ebsdtools"
 project.metadata.author = "Philippe T. Pinard"
 project.metadata.author_email = "philippe.pinard@gmail.com"
 project.metadata.version = "0.1"
