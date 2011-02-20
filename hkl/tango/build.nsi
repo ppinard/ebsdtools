@@ -50,9 +50,9 @@ Section "%(name)s (required)"
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\%(name)s "Install_Dir" "$INSTDIR"
   
-  ; Write key for the Edit with pyFlamenco key
-  WriteRegStr HKCR "CHANNEL project file\Shell\Edit" "" ""
-  WriteRegStr HKCR "CHANNEL project file\Shell\Edit\command" "" '"$INSTDIR\%(name)s.exe" "%%1"'
+  ; Write key for the View with pyTango key
+  WriteRegStr HKCR "CHANNEL project file\Shell\View" "" ""
+  WriteRegStr HKCR "CHANNEL project file\Shell\View\command" "" '"$INSTDIR\%(name)s.exe" "%%1"'
   
   ; Write the uninstall keys for Windows
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\%(name)s" "DisplayName" "%(name)s"
@@ -80,7 +80,7 @@ Section "Uninstall"
   ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\%(name)s"
   DeleteRegKey HKLM SOFTWARE\%(name)s
-  DeleteRegKey HKCR "CHANNEL project file\Shell\Edit"
+  DeleteRegKey HKCR "CHANNEL project file\Shell\View"
 
   ; Remove files and uninstaller
   Delete $INSTDIR\*.*
