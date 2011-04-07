@@ -8,17 +8,17 @@
 ;--------------------------------
 
 ; The name of the installer
-Name "%(name)s"
+Name "${NAME}"
 
 ; The file to write
-OutFile "%(name)s_installer.exe"
+OutFile "${DIST.DIR}\${NAME}_installer.exe"
 
 ; The default installation directory
-InstallDir $PROGRAMFILES\%(name)s
+InstallDir $PROGRAMFILES\${NAME}
 
 ; Registry key to check for directory (so if you install again, it will 
 ; overwrite the old one automatically)
-InstallDirRegKey HKLM "Software\%(name)s" "Install_Dir"
+InstallDirRegKey HKLM "Software\${NAME}" "Install_Dir"
 
 ; Request application privileges for Windows Vista
 RequestExecutionLevel admin
@@ -37,7 +37,7 @@ UninstPage instfiles
 ;--------------------------------
 
 ; The stuff to install
-Section "%(name)s (required)"
+Section "${NAME} (required)"
 
   SectionIn RO
   
@@ -45,20 +45,20 @@ Section "%(name)s (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File /r %(dest_dir)s\exe\%(name)s\*.*
+  File /r ${SRC.DIR}\*.*
   
   ; Write the installation path into the registry
-  WriteRegStr HKLM SOFTWARE\%(name)s "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM SOFTWARE\${NAME} "Install_Dir" "$INSTDIR"
   
   ; Write key for the View with pyTango key
   WriteRegStr HKCR "CHANNEL project file\Shell\View" "" ""
-  WriteRegStr HKCR "CHANNEL project file\Shell\View\command" "" '"$INSTDIR\%(name)s.exe" "%%1"'
+  WriteRegStr HKCR "CHANNEL project file\Shell\View\command" "" '"$INSTDIR\${NAME}.exe" "%%1"'
   
   ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\%(name)s" "DisplayName" "%(name)s"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\%(name)s" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\%(name)s" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\%(name)s" "NoRepair" 1
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" "DisplayName" "${NAME}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" "NoRepair" 1
   WriteUninstaller "uninstall.exe"
   
 SectionEnd
@@ -66,8 +66,8 @@ SectionEnd
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
 
-  CreateDirectory "$SMPROGRAMS\%(name)s"
-  CreateShortCut "$SMPROGRAMS\%(name)s\%(name)s.lnk" "$INSTDIR\%(name)s.exe" "" "$INSTDIR\%(name)s.exe" 0
+  CreateDirectory "$SMPROGRAMS\${NAME}"
+  CreateShortCut "$SMPROGRAMS\${NAME}\${NAME}.lnk" "$INSTDIR\${NAME}.exe" "" "$INSTDIR\${NAME}.exe" 0
   
 SectionEnd
 
@@ -78,8 +78,8 @@ SectionEnd
 Section "Uninstall"
   
   ; Remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\%(name)s"
-  DeleteRegKey HKLM SOFTWARE\%(name)s
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+  DeleteRegKey HKLM SOFTWARE\${NAME}
   DeleteRegKey HKCR "CHANNEL project file\Shell\View"
 
   ; Remove files and uninstaller
@@ -88,10 +88,10 @@ Section "Uninstall"
 ;  Delete $INSTDIR\uninstall.exe
 
   ; Remove shortcuts, if any
-  Delete "$SMPROGRAMS\%(name)s\*.*"
+  Delete "$SMPROGRAMS\${NAME}\*.*"
 
   ; Remove directories used
-  RMDir "$SMPROGRAMS\%(name)s"
+  RMDir "$SMPROGRAMS\${NAME}"
   RMDir "$INSTDIR"
 
 SectionEnd

@@ -1,0 +1,41 @@
+pyFlamenco
+==========
+
+Copyright (c) 2010 Philippe T. Pinard
+
+License information
+-------------------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Description
+-----------
+
+Editor/viewer of the HKL Channel 5 CPR file.
+
+What's new in this release?
+---------------------------
+
+This is the original release.
+
+Installation
+------------
+
+python setup.py install
+
+Contact information
+-------------------
+
+Please contact me for any bugs in the library at:
+philippe (dot) pinard (at) gmail (dot) com

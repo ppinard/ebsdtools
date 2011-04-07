@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<project name="pyTango"
+         xmlns:py="antlib:net.sf.antpython"
+         xmlns:nsisant="antlib:com.danielreese.nsisant">
+
+  <!-- Directories -->
+  <property name="tmp.dir" location="${java.io.tmpdir}" />
+  <property name="src.dir" location="." />
+  <property name="code.dir" location="${tmp.dir}/code" />
+  <property name="build.dir" location="${tmp.dir}/build" />
+  <property name="build.docs.dir" location="${tmp.dir}/build/docs" />
+  <property name="dist.dir" location="${tmp.dir}/dist" />
+  <property name="docs.dir" location="${tmp.dir}/docs" />
+  <property name="test.dir" location="${tmp.dir}/test" />
+  <property name="coverage.dir" location="${tmp.dir}/coverage" />
+
+  <property name="tkintertools.src.dir" location="../../../tkintertools" />
+  <property name="guitools.src.dir" location="../../../guitools" />
+
+  <!-- Metadata -->
+  <property name="name" value="pyTango" />
+  <property name="version" value="0.1" />
+  <property name="url" value="" />
+  <property name="author" value="Philippe T. Pinard" />
+  <property name="author.email" value="philippe.pinard@gmail.com" />
+  <property name="description"
+            value="Viewer of the HKL Channel 5 CTF file and diffraction patterns" />
+  <property name="license" value="GPL v3" />
+
+  <!-- ===================================================== -->
+  <!-- Init targets                                          -->
+  <!-- ===================================================== -->
+
+  <target name="init" description="Creates code and build directories">
+    <mkdir dir="${code.dir}" />
+    <mkdir dir="${build.dir}" />
+  </target>
+
+  <!-- ===================================================== -->
+  <!-- Clean targets                                         -->
+  <!-- ===================================================== -->
+
+  <target name="clean" description="Delete code, build and test directories">
+    <delete dir="${code.dir}" />
+    <delete dir="${build.dir}" />
+    <delete dir="${test.dir}" />
+    <delete dir="${coverage.dir}" />
+  </target>
+
+  <target name="clean-dist"
+          depends="clean"
+          description="Delete all created directories">
+    <delete dir="${docs.dir}" />
+    <delete dir="${dist.dir}" />
+  </target>
+
+  <!-- ===================================================== -->
+  <!-- Code setup targets                                    -->
+  <!-- ===================================================== -->
+
+  <target name="copy-code"
+          depends="init"
+          description="Copy Python source code and project files to code directory">
+    <mkdir dir="${code.dir}/ebsdtools/hkl/tango" />
+
+    <copy todir="${code.dir}/ebsdtools/hkl/tango">
+      <fileset dir="${src.dir}">
+        <include name="*.py" />
+        <include name="*.ini" />
+        <include name="*.csv" />
+        <include name="*.ico" />
+        <include name="testdata/**" />
+      </fileset>
+    </copy>
+
+    <echo file="${code.dir}/ebsdtools/__init__.py" append="false" />
+    <echo file="${code.dir}/ebsdtools/hkl/__init__.py" append="false" />
+
+    <ant antfile="${tkintertools.src.dir}/build.xml"
+         target="copy-code"
+         inheritAll="false">
+      <property name="code.dir" location="${code.dir}" />
+    </ant>
+    <ant antfile="${guitools.src.dir}/build.xml"
+         target="copy-code"
+         inheritAll="false">
+      <property name="code.dir" location="${code.dir}" />
+    </ant>
+
+    <copy file="${src.dir}/README" todir="${code.dir}" overwrite="true" />
+  </target>
+
+  <!-- ===================================================== -->
+  <!-- Build targets                                         -->
+  <!-- ===================================================== -->
+
+  <target name="setup" depends="copy-code" description="Create setup.py">
+    <py:setup name="${name}"
+              srcdir="${code.dir}"
+              manifest="${manifest}"
+              version="${version}"
+              url="${url}"
+              author="${author}"
+              authorEmail="${author.email}"
+              shortDescription="${description}"
+              license="${license}">
+      <classifier name="Development Status :: 4 - Beta" />
+      <classifier name="Intended Audience :: End Users/Desktop" />
+      <classifier name="Intended Audience :: Developers" />
+      <classifier name="License :: OSI Approved :: GNU General Public License (GPL)" />
+      <classifier name="Natural Language :: English" />
+      <classifier name="Operating System :: OS Independent" />
+      <classifier name="Programming Language :: Python" />
+      <classifier name="Topic :: Software Development" />
+      <classifier name="Topic :: Scientific/Engineering" />
+    </py:setup>
+  </target>
+
+  <target name="sdist" description="Source distribution">
+    <mkdir dir="${dist.dir}" />
+
+    <antcall target="setup">
+      <param name="manifest" value="true" />
+    </antcall>
+
+    <py:build srcdir="${code.dir}" distdir="${dist.dir}" command="sdist" />
+  </target>
+
+  <target name="bdist-egg" description="Egg distribution">
+    <mkdir dir="${dist.dir}" />
+
+    <antcall target="setup">
+      <param name="manifest" value="false" />
+    </antcall>
+
+    <py:build srcdir="${code.dir}" distdir="${dist.dir}" command="bdist_egg" />
+  </target>
+
+  <target name="setup-py2exe"
+          depends="copy-code"
+          description="Create py2exe setup.py">
+    <py:setup-py2exe name="${name}"
+                     srcdir="${code.dir}"
+                     manifest="false"
+                     version="${version}"
+                     url="${url}"
+                     author="${author}"
+                     authorEmail="${author.email}"
+                     shortDescription="${description}"
+                     license="${license}"
+                     tkinter="true">
+      <classifier name="Development Status :: 4 - Beta" />
+      <classifier name="Intended Audience :: End Users/Desktop" />
+      <classifier name="Intended Audience :: Developers" />
+      <classifier name="License :: OSI Approved :: GNU General Public License (GPL)" />
+      <classifier name="Natural Language :: English" />
+      <classifier name="Operating System :: OS Independent" />
+      <classifier name="Programming Language :: Python" />
+      <classifier name="Topic :: Software Development" />
+      <classifier name="Topic :: Scientific/Engineering" />
+
+      <window script="${code.dir}/ebsdtools/hkl/tango/ctfGUI.py"
+              icon="${code.dir}/ebsdtools/hkl/tango/ctf.ico" />
+    </py:setup-py2exe>
+  </target>
+
+  <target name="py2exe" depends="setup-py2exe" description="EXE distribution">
+    <mkdir dir="${dist.dir}/exe" />
+
+    <py:build srcdir="${code.dir}" distdir="${dist.dir}/exe" command="py2exe" />
+
+    <move file="${dist.dir}/exe/ctfGUI.exe"
+          tofile="${dist.dir}/exe/${name}.exe" />
+  </target>
+
+  <!-- ===================================================== -->
+  <!-- Distribution targets                                  -->
+  <!-- ===================================================== -->
+
+  <target name="nsis"
+          depends="py2exe"
+          description="Installer with EXE distribution">
+    <nsisant:nsis script="${src.dir}/build.nsi">
+      <define name="NAME" value="${name}" />
+      <define name="SRC.DIR" value="${dist.dir}/exe" />
+      <define name="DIST.DIR" value="${dist.dir}" />
+    </nsisant:nsis>
+  </target>
+
+  <!-- ===================================================== -->
+  <!-- Documentation targets                                 -->
+  <!-- ===================================================== -->
+
+  <target name="init-docs"
+          depends="copy-code"
+          description="Copy documentation and create RST files">
+    <mkdir dir="${build.docs.dir}" />
+
+    <copy todir="${build.docs.dir}">
+      <fileset dir="${src.dir}/docs" />
+    </copy>
+
+    <py:autorst srcdir="${code.dir}" builddir="${build.docs.dir}" />
+  </target>
+
+  <target name="docs-html"
+          depends="init-docs"
+          description="Generation HTML documentation">
+    <mkdir dir="${docs.dir}/html" />
+    <py:sphinxdoc srcdir="${build.docs.dir}" docsdir="${docs.dir}/html" />
+  </target>
+
+  <target name="docs-latex"
+          depends="init-docs"
+          description="Generation LaTeX documentation">
+    <mkdir dir="${docs.dir}/latex" />
+    <py:sphinxdoc srcdir="${build.docs.dir}" docsdir="${docs.dir}/latex" />
+  </target>
+
+</project>
