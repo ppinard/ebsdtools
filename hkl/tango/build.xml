@@ -14,8 +14,8 @@
   <property name="test.dir" location="${tmp.dir}/test" />
   <property name="coverage.dir" location="${tmp.dir}/coverage" />
 
-  <property name="tkintertools.src.dir" location="../../../tkintertools" />
-  <property name="guitools.src.dir" location="../../../guitools" />
+  <property name="tkintertools.dir" location="../../../tkintertools" />
+  <property name="guitools.dir" location="../../../guitools" />
 
   <!-- Metadata -->
   <property name="name" value="pyTango" />
@@ -76,12 +76,12 @@
     <echo file="${code.dir}/ebsdtools/__init__.py" append="false" />
     <echo file="${code.dir}/ebsdtools/hkl/__init__.py" append="false" />
 
-    <ant antfile="${tkintertools.src.dir}/build.xml"
+    <ant antfile="${tkintertools.dir}/build.xml"
          target="copy-code"
          inheritAll="false">
       <property name="code.dir" location="${code.dir}" />
     </ant>
-    <ant antfile="${guitools.src.dir}/build.xml"
+    <ant antfile="${guitools.dir}/build.xml"
          target="copy-code"
          inheritAll="false">
       <property name="code.dir" location="${code.dir}" />
