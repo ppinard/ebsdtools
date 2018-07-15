@@ -487,7 +487,3 @@ def _is_diffracting(intensity, maximum_intensity, fraction=1e-14):
     else:
         return False
 
-if __name__ == '__main__': #pragma: no cover
-    import DrixUtilities.Runner as Runner
-    Runner.Runner().run(runFunction=None)
-

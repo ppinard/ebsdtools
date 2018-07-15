@@ -25,7 +25,7 @@ __svnId__ = ""
 
 # Standard library modules.
 import os.path
-import ConfigParser
+import configparser
 import csv
 import warnings
 from math import pi, exp
@@ -33,8 +33,6 @@ from math import pi, exp
 # Third party modules.
 
 # Local modules.
-import DrixUtilities.Files as Files
-
 import DatabasesTools.ElementProperties as ElementProperties
 
 # Globals and constants variables.
@@ -56,7 +54,8 @@ class ScatteringFactors:
         """
         if configurationfilepath is None:
             relativepath = os.path.join('..', 'ebsdtools.cfg')
-            configurationfilepath = Files.getCurrentModulePath(__file__, relativepath)
+            configurationfilepath = \
+                os.path.join(os.path.dirname(__file__), relativepath)
 
         self._readconfiguration(configurationfilepath)
 
@@ -67,7 +66,7 @@ class ScatteringFactors:
         Read the configuration file for filepaths of the data files.
         
         """
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.ConfigParser()
 
         config.readfp(open(configurationfilepath))
 
@@ -109,7 +108,8 @@ class ElasticAtomicScatteringFactors(ScatteringFactors):
         """
         if configurationfilepath is None:
             relativepath = os.path.join('..', 'ebsdtools.cfg')
-            configurationfilepath = Files.getCurrentModulePath(__file__, relativepath)
+            configurationfilepath = \
+                os.path.join(os.path.dirname(__file__), relativepath)
 
         self._readconfiguration(configurationfilepath)
 
@@ -208,7 +208,7 @@ class ElasticAtomicScatteringFactors(ScatteringFactors):
         """
         coeffs = self.coefficients_0_2.get(atomicnumber)
         if coeffs is None:
-            raise KeyError, "Atomic number not in table"
+            raise KeyError("Atomic number not in table")
 
         a = [coeffs['a1'], coeffs['a2'], coeffs['a3'], coeffs['a4'], coeffs['a5']]
         b = [coeffs['b1'], coeffs['b2'], coeffs['b3'], coeffs['b4'], coeffs['b5']]
@@ -222,7 +222,7 @@ class ElasticAtomicScatteringFactors(ScatteringFactors):
         """
         coeffs = self.coefficients_2_6.get(atomicnumber)
         if coeffs is None:
-            raise KeyError, "Atomic number not in table"
+            raise KeyError("Atomic number not in table")
 
         a = [coeffs['a1'], coeffs['a2'], coeffs['a3'], coeffs['a4'], coeffs['a5']]
         b = [coeffs['b1'], coeffs['b2'], coeffs['b3'], coeffs['b4'], coeffs['b5']]
@@ -278,7 +278,8 @@ class XrayScatteringFactors(ScatteringFactors):
         """
         if configurationfilepath is None:
             relativepath = os.path.join('..', 'ebsdtools.cfg')
-            configurationfilepath = Files.getCurrentModulePath(__file__, relativepath)
+            configurationfilepath = \
+                os.path.join(os.path.dirname(__file__), relativepath)
 
         self._readconfiguration(configurationfilepath)
 
@@ -404,7 +405,7 @@ class XrayScatteringFactors(ScatteringFactors):
         # Coefficients
         coeffs = self.coefficients_0_2.get((atomicnumber, charge))
         if coeffs is None:
-            raise KeyError, "Atomic number with specified charge not in table"
+            raise KeyError("Atomic number with specified charge not in table")
 
         a = [coeffs['a1'], coeffs['a2'], coeffs['a3'], coeffs['a4']]
         b = [coeffs['b1'], coeffs['b2'], coeffs['b3'], coeffs['b4']]
@@ -428,7 +429,7 @@ class XrayScatteringFactors(ScatteringFactors):
         # Coefficients
         coeffs = self.coefficients_2_6.get((atomicnumber, charge))
         if coeffs is None:
-            raise KeyError, "Atomic number with specified charge not in table"
+            raise KeyError("Atomic number with specified charge not in table")
 
         a = [coeffs['a0'], coeffs['a1'], coeffs['a2'] / 10.0, coeffs['a3'] / 100.0]
 
@@ -452,8 +453,4 @@ class ScatteringFactorWarning(Warning):
 
     def __str__(self):
         return repr(self.value)
-
-if __name__ == '__main__': #pragma: no cover
-    import DrixUtilities.Runner as Runner
-    Runner.Runner().run(runFunction=None)
 

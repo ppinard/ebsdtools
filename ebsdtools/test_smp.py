@@ -20,8 +20,6 @@ import os
 # Third party modules.
 
 # Local modules.
-import DrixUtilities.Files as Files
-
 import smp
 
 # Globals and constants variables.
@@ -31,7 +29,8 @@ class TestReader(unittest.TestCase):
     def setUp(self):
         unittest.TestCase.setUp(self)
 
-        filepath = Files.getCurrentModulePath(__file__, os.path.join('testdata', 'test.smp'))
+        dirpath = os.path.dirname(__file__)
+        filepath = os.path.join(dirpath, 'testdata', 'test.smp')
         self.reader = smp.reader(open(filepath, 'rb'))
 
     def tearDown(self):

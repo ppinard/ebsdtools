@@ -215,7 +215,7 @@ class Quaternion(object):
             else:
                 return self._A[index - 1]
         else:
-            raise IndexError, "Index must range between 0 and 3"
+            raise IndexError("Index must range between 0 and 3")
 
     def __setitem__(self, index, value):
         """
@@ -240,7 +240,7 @@ class Quaternion(object):
             else:
                 self._A[index - 1] = value
         else:
-            raise IndexError, "Index must range between 0 and 3"
+            raise IndexError("Index must range between 0 and 3")
 
     def __repr__(self):
         """
@@ -758,7 +758,3 @@ def almostequal(q1, q2, places=7):
         equality = equality and round(abs(q2._A[i] - q1._A[i]), places) == 0
 
     return equality
-
-if __name__ == '__main__': #pragma: no cover
-    import DrixUtilities.Runner as Runner
-    Runner.Runner().run(runFunction=None)

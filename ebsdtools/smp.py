@@ -37,7 +37,7 @@ import logging
 import struct
 
 # Third party modules.
-import Image
+from PIL import Image
 
 # Local modules.
 
@@ -56,7 +56,7 @@ class Reader:
         # Validate header
         header = f.read(3)
         if header != 'SMP':
-            raise IOError, "The file is not a stream map"
+            raise IOError("The file is not a stream map")
 
         # Read version
         version = int(f.read(1))
@@ -69,8 +69,8 @@ class Reader:
 
         # For now
         if not self._maptype.endswith('ByteMap'):
-            raise IOError, "Invalid map type (%s). Only ByteMap is supported." % \
-                    self._maptype
+            raise IOError("Invalid map type (%s). Only ByteMap is supported." % \
+                    self._maptype)
 
         # Read the dimensions of the Maps
         self._width = struct.unpack('>i', f.read(4))[0]
@@ -90,7 +90,7 @@ class Reader:
             # "SMP#" + classNameLength + className + width + height + startIndex
             self._header_length = 4 + 1 + maptype_length + 4 + 4 + 4
         else:
-            raise IOError, "Invalid SMP version (%i)" % version
+            raise IOError("Invalid SMP version (%i)" % version)
 
         logging.debug("Start index: %s" % self.start_index)
 
@@ -167,8 +167,8 @@ class Reader:
         :return: a PIL image
         """
         if index < self.start_index or index > self.end_index:
-            raise IndexError, "Index (%i) must between %i and %i." % \
-                    (index, self.start_index, self.end_index)
+            raise IndexError("Index (%i) must between %i and %i." % \
+                    (index, self.start_index, self.end_index))
 
         self._f.seek((index - self.start_index) * self.size + self._header_length)
 
@@ -212,5 +212,5 @@ def export_to_hkl(reader, project_name, outputdir):
 
         if index % 1000 == 0:
             progress = float(index) / len(reader) * 100.0
-            print "Progress: %4.2f" % progress
+            print("Progress: %4.2f" % progress)
 

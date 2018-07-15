@@ -21,6 +21,8 @@ __license__ = "GPL v3"
 # Standard library modules.
 from math import sqrt
 import copy
+from functools import total_ordering
+from collections import Sequence
 
 # Third party modules.
 
@@ -40,7 +42,9 @@ class VectorOperationError(ArithmeticError):
     def __str__(self):
         return repr(self.value)
 
-class Vector(list):
+@total_ordering
+class Vector(Sequence):
+    
     def __init__(self, *data):
         """
         A vector of n elements.
@@ -71,7 +75,7 @@ class Vector(list):
             for datum in data:
                 vector.append(datum)
 
-        list.__init__(self, vector)
+        self._vector = vector
 
     def __cmp__(self, other):
         """

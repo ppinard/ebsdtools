@@ -18,23 +18,17 @@ __version__ = "0.1"
 __copyright__ = "Copyright (c) 2009 Philippe T. Pinard"
 __license__ = "GPL v3"
 
-# Subversion informations for the file.
-__svnRevision__ = ""
-__svnDate__ = ""
-__svnId__ = ""
-
 # Standard library modules.
 
 # Third party modules.
 
 # Local modules.
-import DatabasesTools.ElementProperties as ElementProperties
-
-import mathtools.algebra.vectors as vectors
+import ebsdtools.util.element_properties as ep
 
 # Globals and constants variables.
 
 class AtomSite(object):
+
     def __init__(self, atomicnumber, *args):
         """
         Store the location and atomic number of an atom site.
@@ -52,7 +46,7 @@ class AtomSite(object):
         
         """
         # Atomic number
-        self.atomicnumber = int(atomicnumber)
+        self._atomicnumber = int(atomicnumber)
 
         # Position
         if len(args) == 1:
@@ -64,7 +58,7 @@ class AtomSite(object):
             y = float(args[1])
             z = float(args[2])
         else:
-            raise AttributeError, "Wrong location of the atom site"
+            raise AttributeError("Wrong location of the atom site")
 
         # Convert fraction to always be between 0.0 and 1.0
         while x < 0: x += 1
@@ -83,13 +77,20 @@ class AtomSite(object):
                 "Atom position can only be a fraction between 0.0 and 1.0"
 
         # Save position
-        self.position = vectors.Vector3D(x, y, z)
+        self._position = (x, y, z)
 
     def __repr__(self):
-        symbol = ElementProperties.getSymbol(self.atomicnumber)
-        return "%s->%s" % (symbol, self.position)
+        symbol = ep.get_symbol(self.atomicnumber)
+        return "<%s(%s->%s)>" % (self.__class__.__name__, symbol, self.position)
 
-if __name__ == '__main__': #pragma: no cover
-    import DrixUtilities.Runner as Runner
-    Runner.Runner().run(runFunction=None)
+    @property
+    def atomicnumber(self):
+        return self._atomicnumber
+
+    z = atomicnumber
+
+    @property
+    def position(self):
+        return self._position
+
 

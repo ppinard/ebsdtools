@@ -24,7 +24,6 @@ import logging
 
 # Local modules.
 import ebsdtools.crystallography.atomsite as atomsite
-from mathtools.algebra.vectors import almostequal
 
 # Globals and constants variables.
 
@@ -39,20 +38,16 @@ class TestAtomSite(unittest.TestCase):
     def tearDown(self):
         unittest.TestCase.tearDown(self)
 
-    def testSkeleton(self):
-        #self.fail("Test if the TestCase is working.")
-        self.assert_(True)
-
     def testconstructor(self):
         self.assertEqual(self.atom1.atomicnumber, 13)
         self.assertEqual(self.atom2.atomicnumber, 14)
 
-        self.assertTrue(almostequal(self.atom1.position, [0, 0.5, 0.5]))
-        self.assertTrue(almostequal(self.atom2.position, [0.3, 0.2, 0.1]))
-
-    def test__repr__(self):
-        self.assertEqual(str(self.atom1), "Al->[0.0, 0.5, 0.5]")
-        self.assertEqual(str(self.atom2), "Si->[0.29999999999999999, 0.19999999999999996, 0.10000000000000001]")
+        self.assertAlmostEqual(self.atom1.position[0], 0.0, 4)
+        self.assertAlmostEqual(self.atom1.position[1], 0.5, 4)
+        self.assertAlmostEqual(self.atom1.position[2], 0.5, 4)
+        self.assertAlmostEqual(self.atom2.position[0], 0.3, 4)
+        self.assertAlmostEqual(self.atom2.position[1], 0.2, 4)
+        self.assertAlmostEqual(self.atom2.position[2], 0.1, 4)
 
 if __name__ == '__main__': #pragma: no cover
     logging.getLogger().setLevel(logging.DEBUG)

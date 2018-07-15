@@ -7480,7 +7480,3 @@ def getspacegroup(name):
             return sg
 
     return None
-
-if __name__ == '__main__': #pragma: no cover
-    import DrixUtilities.Runner as Runner
-    Runner.Runner().run(runFunction=None)

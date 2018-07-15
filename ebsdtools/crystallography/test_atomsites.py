@@ -43,38 +43,23 @@ class TestAtomSites(unittest.TestCase):
     def tearDown(self):
         unittest.TestCase.tearDown(self)
 
-    def testSkeleton(self):
-        #self.fail("Test if the TestCase is working.")
-        self.assert_(True)
+    def testadd(self):
+        self.atoms.add(self.atom1)
+        self.assertEqual(1, len(self.atoms))
+        self.assertIn(self.atom1, self.atoms)
 
-    def test__setitem__(self):
-        self.atoms.append(self.atom1)
+        self.atoms.add(self.atom1)
+        self.assertEqual(1, len(self.atoms))
+        self.assertIn(self.atom1, self.atoms)
 
-        func = lambda index, atom: self.atoms.__setitem__(index, atom)
-        self.assertRaises(atomsites.AtomSitePositionError, func, 0, self.atom1)
+    def testdiscard(self):
+        self.atoms.add(self.atom1)
+        self.assertEqual(1, len(self.atoms))
+        self.assertIn(self.atom1, self.atoms)
 
-    def testappend(self):
-        self.atoms.append(self.atom1)
-        self.assertEqual(len(self.atoms), 1)
-
-        func = lambda atom: self.atoms.append(atom)
-        self.assertRaises(atomsites.AtomSitePositionError, func, self.atom1)
-
-    def testextend(self):
-        self.atoms.extend([self.atom1, self.atom2])
-        self.assertEqual(len(self.atoms), 2)
-
-        func = lambda atom: self.atoms.extend(atom)
-        self.assertRaises(atomsites.AtomSitePositionError, func, self.atom2)
-
-    def testinsert(self):
-        self.atoms.extend([self.atom1, self.atom2])
-
-        self.atoms.insert(1, self.atom3)
-        self.assertEqual(len(self.atoms), 3)
-
-        func = lambda index, atom: self.atoms.insert(index, atom)
-        self.assertRaises(atomsites.AtomSitePositionError, func, 1, self.atom2)
+        self.atoms.discard(self.atom1)
+        self.assertEqual(len(self.atoms), 0)
+        self.assertNotIn(self.atom1, self.atoms)
 
 if __name__ == '__main__': #pragma: no cover
     logging.getLogger().setLevel(logging.DEBUG)

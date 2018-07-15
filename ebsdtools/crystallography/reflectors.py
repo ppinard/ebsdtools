@@ -24,6 +24,7 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
+from operator import attrgetter
 
 # Third party modules.
 
@@ -33,13 +34,10 @@ import ebsdtools.crystallography.calculations as calculations
 
 # Globals and constants variables.
 
-class Reflector(dict):
-    PLANE = 'plane'
-    PLANESPACING = 'planespacing'
-    INTENSITY = 'intensity'
-    NORMALIZEDINTENSITY = 'normalizedintensity'
+class Reflector(object):
 
-    def __init__(self, plane, planespacing, intensity):
+    def __init__(self, plane, plane_spacing, intensity,
+                 normalized_intensity=None):
         """
         Store the plane, plane spacing and intensity of a reflector.
         
@@ -49,35 +47,19 @@ class Reflector(dict):
         
         :type intensity: :class:`intensity`
         
-        **Attributes**
-        
-          * plane (indices): :attr:`plane`
-          * plane spacing: :attr:`planespacing`
-          * intensity: :attr:`intensity`
-          * normalized intensity: :attr:`normalizedintensity`
-        
         """
-        dict.__init__(self)
-
-        self.setdefault(self.PLANE, plane)
-        self.setdefault(self.PLANESPACING, planespacing)
-        self.setdefault(self.INTENSITY, intensity)
-
-    def __getattr__(self, attr):
-        """
-        Possible attributes:
-        
-          * plane (indices): :attr:`plane`
-          * plane spacing: :attr:`planespacing`
-          * intensity: :attr:`intensity`
-          * normalized intensity: :attr:`normalizedintensity`
-        
-        """
-        return self.get(attr)
+        self._plane = plane
+        self._plane_spacing = plane_spacing
+        self._intensity = intensity
+        self._normalized_intensity = normalized_intensity
 
     def __repr__(self):
-        return '{%s d=%f I=%f In=%f}' % (self.plane, self.planespacing,
-                                        self.intensity, self.normalizedintensity)
+        classname = self.__class__.__name__
+        if self.normalized_intensity is None:
+            return '<%s(%s d=%f I=%f)>' % (classname, self.plane.indices,
+                                           self.
+        return '<%s(%s d=%f I=%f In=%f)>' % (self.plane, self.plane_spacing,
+                                         self.intensity, self.normalized_intensity)
 
     def __hash__(self):
         """
@@ -88,6 +70,22 @@ class Reflector(dict):
         
         """
         return hash(self.plane)
+
+    @property
+    def plane(self):
+        return self._plane
+
+    @property
+    def plane_spacing(self):
+        return self._plane_spacing
+
+    @property
+    def intensity(self):
+        return self._intensity
+
+    @property
+    def normalized_intensity(self):
+        return self._normalized_intensity
 
 class Reflectors(list):
     def __init__(self, unitcell, atoms, scatteringfactors, maxindice=4):
@@ -166,8 +164,7 @@ class Reflectors(list):
         :type reverse: :class:`bool`
         
         """
-        compare = lambda x, y: cmp(x.intensity, y.intensity)
-        self.sort(cmp=compare, reverse=reverse)
+        self.sort(key=attrgetter('intensity)'), reverse=reverse)
 
     def sort_by_planespacing(self, reverse=False):
         """
@@ -177,8 +174,7 @@ class Reflectors(list):
         :type reverse: :class:`bool`
         
         """
-        compare = lambda x, y: cmp(x.planespacing, y.planespacing)
-        self.sort(cmp=compare, reverse=reverse)
+        self.sort(key=attrgetter('planespacing)'), reverse=reverse)
 
     def get(self, plane):
         """
@@ -194,8 +190,4 @@ class Reflectors(list):
                 return refl
 
         return None
-
-if __name__ == '__main__': #pragma: no cover
-    import DrixUtilities.Runner as Runner
-    Runner.Runner().run(runFunction=None)
 

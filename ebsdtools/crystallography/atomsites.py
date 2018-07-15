@@ -23,11 +23,12 @@ __svnDate__ = ""
 __svnId__ = ""
 
 # Standard library modules.
+import operator
+from collections import MutableSet
 
 # Third party modules.
 
 # Local modules.
-import mathtools.algebra.vectors as vectors
 from ebsdtools.crystallography.atomsite import AtomSite
 
 # Globals and constants variables.
@@ -49,56 +50,45 @@ def create_hcp_atomsites(atomicnumber):
 def create_single_atomsites(atomicnumber):
     return AtomSites([AtomSite(atomicnumber, 0.0, 0.0, 0.0)])
 
-class AtomSites(list):
-    def __init__(self, data=[]):
+class AtomSites(MutableSet):
+
+    def __init__(self, precision=1e-4, sites=None):
         """
         Store the *atomsite* in a :class:`list`.
         
         """
-        self._assert_newitems(data)
-        list.__init__(self, data)
+        self._sites = set()
+        self._precision = precision
 
-    def _assert_newitems(self, items):
-        """
-        Assert that two *atomsite* don't have the same position.
-        
-        """
-        if not isinstance(items, list):
-            items = [items]
+        if sites is not None:
+            self.extend(sites)
 
-        for item in items:
-            for atom in self:
-                if vectors.almostequal(item.position, atom.position):
-                    raise AtomSitePositionError, "Position already exists"
+    def _create_precise_atomsite(self, site):
+        x, y, z, = map(int, map(operator.truediv,
+                                site.position,
+                                [self._precision] * 3))
+        return (site.atomicnumber, (x, y, z))
 
-    def __setitem__(self, i, y):
-        self._assert_newitems(y)
-        list.__setitem__(self, i, y)
+    def _create_orginal_atomsite(self, atomicnumber, position):
+        x, y, z, = map(operator.mul, position, [self._precision] * 3)
+        return AtomSite(atomicnumber, (x, y, z))
 
-    def append(self, object):
-        self._assert_newitems(object)
-        list.append(self, object)
+    def __repr__(self):
+        return '<%s(%i sites)>' % (self.__class__.__name__, len(self))
 
-    def extend(self, iterable):
-        self._assert_newitems(iterable)
-        list.extend(self, iterable)
+    def __contains__(self, site):
+        return self._create_precise_atomsite(site) in self._sites
 
-    def insert(self, index, object):
-        self._assert_newitems(object)
-        list.insert(self, index, object)
+    def __iter__(self):
+        for atomicnumber, position in self._sites:
+            yield self._create_orginal_atomsite(atomicnumber, position)
 
-class AtomSitePositionError(ValueError):
-    """
-    Exception raised when the position of an new atomsite already exists in the
-    atomsites list.
-    
-    """
-    def __init__(self, value):
-        self.value = value
+    def __len__(self):
+        return len(self._sites)
 
-    def __str__(self):
-        return repr(self.value)
+    def add(self, site):
+        self._sites.add(self._create_precise_atomsite(site))
 
-if __name__ == '__main__': #pragma: no cover
-    import DrixUtilities.Runner as Runner
-    Runner.Runner().run(runFunction=None)
+    def discard(self, site):
+        self._sites.discard(self._create_precise_atomsite(site))
+

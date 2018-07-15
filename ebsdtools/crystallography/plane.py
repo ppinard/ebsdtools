@@ -15,13 +15,6 @@
 __author__ = "Philippe T. Pinard"
 __email__ = "philippe.pinard@gmail.com"
 __version__ = "0.1"
-__copyright__ = "Copyright (c) 2009 Philippe T. Pinard"
-__license__ = "GPL v3"
-
-# Subversion informations for the file.
-__svnRevision__ = ""
-__svnDate__ = ""
-__svnId__ = ""
 
 # Standard library modules.
 try:
@@ -36,15 +29,16 @@ except ImportError: # For jython 2.5
         while b:
             a, b = b, a % b
         return a
+import operator
 
 # Third party modules.
 
 # Local modules.
-import mathtools.algebra.vectors as vectors
 
 # Globals and constants variables.
 
-class Plane(vectors.Vector3D):
+class Plane(object):
+
     def __init__(self, *args):
         """
         Define a plane of a lattice.
@@ -56,14 +50,15 @@ class Plane(vectors.Vector3D):
         :type h, k, i, l: :class:`int`
         """
         if len(args) == 3:
-            vectors.Vector3D.__init__(self, args)
+            indices = args
         elif len(args) == 4:
-            plane = bravais_to_miller(args)
-            vectors.Vector3D.__init__(self, plane)
+            indices = bravais_to_miller(args)
         else:
-            raise AttributeError, "A plane is defined by 3 or 4 indices"
+            raise AttributeError("A plane is defined by 3 or 4 indices")
 
-        assert self != vectors.Vector3D(0, 0, 0), "A plane cannot be a zero vector"
+        self._indices = tuple(indices)
+
+        assert self._indices != (0, 0, 0), "A plane cannot be a zero vector"
 
     def __hash__(self):
         """
@@ -74,15 +69,14 @@ class Plane(vectors.Vector3D):
           http://effbot.org/zone/python-hash.htm
         
         """
-        c_mul = lambda a, b: eval(hex((long(a) * b) & 0xFFFFFFFFL)[:-1])
+        return hash(self._indices)
 
-        value = 0x345678
-        for item in self:
-            value = c_mul(1000003, value) ^ hash(item)
-        value = value ^ len(self)
-        if value == -1:
-            value = -2
-        return value
+    def __repr__(self):
+        args = (self.__class__.__name__,) + self.indices
+        return '<%s(%s, %s, %s)>' % args
+
+    def __getitem__(self, index):
+        return self._indices[index]
 
     def simplify(self):
         """
@@ -96,15 +90,16 @@ class Plane(vectors.Vector3D):
         else:
             commondenominator = abs(commondenominator)
 
-        vectors.Vector3D.__init__(self
-                                  , vectors.Vector3D.__div__(self
-                                                             , commondenominator))
+        return self.__class__(*map(operator.truediv, self._indices,
+                                   [commondenominator] * 3))
 
-    def to_bravais(self):
-        """
-        Give the Bravais-Miller indices of the plane.
-        """
-        return miller_to_bravais(self)
+    @property
+    def indices(self):
+        return self._indices
+
+    @property
+    def indices_bravais(self):
+        return miller_to_bravais(self._indices)
 
 def miller_to_bravais(plane):
     """
@@ -135,7 +130,3 @@ def bravais_to_miller(plane):
     assert len(plane) == 4
 
     return [plane[0], plane[1], plane[3]]
-
-if __name__ == '__main__': #pragma: no cover
-    import DrixUtilities.Runner as Runner
-    Runner.Runner().run(runFunction=None)
